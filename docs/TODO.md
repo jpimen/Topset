@@ -2,8 +2,7 @@
 
 ## Local development checks
 
-1. Repair the existing `npx supabase test db` failures in `supabase/tests/database/roles.test.sql` (a data-modifying `WITH` error, the assigned-program assertion, and the test plan mismatch).
-2. Add or document the lint command; this project currently has no `lint` script.
+1. Add or document the lint command; this project currently has no `lint` script.
 
 ## Before using a hosted deployment
 
