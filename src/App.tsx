@@ -2,6 +2,7 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { AuthProvider, useAuth } from './auth/AuthProvider';
 import { HomeRedirect, RequireRole } from './auth/RouteGuards';
 import { AuthPage } from './components/AuthPage';
+import { CalculatorsPage } from './components/CalculatorsPage';
 import { supabase, supabaseConfigurationError } from './lib/supabase';
 import './styles.css';
 
@@ -31,8 +32,8 @@ function AppRoutes() {
       <Route path="/login" element={<AuthPage mode="login" />} />
       <Route path="/signup" element={<AuthPage mode="signup" />} />
       <Route path="/auth/callback" element={<HomeRedirect />} />
-      <Route element={<RequireRole role="coach" />}><Route path="/coach/*" element={<RoleHome role="coach" />} /></Route>
-      <Route element={<RequireRole role="athlete" />}><Route path="/athlete/*" element={<RoleHome role="athlete" />} /></Route>
+      <Route element={<RequireRole role="coach" />}><Route path="/coach/calculators" element={<CalculatorsPage />} /><Route path="/coach/*" element={<RoleHome role="coach" />} /></Route>
+      <Route element={<RequireRole role="athlete" />}><Route path="/athlete/calculators" element={<CalculatorsPage />} /><Route path="/athlete/*" element={<RoleHome role="athlete" />} /></Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
