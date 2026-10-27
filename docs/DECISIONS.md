@@ -3,11 +3,13 @@
 ## 2026-10-27 — Milestone 2 calculation engine
 
 - Keep all calculations pure in `src/lib/engine` and store/compute loads in kilograms; UI unit selection converts at the boundary.
-- Add Vitest and its V8 coverage provider as the only new development dependencies. The repo still has no lint script, so lint remains a documented tooling gap.
+- Add Vitest with V8 coverage and a minimal ESLint setup for engine and app checks.
 - Use the classic IPF GL powerlifting coefficient set by default. Score functions validate the supported bodyweight ranges instead of silently clamping.
 - Treat the requested RPE-to-percent conversion as an approximation: use the verified common RTS/Tuchscherer all-out table through 10 reps and reject combinations outside that data. No 11–12 rep values were guessed.
 - Use a configurable linear taper multiplier, editable Banister parameters, and a replaceable session training-load proxy. These are planning primitives, not an automated peaking prescription.
 - Added role-guarded calculator routes for both roles. The page is a manual testing tool and stores no data.
+- Limit RPE inputs to 1–10 effective reps (`reps + reps in reserve`), the verified range of the configured approximation. Keep 11–12 rep cells unavailable until a reliable source is supplied.
+- Provide calculators links in both the coach sidebar and athlete navigation.
 - Deferred coach invite-code linking, new-account Google signup onboarding, and a mobile pass on auth screens; also kept the program builder, athlete logging, and peaking generator out of M2.
 
 ## 2026-10-27 — Authentication UI and profile metrics

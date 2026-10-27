@@ -267,7 +267,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 @keyframes spin { to { transform: rotate(360deg); } }
 
 .workspace-shell { min-height: 100vh; color: var(--text); background: var(--page); }
-.workspace-header { height: 74px; padding: 0 56px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); }
+.workspace-header { height: 74px; padding: 0 32px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); }
 .workspace-user { display: flex; align-items: center; gap: 12px; color: var(--secondary); font-size: 13px; }
 .user-avatar { width: 34px; height: 34px; display: grid; place-items: center; color: var(--page); background: var(--gold-light); border-radius: 50%; font-weight: 800; }
 .workspace-user button { padding: 9px 14px; margin-left: 8px; border: 1px solid var(--border); border-radius: 9px; color: var(--secondary); background: var(--raised); font-size: 12px; }
@@ -280,6 +280,17 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .workspace-next div { display: grid; gap: 6px; }
 .workspace-next strong { font-size: 14px; }
 .workspace-next span { color: var(--secondary); font-size: 12px; }
+.workspace-body { min-height: calc(100vh - 74px); display: grid; grid-template-columns: 224px minmax(0, 1fr); }
+.workspace-sidebar { min-height: calc(100vh - 74px); padding: 28px 14px 20px; display: flex; flex-direction: column; gap: 20px; border-right: 1px solid var(--border); background: #12110e; }
+.workspace-sidebar > .eyebrow { padding: 0 12px; font-size: 9px; }
+.workspace-nav { display: grid; gap: 5px; }
+.workspace-nav-link { min-height: 42px; padding: 0 12px; display: flex; align-items: center; border: 1px solid transparent; border-radius: 10px; color: var(--secondary); text-decoration: none; font-size: 13px; font-weight: 600; transition: color .15s, border-color .15s, background .15s; }
+.workspace-nav-link:hover { color: var(--text); background: #ffffff08; }
+.workspace-nav-link.active { color: var(--gold-light); border-color: #6b5d3533; background: #d4af3712; }
+.workspace-content { min-width: 0; }
+.workspace-content > .calculators-page { margin-inline: auto; }
+.workspace-content > .workspace-welcome { margin-top: clamp(72px, 13vh, 150px); }
+@media (max-width: 800px) { .workspace-body { grid-template-columns: 180px minmax(0, 1fr); } .workspace-header { padding: 0 20px; } }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; }

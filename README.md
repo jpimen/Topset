@@ -67,11 +67,13 @@ Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` from that project in `.env`
 ## Verify
 
 ```powershell
+npm test
+npm run lint
 npm run build
-supabase test db
+npm run test:db
 ```
 
-The SQL permission tests cover role profile visibility, coach-owned programs, athlete assignment reads, blocked prescription edits, and immutable account roles. They require a running local Supabase stack.
+The database test script runs the pgTAP SQL through `psql` in the local Supabase Docker database container. Start the local stack with `npx supabase start` first. The SQL tests cover profile visibility, coach-owned programs, athlete assignment reads, blocked prescription edits, and immutable account roles.
 
 ## Current milestone boundary
 

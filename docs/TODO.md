@@ -2,12 +2,11 @@
 
 ## Local development checks
 
-1. Add or document the lint command; this project currently has no `lint` script.
-2. Resolve local Supabase CLI startup failure on this Windows machine: the `supabase.exe` is blocked by Application Control (`spawn UNKNOWN` from `npx`), even though Docker's Supabase containers are running.
+1. Resolve local Supabase CLI startup failure on this Windows machine: the `supabase.exe` is blocked by Application Control (`spawn UNKNOWN` from `npx`), even though Docker's Supabase containers are running. `npm run test:db` runs pgTAP through the Docker database container.
 
 ## Calculation engine follow-up
 
-1. Decide whether to publish/approve RPE chart entries beyond 10 all-out reps; unsupported combinations currently return an explicit range error rather than guessed values.
+1. Find a reliable source for 11–12 rep RPE values. The table is limited to 1–10 effective reps; unsupported combinations return an explicit range error rather than guessed values.
 2. Recheck official coefficient version/range when updating DOTS, Wilks, or IPF GL scoring support.
 
 ## Before using a hosted deployment
