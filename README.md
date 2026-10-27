@@ -1,6 +1,6 @@
 # Topset
 
-Topset is a powerlifting program builder for coaches and athletes. This first milestone contains the app scaffold, role-based account flow, route guards, and the initial Supabase schema and row-level security policies. The calculation engine and training workflows have not been started.
+Topset is a powerlifting program builder for coaches and athletes. The current milestones include the role-based account flow, initial Supabase schema and row-level security policies, and a pure TypeScript calculation engine with a shared calculators page.
 
 ## Requirements
 
@@ -62,6 +62,7 @@ Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` from that project in `.env`
 - If `.env` changes while Vite is running, stop the dev server and run `npm run dev` again.
 - The local database starts empty. Create a coach or athlete account on the signup screen before attempting to sign in.
 - If sign-in reports that the server cannot be reached, confirm Supabase is running with `npx supabase status`, then check that the URL and anon key in `.env` match that output.
+- Calculators are available at `/coach/calculators` and `/athlete/calculators` after signing in with the matching role.
 
 ## Verify
 
@@ -74,4 +75,4 @@ The SQL permission tests cover role profile visibility, coach-owned programs, at
 
 ## Current milestone boundary
 
-The role home screens are placeholders. Coach-athlete link requests, invite-code validation, program editing, athlete logging, and the calculation engine are later milestones. The schema includes the initial link and assignment tables so access rules can be established early; it does not yet implement link management or immutable snapshots for `sync_mode = 'snapshot'`.
+Coach and athlete home screens remain placeholders. The calculator screen is a manual testing tool; it does not create or save training plans. Coach-athlete link requests, invite-code validation, the program builder, athlete logging, and the peaking plan generator are later milestones. The schema includes the initial link and assignment tables so access rules can be established early; it does not yet implement link management or immutable snapshots for `sync_mode = 'snapshot'`.
