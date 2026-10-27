@@ -1,5 +1,16 @@
 # Decisions
 
+## 2026-10-28 — Milestone 3 Phase A coach builder
+
+- Keep the program grid custom and lightweight. It supports cell editing, keyboard movement, commit/cancel, and the requested columns without adding a table or drag-and-drop dependency; drag and drop remains deferred to Phase B.
+- Store the complete coach program document as normalized program, block, week, day, exercise-library, and program-exercise tables. Extend `programs` additively with unit and archive fields; do not rewrite existing migrations.
+- Save the document through one coach-checked Postgres RPC transaction. Lock the program row, compare `updated_at`, and reject stale saves with a conflict result; child changes also touch the parent timestamp for direct row edits.
+- Debounce editor saves by 600 ms, retain the in-memory document after errors, and keep a 50-entry undo/redo history. Warn for browser unload and internal navigation when a save is pending or failed.
+- Use the engine's RPE range validation and load rounding helpers. Phase A has no athlete e1RM preview source, so it stores percentage and RPE prescriptions and explains when a calculated load is unavailable.
+- Do not show roster fixtures or seeded people. Keep `/coach/athletes` as an empty state until M4 introduces real coach-athlete links.
+- Use `jsdom` only as a development dependency so Vitest can exercise the real React grid cell keyboard behavior; no table, drag-and-drop, or state-library package was added.
+- Tighten program visibility to coach-owned documents during M3. Assignment-backed athlete reads return with M4/M5 assignment features; no policy is broadened.
+
 ## 2026-10-27 — Milestone 2 calculation engine
 
 - Keep all calculations pure in `src/lib/engine` and store/compute loads in kilograms; UI unit selection converts at the boundary.

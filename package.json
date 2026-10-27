@@ -10,7 +10,8 @@
     "lint": "eslint .",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "test:db": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/test-db.ps1"
+    "test:db": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/test-db.ps1",
+    "typecheck": "tsc -b --pretty false"
   },
   "dependencies": {
     "@fontsource/plus-jakarta-sans": "^5.3.0",
@@ -30,6 +31,7 @@
     "@vitest/coverage-v8": "^4.1.12",
     "eslint": "^10.13.0",
     "globals": "^17.13.0",
+    "jsdom": "^29.1.1",
     "typescript": "~5.8.3",
     "typescript-eslint": "^8.72.1",
     "vite": "^7.1.5",

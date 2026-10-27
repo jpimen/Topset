@@ -3,6 +3,7 @@ import { AuthProvider, useAuth } from './auth/AuthProvider';
 import { HomeRedirect, RequireRole } from './auth/RouteGuards';
 import { AuthPage } from './components/AuthPage';
 import { CalculatorsPage } from './components/CalculatorsPage';
+import { AthletesPlaceholder, CoachDashboard, CoachSettingsPlaceholder, ExerciseLibraryPage, ProgramBuilderPage, ProgramsPage } from './components/CoachPages';
 import { supabase, supabaseConfigurationError } from './lib/supabase';
 import './styles.css';
 
@@ -51,7 +52,7 @@ function AppRoutes() {
       <Route path="/login" element={<AuthPage mode="login" />} />
       <Route path="/signup" element={<AuthPage mode="signup" />} />
       <Route path="/auth/callback" element={<HomeRedirect />} />
-      <Route element={<RequireRole role="coach" />}><Route path="/coach" element={<WorkspaceLayout role="coach" />}><Route index element={<RoleHome role="coach" />} /><Route path="calculators" element={<CalculatorsPage />} /><Route path="*" element={<RoleHome role="coach" />} /></Route></Route>
+      <Route element={<RequireRole role="coach" />}><Route path="/coach" element={<WorkspaceLayout role="coach" />}><Route index element={<CoachDashboard />} /><Route path="programs" element={<ProgramsPage />} /><Route path="programs/:id" element={<ProgramBuilderPage />} /><Route path="athletes" element={<AthletesPlaceholder />} /><Route path="exercises" element={<ExerciseLibraryPage />} /><Route path="calculators" element={<CalculatorsPage />} /><Route path="settings" element={<CoachSettingsPlaceholder />} /><Route path="*" element={<Navigate to="/coach" replace />} /></Route></Route>
       <Route element={<RequireRole role="athlete" />}><Route path="/athlete" element={<WorkspaceLayout role="athlete" />}><Route index element={<RoleHome role="athlete" />} /><Route path="calculators" element={<CalculatorsPage />} /><Route path="*" element={<RoleHome role="athlete" />} /></Route></Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

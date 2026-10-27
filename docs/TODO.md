@@ -15,6 +15,13 @@
 2. Configure email confirmation and Google OAuth redirect URLs for the deployed origin.
 3. Resolve account onboarding for Google signups so a new OAuth account receives a selected role before entering a role route.
 
+## Milestone 3 Phase B (requires approval)
+
+1. Add keyboard-accessible drag/drop reorder and cross-day moves, bulk row actions, superset groups, day/week duplication, and progression-copy previews.
+2. Add optional blocks and athlete e1RM preview sources; use `src/lib/engine` for rounded loads, volume summaries, plates, and warm-up estimates.
+3. Build the linked-athlete roster and athlete detail/max editing only after M4 linking exists. No fake roster data is used in Phase A.
+4. Add the requested 500-row performance and accessibility checks with the Phase B grid features.
+
 ## Later milestones
 
 1. Implement secure coach invites, athlete join requests, and link approval/removal flows (deferred from M2).

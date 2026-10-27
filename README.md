@@ -1,6 +1,6 @@
 # Topset
 
-Topset is a powerlifting program builder for coaches and athletes. The current milestones include the role-based account flow, initial Supabase schema and row-level security policies, and a pure TypeScript calculation engine with a shared calculators page.
+Topset is a powerlifting program builder for coaches and athletes. The current milestones include role-based accounts, a pure TypeScript calculation engine, and the first coach workspace with a program builder and exercise library. Athlete linking, assignments, and athlete-side training screens remain deferred.
 
 ## Requirements
 
@@ -41,7 +41,7 @@ notepad .env
 npm run dev
 ```
 
-`npx supabase db reset` applies the migrations in `supabase/migrations`. Copy the `API_URL` and `ANON_KEY` values from the status output into the matching variables in `.env`, save the file, and then start Vite. The local database starts empty, so open the app and create an account before trying to sign in. If you already have a `.env`, update it instead of copying over it.
+`npx supabase db reset` applies the migrations in `supabase/migrations`. Copy the `API_URL` and `ANON_KEY` values from the status output into the matching variables in `.env`, save the file, and then start Vite. The local database starts empty, so open the app and create a coach account before trying to sign in. If you already have a `.env`, update it instead of copying over it.
 
 Use the `API_URL` and `ANON_KEY` values shown by `npx supabase status` for `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` in `.env`. For example, the local API URL is usually `http://127.0.0.1:54321`. Never put the service role or secret key in the web app's `.env`.
 
@@ -73,8 +73,18 @@ npm run build
 npm run test:db
 ```
 
-The database test script runs the pgTAP SQL through `psql` in the local Supabase Docker database container. Start the local stack with `npx supabase start` first. The SQL tests cover profile visibility, coach-owned programs, athlete assignment reads, blocked prescription edits, and immutable account roles.
+The database test script runs the pgTAP SQL through `psql` in the local Supabase Docker database container. Start the local stack with `npx supabase start` first. The SQL tests cover profile visibility, coach-owned builder data, athlete denial, active-link max visibility, atomic saves, timestamp conflicts, and immutable account roles.
+
+Run the app checks with:
+
+```powershell
+npm run typecheck
+npm run lint
+npm test
+npm run test:db
+npm run build
+```
 
 ## Current milestone boundary
 
-Coach and athlete home screens remain placeholders. The calculator screen is a manual testing tool; it does not create or save training plans. Coach-athlete link requests, invite-code validation, the program builder, athlete logging, and the peaking plan generator are later milestones. The schema includes the initial link and assignment tables so access rules can be established early; it does not yet implement link management or immutable snapshots for `sync_mode = 'snapshot'`.
+The Phase A athlete roster is an honest empty state until coach-athlete linking arrives in M4. The calculator screen is a manual testing tool; it does not create or save training plans. The builder stores RPE and percentage prescriptions but does not calculate preview loads until an e1RM preview source exists in Phase B. Drag and drop, progression tools, linked-athlete previews, athlete max editing, assignment, logging, and the peaking plan generator are deferred. The schema retains the initial link and assignment tables; it does not yet implement link management or immutable snapshots for `sync_mode = 'snapshot'`.
