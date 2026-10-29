@@ -2,29 +2,28 @@ import { BrowserRouter, NavLink, Navigate, Outlet, Route, Routes } from 'react-r
 import { AuthProvider, useAuth } from './auth/AuthProvider';
 import { HomeRedirect, RequireRole } from './auth/RouteGuards';
 import { AuthPage } from './components/AuthPage';
+import { AthleteWorkoutSyncProvider } from './components/athlete/AthleteWorkoutSyncProvider';
+import { AthleteProgramPage } from './components/athlete/AthleteProgramPage';
+import { AthleteProfilePage, AthleteProgressPage } from './components/athlete/AthleteMorePages';
+import { TodayWorkoutPage } from './components/athlete/TodayWorkoutPage';
 import { CalculatorsPage } from './components/CalculatorsPage';
-import { AthletesPlaceholder, CoachDashboard, CoachSettingsPlaceholder, ExerciseLibraryPage, ProgramBuilderPage, ProgramsPage } from './components/CoachPages';
+import { AthletesPage } from './components/coach/AthletesPage';
+import { CoachDashboard } from './components/coach/CoachDashboard';
+import { CoachSettingsPage } from './components/coach/CoachSettingsPage';
+import { ExerciseLibraryPage } from './components/coach/ExerciseLibraryPage';
+import { ProgramsPage } from './components/coach/ProgramsPage';
+import { ProgramBuilderPage } from './components/programs/ProgramBuilderPage';
 import { supabase, supabaseConfigurationError } from './lib/supabase';
 import './styles.css';
-
-function RoleHome({ role }: { role: 'coach' | 'athlete' }) {
-  const { profile } = useAuth();
-  const title = role === 'coach' ? 'Your coaching starts here.' : 'Your next session starts here.';
-  return (
-    <section className="workspace-welcome">
-      <p className="eyebrow">{role === 'coach' ? 'COACH WORKSPACE' : 'ATHLETE WORKSPACE'}</p>
-      <h1>{title}</h1>
-      <p>Welcome, {profile?.name}. Your Topset workspace is ready.</p>
-      <div className="workspace-next"><span className="workspace-icon">✳</span><div><strong>Milestone 1 is in place</strong><span>Role-based accounts and access are set up. Your training tools come next.</span></div></div>
-    </section>
-  );
-}
 
 function WorkspaceLayout({ role }: { role: 'coach' | 'athlete' }) {
   const { profile } = useAuth();
   const navigation = role === 'coach'
     ? [{ label: 'Dashboard', to: '/coach' }, { label: 'Programs', to: '/coach/programs' }, { label: 'Athletes', to: '/coach/athletes' }, { label: 'Exercises', to: '/coach/exercises' }, { label: 'Calculators', to: '/coach/calculators' }, { label: 'Settings', to: '/coach/settings' }]
-    : [{ label: 'Workspace', to: '/athlete' }, { label: 'Calculators', to: '/athlete/calculators' }];
+    : [{ label: 'Today', to: '/athlete' }, { label: 'Program', to: '/athlete/program' }, { label: 'Progress', to: '/athlete/progress' }, { label: 'Profile', to: '/athlete/profile' }];
+  const routeContent = role === 'athlete'
+    ? <AthleteWorkoutSyncProvider><div className="workspace-content"><Outlet /></div></AthleteWorkoutSyncProvider>
+    : <div className="workspace-content"><Outlet /></div>;
 
   return (
     <div className={`workspace-shell workspace-${role}`}>
@@ -39,7 +38,7 @@ function WorkspaceLayout({ role }: { role: 'coach' | 'athlete' }) {
             {navigation.map(({ label, to }, index) => <NavLink key={to} to={to} end={index === 0} className={({ isActive }) => `workspace-nav-link${isActive ? ' active' : ''}`}>{label}</NavLink>)}
           </nav>
         </aside>
-        <div className="workspace-content"><Outlet /></div>
+        {routeContent}
       </div>
     </div>
   );
@@ -52,8 +51,8 @@ function AppRoutes() {
       <Route path="/login" element={<AuthPage mode="login" />} />
       <Route path="/signup" element={<AuthPage mode="signup" />} />
       <Route path="/auth/callback" element={<HomeRedirect />} />
-      <Route element={<RequireRole role="coach" />}><Route path="/coach" element={<WorkspaceLayout role="coach" />}><Route index element={<CoachDashboard />} /><Route path="programs" element={<ProgramsPage />} /><Route path="programs/:id" element={<ProgramBuilderPage />} /><Route path="athletes" element={<AthletesPlaceholder />} /><Route path="exercises" element={<ExerciseLibraryPage />} /><Route path="calculators" element={<CalculatorsPage />} /><Route path="settings" element={<CoachSettingsPlaceholder />} /><Route path="*" element={<Navigate to="/coach" replace />} /></Route></Route>
-      <Route element={<RequireRole role="athlete" />}><Route path="/athlete" element={<WorkspaceLayout role="athlete" />}><Route index element={<RoleHome role="athlete" />} /><Route path="calculators" element={<CalculatorsPage />} /><Route path="*" element={<RoleHome role="athlete" />} /></Route></Route>
+      <Route element={<RequireRole role="coach" />}><Route path="/coach" element={<WorkspaceLayout role="coach" />}><Route index element={<CoachDashboard />} /><Route path="programs" element={<ProgramsPage />} /><Route path="programs/:id" element={<ProgramBuilderPage />} /><Route path="athletes" element={<AthletesPage />} /><Route path="exercises" element={<ExerciseLibraryPage />} /><Route path="calculators" element={<CalculatorsPage />} /><Route path="settings" element={<CoachSettingsPage />} /><Route path="*" element={<Navigate to="/coach" replace />} /></Route></Route>
+      <Route element={<RequireRole role="athlete" />}><Route path="/athlete" element={<WorkspaceLayout role="athlete" />}><Route index element={<TodayWorkoutPage />} /><Route path="program" element={<AthleteProgramPage />} /><Route path="progress" element={<AthleteProgressPage />} /><Route path="profile" element={<AthleteProfilePage />} /><Route path="calculators" element={<CalculatorsPage />} /><Route path="*" element={<Navigate to="/athlete" replace />} /></Route></Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

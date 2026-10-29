@@ -79,4 +79,10 @@ describe('debounced program save', () => {
     await autosave.flush();
     expect(save).toHaveBeenCalledWith(42);
   });
+
+  it('rejects a flush when the server save fails so navigation can be stopped', async () => {
+    const autosave = createDebouncedSave<string>(async () => { throw new Error('save failed'); }, 600);
+    autosave.schedule('latest');
+    await expect(autosave.flush()).rejects.toThrow('save failed');
+  });
 });

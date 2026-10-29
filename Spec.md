@@ -19,11 +19,13 @@ USER ROLES AND ACCOUNTS
 - Creates and owns programs; builds, edits, duplicates, and assigns them
 - Manages a roster of athletes
 - Sees every linked athlete's logs, compliance, and analytics
+- Views an athlete's submitted training-day check-ins beside the program builder for started active assignments; access ends when the athlete link or assignment is no longer active
 - Uses the full desktop-first builder, calculators, and peaking module
 
 2. ATHLETE
 - Views the program assigned to them (read-only on the prescription)
 - Logs Load Lifted, RPE Lifted, and Athlete Notes
+- Records a private check-in alongside each assigned training day for bodyweight, sleep quality and hours, protein, calories, carbohydrates, and fatigue; each check-in is keyed to its assigned workout day and has no date selector. The athlete can read and change their entries; their currently linked coach can view entries for an active assignment.
 - Sees their own progress, PRs, and meet countdown
 - Cannot edit the coach's prescription, other athletes' data, or the builder
 

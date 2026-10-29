@@ -1,6 +1,6 @@
 # Topset
 
-Topset is a powerlifting program builder for coaches and athletes. The current milestones include role-based accounts, a pure TypeScript calculation engine, and the first coach workspace with a program builder and exercise library. Athlete linking, assignments, and athlete-side training screens remain deferred.
+Topset is a powerlifting program builder for coaches and athletes. Current milestones include role-based accounts, a pure TypeScript calculation engine, a coach program builder, secure coach-athlete linking and assignment, and the athlete's assigned Program and Today workout views with per-set logging and offline sync.
 
 ## Requirements
 
@@ -73,7 +73,7 @@ npm run build
 npm run test:db
 ```
 
-The database test script runs the pgTAP SQL through `psql` in the local Supabase Docker database container. Start the local stack with `npx supabase start` first. The SQL tests cover profile visibility, coach-owned builder data, athlete denial, active-link max visibility, atomic saves, timestamp conflicts, and immutable account roles.
+The database test script runs the pgTAP SQL through `psql` in the local Supabase Docker database container. Start the local stack with `npx supabase start` first. The SQL tests cover profile visibility, coach-owned builder data, assigned live and snapshot access, link approval and removal, invite validation, assignment security, atomic saves, timestamp conflicts, immutable account roles, and workout log access and replay.
 
 Run the app checks with:
 
@@ -87,4 +87,4 @@ npm run build
 
 ## Current milestone boundary
 
-The Phase A athlete roster is an honest empty state until coach-athlete linking arrives in M4. The calculator screen is a manual testing tool; it does not create or save training plans. The builder stores RPE and percentage prescriptions but does not calculate preview loads until an e1RM preview source exists in Phase B. Drag and drop, progression tools, linked-athlete previews, athlete max editing, assignment, logging, and the peaking plan generator are deferred. The schema retains the initial link and assignment tables; it does not yet implement link management or immutable snapshots for `sync_mode = 'snapshot'`.
+The coach roster supports private invite links, athlete join requests, coach approval/removal, and program assignment. Invite codes are stored as hashes and shown only when created; creating a replacement invalidates the previous code. Email delivery is not configured, so coaches share the link directly. Coaches must assign a program separately after approving an athlete link. A snapshot assignment stores an immutable copy of the program document, while live assignments read the coach's current program after the start date. The builder flushes pending edits before internal navigation and stays open when a save fails; athletes can refresh an already-open live program from Today or Program to load the latest confirmed coach save. Athletes can review assigned programs, log sets, complete workouts, and save a private check-in table beside every assigned training day with bodyweight, sleep, nutrition, and fatigue values. Check-ins are keyed to the assigned training day rather than a calendar date; athletes can read and update their own responses, while their currently linked coach can view responses for active assignments. Check-ins currently require a connection to load and save. Offline workout edits are kept in browser storage and retried when the connection returns. Today advances to the earliest incomplete workout in week/day order; it does not infer workout days from calendar dates. Progress and Profile tabs are present, with analytics and training metrics deferred. Coach log review screens, rest timer/focus mode, the peaking generator, drag and drop, progression tools, linked-athlete previews, athlete max editing, and exports remain deferred. The calculator screen is a manual testing tool; it does not create or save training plans. The builder stores RPE and percentage prescriptions but does not calculate preview loads until an e1RM preview source exists in Phase B.

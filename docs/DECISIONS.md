@@ -1,5 +1,47 @@
 # Decisions
 
+## 2026-10-29 — Program save and live refresh
+
+- Flush the latest builder document before leaving through either an app link or the Exit button. Keep the coach in the builder if that save fails, so a visible retry can recover the edits instead of discarding them during unmount.
+- Expose a manual refresh on athlete Today and Program pages for an already-open live assignment. The loader re-reads the assignment and program from Supabase; local cached data remains an offline fallback only.
+- Refresh those pages when the browser tab becomes visible again so coach edits made in another tab are picked up without requiring a page reload.
+- Keep live and snapshot assignment semantics and all existing RLS policies unchanged; no migration is needed for this client-side save-loss fix.
+
+## 2026-10-29 — Athlete program overview table
+
+- Render assigned exercise prescriptions in a semantic, read-only table so athletes can scan the same exercise, set type, sets, reps, RPE, load, and coach-note fields used in the coach builder.
+- Keep the full table on narrow screens in a horizontally scrollable region with a mobile hint and keyboard focus, rather than dropping columns.
+
+## 2026-10-29 — Athlete workout-day check-ins
+
+- Show a separate private check-in table beside every assigned training day. Save at most one check-in per assigned day, keyed by assignment and day; do not ask the athlete to choose a calendar date.
+- Use numeric controls for quantities (bodyweight with an explicit kg/lb unit, protein and carbs in grams, calories in kcal); use dropdowns for sleep quality (1–5), sleep duration (half-hour steps), and fatigue (1–10).
+- Restrict athlete read/write access to their own currently accessible assignment day with RLS. Permit read-only access to the coach only while the athlete link and assignment are active, and only for days in that assignment. The athlete may leave values blank and only needs to enter the fields they track.
+- Show coaches a read-only response panel alongside every day in the program builder, selectable among athletes assigned to that program. Display metrics vertically as label/value rows and share assignment/check-in data loading across the day panels. Keep the panel scoped to started active assignments and filter each row through RLS, including for snapshot day IDs. Let the builder area scroll horizontally when the screen is too narrow for both columns.
+- Retain existing date-based check-in records without automatic migration because the matching training assignment/day cannot be inferred safely. New check-ins are online-only for this iteration; offline queueing remains deferred.
+
+## 2026-10-29 — Milestone 5 athlete workouts
+
+- Show Today as the earliest incomplete workout in week/day order because assignments do not define calendar-day scheduling. A future-dated assignment remains invisible through RLS.
+- Render live assignments from normalized rows and snapshot assignments from their immutable JSON document. Validate both through one athlete-facing program schema before rendering.
+- Store a workout session per performed day and logged set per program row/set number. Use client-generated session UUIDs and an atomic, access-checking RPC so offline replay updates the same session without duplicates.
+- Keep pending logs and the last assigned program in browser local storage for offline use. Retain failed syncs and show pending/error state; remove a pending draft only after the server confirms it.
+- Enforce session and set reads with RLS for the athlete and currently linked coach. Validate assignment, start date, link, day, and exercise again inside the logging RPC. Fix exercise-row RLS to honor future start dates as well.
+- Keep the four athlete tabs in place, implement Today and Program in this milestone, and leave Progress analytics and editable profile settings for later work.
+- Accept either a 48-character invite code or the full coach share URL in athlete signup and coach-connection forms. The earlier 48-character input limit silently truncated URLs before the invite query value.
+
+## 2026-10-29 — Milestone 4 coach links and assignments
+
+- Keep coach invite codes high entropy and store only SHA-256 digests. Return plaintext only from the authenticated rotate-code RPC; code possession creates a pending athlete request, never an automatic active link.
+- Use database RPCs for link request, approval, decline, removal, assignment, and assignment ending. Enforce one active coach per athlete and one current assignment per athlete in partial unique indexes.
+- Store snapshot assignment documents as immutable JSON on the protected assignment row; live assignments read normalized coach-owned rows only after their start date. Removing a coach link immediately removes athlete access through RLS.
+- Keep email delivery deferred because no email provider is configured. Coaches share private signup links; athlete workout views remain for Milestone 5.
+
+## 2026-10-28 ? Code organization
+
+- Added a reusable Topset code-organization prompt in `docs/prompts/maintain-clean-code-organization.md`.
+- Split the combined coach route module into focused coach page modules, shared coach page helpers, and a dedicated program builder module. Kept routes, UI behavior, and data/domain modules unchanged.
+
 ## 2026-10-28 — Milestone 3 Phase A coach builder
 
 - Keep the program grid custom and lightweight. It supports cell editing, keyboard movement, commit/cancel, and the requested columns without adding a table or drag-and-drop dependency; drag and drop remains deferred to Phase B.

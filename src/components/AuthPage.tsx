@@ -3,6 +3,8 @@ import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import { z } from 'zod';
 import { useAuth, type Role } from '../auth/AuthProvider';
 import { supabase } from '../lib/supabase';
+import { isCoachInviteCodeValid } from '../lib/coachAthletes';
+import { normalizeCoachInviteInput } from '../lib/coachInvite';
 
 type Mode = 'login' | 'signup';
 type IconName = 'barbell' | 'coach' | 'athlete' | 'mail' | 'lock' | 'eye' | 'check' | 'arrow' | 'shield' | 'info' | 'spark';
@@ -27,6 +29,7 @@ const signUpSchema = z.object({
   squatMax: z.string(),
   benchMax: z.string(),
   deadliftMax: z.string(),
+  inviteCode: z.string().trim().max(48),
   termsAccepted: z.literal('on', 'Please agree to the Terms of Service and Privacy Policy.'),
 });
 
@@ -65,6 +68,7 @@ export function AuthPage({ mode }: { mode: Mode }) {
   const [passwordValue, setPasswordValue] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [weightUnit, setWeightUnit] = useState<WeightUnit>('kg');
+  const [inviteCode, setInviteCode] = useState(searchParams.get('invite') ?? '');
   const isCredentialsStep = mode === 'signup' && selectedRole !== null;
 
   if (loading) return <main className="state-screen auth-state-screen"><span className="spinner" />Checking your account…</main>;
@@ -128,6 +132,8 @@ export function AuthPage({ mode }: { mode: Mode }) {
         setError('Choose whether you are signing up as a coach or athlete.');
         return;
       }
+      const rawInviteCode = String(values.get('inviteCode') ?? '').trim();
+      const normalizedInviteCode = normalizeCoachInviteInput(rawInviteCode);
       const input = {
         role: selectedRole,
         name: String(values.get('name') ?? ''),
@@ -141,6 +147,7 @@ export function AuthPage({ mode }: { mode: Mode }) {
         squatMax: String(values.get('squatMax') ?? ''),
         benchMax: String(values.get('benchMax') ?? ''),
         deadliftMax: String(values.get('deadliftMax') ?? ''),
+        inviteCode: normalizedInviteCode ?? '',
         termsAccepted: values.get('termsAccepted') === 'on' ? 'on' : '',
       };
       const parsed = signUpSchema.safeParse(input);
@@ -152,6 +159,9 @@ export function AuthPage({ mode }: { mode: Mode }) {
         }
       }
       if (input.confirmPassword !== input.password) nextErrors.confirmPassword = 'Passwords do not match.';
+      if (input.role === 'athlete' && rawInviteCode && !normalizedInviteCode) {
+        nextErrors.inviteCode = 'Paste the full invite link or the 48-character invite code.';
+      }
       const bodyweight = toOptionalNumber(input.bodyweight);
       const squatMax = toOptionalNumber(input.squatMax);
       const benchMax = toOptionalNumber(input.benchMax);
@@ -165,6 +175,15 @@ export function AuthPage({ mode }: { mode: Mode }) {
       }
 
       const details = parsed.data;
+      if (details.role === 'athlete' && details.inviteCode) {
+        authRequestStarted = true;
+        const validInvite = await isCoachInviteCodeValid(details.inviteCode);
+        if (!validInvite) {
+          setFieldErrors({ inviteCode: 'That invite code is not valid. Check it with your coach and try again.' });
+          setError('Review the invite code and try again.');
+          return;
+        }
+      }
       authRequestStarted = true;
       const { data, error: authError } = await supabase.auth.signUp({
         email: details.email,
@@ -181,13 +200,15 @@ export function AuthPage({ mode }: { mode: Mode }) {
             squat_max: details.role === 'athlete' ? squatMax : null,
             bench_max: details.role === 'athlete' ? benchMax : null,
             deadlift_max: details.role === 'athlete' ? deadliftMax : null,
-            invite_code: null,
+            invite_code: details.role === 'athlete' && details.inviteCode ? details.inviteCode.toLowerCase() : null,
           },
         },
       });
       if (authError) throw authError;
       if (data.session) navigate('/', { replace: true });
-      else setNotice('Your account is ready. Check your email to confirm your address, then sign in.');
+      else setNotice(details.role === 'athlete' && details.inviteCode
+        ? 'Your account is ready. Check your email to confirm it. Your coach link request will be waiting for approval.'
+        : 'Your account is ready. Check your email to confirm your address, then sign in.');
     } catch (submitError) {
       if (authRequestStarted) console.error('Supabase authentication request failed', submitError);
       setError(authRequestStarted ? getAuthErrorMessage(submitError) : submitError instanceof Error ? submitError.message : 'Check your details and try again.');
@@ -294,14 +315,14 @@ export function AuthPage({ mode }: { mode: Mode }) {
                     <TextInput label="Squat max" name="squatMax" type="number" min="1" max="2000" step="0.5" placeholder="Optional" onBlur={(event) => validateField('squatMax', event.currentTarget.value)} error={fieldErrors.squatMax} />
                     <TextInput label="Bench max" name="benchMax" type="number" min="1" max="2000" step="0.5" placeholder="Optional" onBlur={(event) => validateField('benchMax', event.currentTarget.value)} error={fieldErrors.benchMax} />
                     <TextInput label="Deadlift max" name="deadliftMax" type="number" min="1" max="2000" step="0.5" placeholder="Optional" onBlur={(event) => validateField('deadliftMax', event.currentTarget.value)} error={fieldErrors.deadliftMax} />
-                    <TextInput label="Coach invite code" name="inviteCode" disabled placeholder="Available when linking launches" hint="Coach codes are not accepted or stored yet." />
-                    <div className="invite-note"><Icon name="info" /><span>Athlete linking is not available yet. Coach codes will connect once that feature is ready.</span></div>
+                    <label className="form-field invite-code-field">Coach invite link or code <input name="inviteCode" autoComplete="off" maxLength={2048} value={inviteCode} onChange={(event) => setInviteCode(event.target.value)} placeholder="Optional" aria-invalid={Boolean(fieldErrors.inviteCode)} aria-describedby={fieldErrors.inviteCode ? 'invite-code-error' : 'invite-code-help'} />{fieldErrors.inviteCode ? <span id="invite-code-error" className="inline-error">{fieldErrors.inviteCode}</span> : <span id="invite-code-help" className="field-help">Paste the full link from your coach or its 48-character code.</span>}</label>
+                    <div className="invite-note"><Icon name="info" /><span>Your coach must approve the request before you are linked.</span></div>
                   </div>
                 </div>
               )}
             </div>
             {fieldErrors.lifts && <p className="inline-error" role="alert">{fieldErrors.lifts}</p>}
-            {selectedRole === 'coach' && <div className="invite-note coach-note"><Icon name="info" /><span>Coach invitations are not available yet. Athlete linking will be added in a later milestone.</span></div>}
+            {selectedRole === 'coach' && <div className="invite-note coach-note"><Icon name="info" /><span>You can create an athlete invite link from your roster after signup.</span></div>}
             <Checkbox name="termsAccepted" required error={fieldErrors.termsAccepted}>I agree to the Terms of Service and Privacy Policy.</Checkbox>
             <Button loading={busy} disabled={!configured} icon={<Icon name="arrow" />}>Create {selectedRole} account</Button>
           </form>

@@ -1,111 +1,12 @@
-import { useEffect, useMemo, useReducer, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { useAuth } from '../auth/AuthProvider';
-import { EditableGridCell, focusProgramGridCell } from './programs/EditableGridCell';
-import { createDebouncedSave } from '../lib/programs/autosave';
-import { createProgramHistory, createRow, parseReps, programReducer, validateLoad } from '../lib/programs/document';
-import {
-  archiveProgram, createExercise, createProgram, deleteExercise, duplicateProgram,
-  getCoachSummary, listExercises, listPrograms, loadProgram, saveProgram, updateExercise,
-} from '../lib/programs/repository';
-import type { Exercise, ExerciseCategory, LoadMode, Movement, ProgramDocument, ProgramExercise, ProgramWeek, SetType } from '../lib/programs/types';
-
-function useCoachId() {
-  const { profile } = useAuth();
-  return profile?.id ?? '';
-}
-
-function PageHeader({ eyebrow, title, description, actions }: { eyebrow: string; title: string; description?: string; actions?: React.ReactNode }) {
-  return <header className="coach-page-header"><div><p className="eyebrow">{eyebrow}</p><h1>{title}</h1>{description && <p>{description}</p>}</div>{actions && <div className="coach-header-actions">{actions}</div>}</header>;
-}
-
-export function CoachDashboard() {
-  const coachId = useCoachId();
-  const [summary, setSummary] = useState<Awaited<ReturnType<typeof getCoachSummary>> | null>(null);
-  const [error, setError] = useState(false);
-  useEffect(() => { let active = true; void getCoachSummary(coachId).then((value) => active && setSummary(value)).catch(() => active && setError(true)); return () => { active = false; }; }, [coachId]);
-  return <main className="coach-page dashboard-page">
-    <PageHeader eyebrow="COACH WORKSPACE / OVERVIEW" title="Dashboard" description="Your programs and roster at a glance." actions={<Link className="button button-primary" to="/coach/programs">Open programs <span aria-hidden="true">→</span></Link>} />
-    {error ? <div className="inline-state error-state" role="alert">We could not load your dashboard. Refresh to try again.</div> : !summary ? <div className="dashboard-skeleton" aria-label="Loading dashboard" /> : <>
-      <section className="metric-cards" aria-label="Workspace counts"><article><span>PROGRAMS</span><strong>{summary.programCount}</strong><small>Active program documents</small></article><article><span>ACTIVE ATHLETES</span><strong>{summary.athleteCount}</strong><small>Roster links available</small></article></section>
-      <section className="coach-panel recent-programs"><div className="panel-heading"><div><p className="eyebrow">RECENT WORK</p><h2>Recently updated programs</h2></div><Link to="/coach/programs">View all <span aria-hidden="true">→</span></Link></div>
-        {summary.recent.length ? <div className="recent-list">{summary.recent.map((program) => <Link className="recent-program" key={program.id} to={`/coach/programs/${program.id}`}><span className="recent-program-icon">P</span><span><strong>{program.name}</strong><small>{program.unit.toUpperCase()} · Updated {new Date(program.updated_at).toLocaleDateString()}</small></span><b aria-hidden="true">→</b></Link>)}</div> : <div className="empty-state compact-empty"><span className="empty-state-mark">＋</span><h3>Your first program starts here</h3><p>Create a program to begin building training weeks and sessions.</p><Link className="button button-primary" to="/coach/programs">Create a program</Link></div>}
-      </section>
-    </>}
-  </main>;
-}
-
-export function ProgramsPage() {
-  const coachId = useCoachId();
-  const navigate = useNavigate();
-  const [programs, setPrograms] = useState<Awaited<ReturnType<typeof listPrograms>>>([]);
-  const [search, setSearch] = useState('');
-  const [error, setError] = useState(false);
-  const [busy, setBusy] = useState(false);
-  const refresh = () => listPrograms(coachId).then(setPrograms).catch(() => setError(true));
-  useEffect(() => { void refresh(); }, [coachId]);
-  const filtered = programs.filter((program) => program.name.toLowerCase().includes(search.trim().toLowerCase()));
-  const makeProgram = async () => { setBusy(true); try { navigate(`/coach/programs/${await createProgram(coachId)}`); } catch { setError(true); } finally { setBusy(false); } };
-  const makeCopy = async (id: string) => { setBusy(true); try { navigate(`/coach/programs/${await duplicateProgram(id, coachId)}`); } catch { setError(true); } finally { setBusy(false); } };
-  const archive = async (id: string, name: string) => { if (!window.confirm(`Archive “${name}”? It will leave the active program list.`)) return; setBusy(true); try { await archiveProgram(id); await refresh(); } catch { setError(true); } finally { setBusy(false); } };
-  return <main className="coach-page programs-page">
-    <PageHeader eyebrow="COACH WORKSPACE / PROGRAMS" title="Programs" description="Build and maintain your training plans." actions={<button className="button button-primary" disabled={busy} onClick={() => void makeProgram()}>＋ New program</button>} />
-    <section className="coach-panel programs-panel"><div className="list-toolbar"><label className="search-field"><span aria-hidden="true">⌕</span><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search programs" aria-label="Search programs" /></label><span className="result-count">{filtered.length} {filtered.length === 1 ? 'program' : 'programs'}</span></div>
-      {error && <div className="inline-state error-state" role="alert">A program action failed. Check your connection and retry.</div>}
-      {programs.length === 0 && !error ? <div className="empty-state"><span className="empty-state-mark">＋</span><h2>No programs yet</h2><p>Create your first program, then add weeks, days, and exercises in the builder.</p><button className="button button-primary" disabled={busy} onClick={() => void makeProgram()}>Create a program</button></div> : filtered.length === 0 ? <div className="empty-state"><h2>No matching programs</h2><p>Try a different search.</p></div> : <div className="program-list" role="list">{filtered.map((program) => <article className="program-list-row" key={program.id} role="listitem"><div className="program-list-icon">P</div><div className="program-list-main"><Link to={`/coach/programs/${program.id}`}>{program.name}</Link><p>{program.unit.toUpperCase()} · Updated {new Date(program.updated_at).toLocaleDateString()}</p></div><div className="program-row-actions"><Link className="button button-secondary" to={`/coach/programs/${program.id}`}>Open</Link><button className="button button-quiet" disabled={busy} onClick={() => void makeCopy(program.id)}>Duplicate</button><button className="button button-quiet danger-quiet" disabled={busy} onClick={() => void archive(program.id, program.name)}>Archive</button></div></article>)}</div>}
-    </section>
-  </main>;
-}
-
-export function AthletesPlaceholder() {
-  return <main className="coach-page athletes-page"><PageHeader eyebrow="COACH WORKSPACE / ROSTER" title="Athletes" description="Your roster will appear here when coach-athlete linking is available." /><section className="coach-panel empty-state roster-empty"><span className="empty-state-mark">◎</span><h2>No athletes linked</h2><p>There are no active coach-athlete links on this account. Athlete linking arrives in Milestone 4.</p></section></main>;
-}
-
-interface ExerciseDraft { name: string; category: ExerciseCategory; movement: Movement; muscle_group: string; is_competition_lift: boolean; }
-const emptyExercise: ExerciseDraft = { name: '', category: 'accessory', movement: 'other', muscle_group: '', is_competition_lift: false };
-
-export function ExerciseLibraryPage() {
-  const coachId = useCoachId();
-  const [exercises, setExercises] = useState<Exercise[]>([]);
-  const [search, setSearch] = useState('');
-  const [category, setCategory] = useState<'all' | ExerciseCategory>('all');
-  const [draft, setDraft] = useState<ExerciseDraft>(emptyExercise);
-  const [editing, setEditing] = useState<Exercise | null>(null);
-  const [showForm, setShowForm] = useState(false);
-  const [notice, setNotice] = useState('');
-  const [error, setError] = useState(false);
-  const refresh = () => listExercises().then(setExercises).catch(() => setError(true));
-  useEffect(() => { void refresh(); }, []);
-  const filtered = useMemo(() => exercises.filter((exercise) => (category === 'all' || exercise.category === category) && exercise.name.toLowerCase().includes(search.trim().toLowerCase())), [exercises, search, category]);
-  const submit = async (event: React.FormEvent) => {
-    event.preventDefault(); setError(false); setNotice('');
-    try {
-      const values = { ...draft, name: draft.name.trim(), muscle_group: draft.muscle_group.trim() || null };
-      if (editing) await updateExercise({ ...editing, ...values }); else await createExercise(coachId, values);
-      setShowForm(false); setEditing(null); setDraft(emptyExercise); await refresh();
-    } catch { setError(true); }
-  };
-  const editExercise = (exercise: Exercise) => { setEditing(exercise); setDraft({ ...exercise, muscle_group: exercise.muscle_group ?? '' }); setShowForm(true); setNotice(''); };
-  const removeExercise = async (exercise: Exercise) => {
-    if (!window.confirm(`Delete “${exercise.name}”?`)) return;
-    try { await deleteExercise(exercise); await refresh(); setNotice('Custom exercise deleted.'); }
-    catch (cause) { setNotice(cause instanceof Error ? cause.message : 'The exercise could not be deleted.'); }
-  };
-  return <main className="coach-page exercise-library-page">
-    <PageHeader eyebrow="COACH WORKSPACE / LIBRARY" title="Exercise library" description="Browse the built-in lifts and your custom movements." actions={<button className="button button-primary" onClick={() => { setEditing(null); setDraft(emptyExercise); setShowForm(true); }}>＋ Add custom exercise</button>} />
-    <section className="coach-panel library-panel"><div className="list-toolbar"><label className="search-field"><span aria-hidden="true">⌕</span><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search exercises" aria-label="Search exercises" /></label><div className="filter-chips" aria-label="Filter by category">{(['all', 'main', 'variation', 'accessory'] as const).map((option) => <button key={option} className={category === option ? 'selected' : ''} onClick={() => setCategory(option)}>{option === 'all' ? 'All' : option}</button>)}</div></div>
-      {error && <div className="inline-state error-state" role="alert">We could not save or load exercises. Check your connection and retry.</div>}
-      {notice && <div className="inline-state" role="status">{notice}</div>}
-      <div className="exercise-cards">{filtered.map((exercise) => <article className="exercise-card" key={exercise.id}><div className="exercise-card-icon">{exercise.movement === 'other' ? 'EX' : exercise.movement.slice(0, 2).toUpperCase()}</div><div className="exercise-card-copy"><div className="exercise-title-line"><h2>{exercise.name}</h2>{exercise.owner_id ? <span className="tag tag-custom">CUSTOM</span> : <span className="tag">BUILT-IN</span>}</div><p>{exercise.category} · {exercise.movement}{exercise.muscle_group ? ` · ${exercise.muscle_group}` : ''}</p></div>{exercise.owner_id && <div className="exercise-actions"><button className="button button-quiet" onClick={() => editExercise(exercise)}>Edit</button><button className="button button-quiet danger-quiet" onClick={() => void removeExercise(exercise)}>Delete</button></div>}</article>)}</div>
-      {!filtered.length && <div className="empty-state"><h2>No exercises found</h2><p>Adjust your search or filter.</p></div>}
-    </section>
-    {showForm && <div className="dialog-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setShowForm(false); }}><form className="exercise-dialog" role="dialog" aria-modal="true" aria-labelledby="exercise-dialog-title" onSubmit={(event) => void submit(event)}><div className="panel-heading"><div><p className="eyebrow">CUSTOM EXERCISE</p><h2 id="exercise-dialog-title">{editing ? 'Edit exercise' : 'Add exercise'}</h2></div><button className="icon-button" type="button" aria-label="Close" onClick={() => setShowForm(false)}>×</button></div>{error && <p role="alert" className="inline-error">Could not save the exercise. Check its name is unique and retry.</p>}<label className="form-field">Name<input autoFocus required maxLength={120} value={draft.name} onChange={(event) => setDraft({ ...draft, name: event.target.value })} /></label><div className="form-two-col"><label className="form-field">Category<select value={draft.category} onChange={(event) => setDraft({ ...draft, category: event.target.value as ExerciseCategory })}><option value="main">Main</option><option value="variation">Variation</option><option value="accessory">Accessory</option></select></label><label className="form-field">Movement<select value={draft.movement} onChange={(event) => setDraft({ ...draft, movement: event.target.value as Movement })}><option value="squat">Squat</option><option value="bench">Bench</option><option value="deadlift">Deadlift</option><option value="other">Other</option></select></label></div><label className="form-field">Muscle group<input maxLength={80} value={draft.muscle_group} onChange={(event) => setDraft({ ...draft, muscle_group: event.target.value })} /></label><label className="checkbox-line"><input type="checkbox" checked={draft.is_competition_lift} onChange={(event) => setDraft({ ...draft, is_competition_lift: event.target.checked })} /> Competition lift</label><div className="dialog-actions"><button type="button" className="button button-secondary" onClick={() => setShowForm(false)}>Cancel</button><button className="button button-primary">Save exercise</button></div></form></div>}
-  </main>;
-}
-
-export function CoachSettingsPlaceholder() {
-  return <main className="coach-page"><PageHeader eyebrow="COACH WORKSPACE / SETTINGS" title="Settings" description="Workspace settings will be added in a later milestone." /><section className="coach-panel empty-state"><h2>Settings are not available yet</h2><p>Your profile and team settings are unchanged.</p></section></main>;
-}
+import { EditableGridCell, focusProgramGridCell } from './EditableGridCell';
+import { useCoachId } from '../coach/useCoachId';
+import { createDebouncedSave } from '../../lib/programs/autosave';
+import { createProgramHistory, createRow, parseReps, programReducer, validateLoad } from '../../lib/programs/document';
+import { createExercise, listExercises, loadProgram, saveProgram } from '../../lib/programs/repository';
+import type { Exercise, LoadMode, ProgramDocument, ProgramExercise, ProgramWeek, SetType } from '../../lib/programs/types';
+import { CoachWorkoutCheckInsPanel, CoachWorkoutCheckInsProvider } from '../coach/CoachWorkoutCheckInsPanel';
 
 function repsSummary(rows: ProgramExercise[]) {
   const sets = rows.reduce((sum, row) => sum + (row.sets ?? 0), 0);
@@ -124,6 +25,7 @@ function useProgramSave(document: ProgramDocument, expectedAt: React.MutableRefO
       setStatus('saved');
     } catch (error) {
       setStatus(error instanceof Error && error.message === 'PROGRAM_CONFLICT' ? 'conflict' : 'error');
+      throw error;
     }
   }, 600), [expectedAt, setStatus, setSavedAt]);
   useEffect(() => {
@@ -237,6 +139,16 @@ export function ProgramBuilderPage() {
   const document = history.present;
   const saver = useProgramSave(document, expectedAt, ready, setStatus, setSavedAt);
   const hasUnsaved = ready && status !== 'saved';
+  const saveAndNavigate = useCallback(async (destination: string) => {
+    setStatus('saving');
+    saver.schedule(document);
+    try {
+      await saver.flush();
+      navigate(destination);
+    } catch {
+      // Keep the builder open; the save indicator exposes the failure and retry action.
+    }
+  }, [document, navigate, saver, setStatus]);
   useEffect(() => {
     let active = true;
     setLoading(true); setReady(false); setLoadError(false);
@@ -267,11 +179,11 @@ export function ProgramBuilderPage() {
       event.preventDefault();
       event.stopPropagation();
       if (!window.confirm('You have unsaved program changes. Save them before leaving?')) return;
-      void saver.flush().finally(() => navigate(`${destination.pathname}${destination.search}${destination.hash}`));
+      void saveAndNavigate(`${destination.pathname}${destination.search}${destination.hash}`);
     };
     window.document.addEventListener('click', confirmInternalNavigation, true);
     return () => window.document.removeEventListener('click', confirmInternalNavigation, true);
-  }, [hasUnsaved, navigate, saver]);
+  }, [document, hasUnsaved, saveAndNavigate]);
   useEffect(() => {
     const keydown = (event: KeyboardEvent) => {
       if (!(event.ctrlKey || event.metaKey) || event.altKey) return;
@@ -284,7 +196,7 @@ export function ProgramBuilderPage() {
     return () => window.removeEventListener('keydown', keydown);
   }, []);
   const activeWeek = document.weeks.find((week) => week.id === selectedWeek) ?? document.weeks[0];
-  const retry = () => { setStatus('saving'); saver.schedule(document); void saver.flush(); };
+  const retry = () => { setStatus('saving'); saver.schedule(document); void saver.flush().catch(() => undefined); };
   const reloadConflict = async () => { setLoading(true); try { const remote = await loadProgram(programId); dispatch({ type: 'replace', document: remote }); expectedAt.current = remote.program.updated_at; setSavedAt(remote.program.updated_at); setStatus('saved'); setReady(true); } catch { setStatus('error'); } finally { setLoading(false); } };
   const addCustomInline = async (name: string): Promise<Exercise | undefined> => {
     const found = exercises.find((exercise) => exercise.name.toLowerCase() === name.toLowerCase());
@@ -315,9 +227,8 @@ export function ProgramBuilderPage() {
     {status === 'error' && <div role="alert" className="inline-state error-state">Your edits are still here, but could not be saved. Check your connection and retry.</div>}
     <section className="week-navigation"><div className="week-tabs" role="tablist" aria-label="Program weeks">{document.weeks.map((week) => <button key={week.id} role="tab" aria-selected={activeWeek?.id === week.id} className={activeWeek?.id === week.id ? 'selected' : ''} onClick={() => setSelectedWeek(week.id)}>{week.name || `Week ${week.week_number}`}</button>)}</div><div className="week-actions"><button className="button button-secondary" onClick={addWeek}>＋ Add week</button>{activeWeek && <button className="button button-quiet danger-quiet" onClick={() => { if (window.confirm(`Delete ${activeWeek.name || `Week ${activeWeek.week_number}`} and all its days?`)) dispatch({ type: 'delete-week', weekId: activeWeek.id }); }}>Delete week</button>}<label className="athlete-columns-toggle"><input type="checkbox" checked={showAthleteColumns} onChange={(event) => setShowAthleteColumns(event.target.checked)} /> Athlete columns</label></div></section>
     {!activeWeek ? <section className="coach-panel empty-state"><span className="empty-state-mark">＋</span><h2>Add a week to get started</h2><button className="button button-primary" onClick={addWeek}>Add week</button></section> : <><div className="week-heading"><div><p className="eyebrow">TRAINING CYCLE / WEEK {String(activeWeek.week_number).padStart(2, '0')}</p><input aria-label="Week name" value={activeWeek.name} onChange={(event) => dispatch({ type: 'rename-week', weekId: activeWeek.id, name: event.target.value })} /></div><button className="button button-primary" onClick={() => dispatch({ type: 'add-day', weekId: activeWeek.id })}>＋ Add day</button></div>
-      {activeWeek.days.length ? <div className="day-stack">{activeWeek.days.map((day) => <DayCard key={day.id} week={activeWeek} day={day} exercises={exercises} document={document} dispatch={dispatch} onCreateExercise={addCustomInline} showAthleteColumns={showAthleteColumns} />)}</div> : <section className="coach-panel empty-state"><span className="empty-state-mark">＋</span><h2>No training days in this week</h2><p>Add a day to begin the spreadsheet.</p><button className="button button-primary" onClick={() => dispatch({ type: 'add-day', weekId: activeWeek.id })}>Add first day</button></section>}
+      {activeWeek.days.length ? <CoachWorkoutCheckInsProvider preferredProgramId={programId}><div className="day-stack">{activeWeek.days.map((day) => <div className="builder-day-checkin-row" key={day.id}><DayCard week={activeWeek} day={day} exercises={exercises} document={document} dispatch={dispatch} onCreateExercise={addCustomInline} showAthleteColumns={showAthleteColumns} /><CoachWorkoutCheckInsPanel dayId={day.id} dayName={day.name} /></div>)}</div></CoachWorkoutCheckInsProvider> : <section className="coach-panel empty-state"><span className="empty-state-mark">＋</span><h2>No training days in this week</h2><p>Add a day to begin the spreadsheet.</p><button className="button button-primary" onClick={() => dispatch({ type: 'add-day', weekId: activeWeek.id })}>Add first day</button></section>}
     </>}
-    <footer className="builder-footer"><span>WORKING DOCUMENT · {document.program.unit.toUpperCase()}</span><span>Autosaves after edits</span><button className="button button-quiet" onClick={() => { if (window.confirm('Leave the builder? Your recent edits may still be saving.')) navigate('/coach/programs'); }}>Exit builder</button></footer>
+    <footer className="builder-footer"><span>WORKING DOCUMENT · {document.program.unit.toUpperCase()}</span><span>Autosaves after edits</span><button className="button button-quiet" onClick={() => { if (window.confirm('Save your recent edits and leave the builder?')) void saveAndNavigate('/coach/programs'); }}>Exit builder</button></footer>
   </main>;
 }
-

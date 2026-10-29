@@ -11,9 +11,18 @@
 
 ## Before using a hosted deployment
 
-1. Apply the initial migration to a local Supabase project and run the database permission tests.
+1. Apply all versioned migrations to a local Supabase project and run the database permission tests.
 2. Configure email confirmation and Google OAuth redirect URLs for the deployed origin.
 3. Resolve account onboarding for Google signups so a new OAuth account receives a selected role before entering a role route.
+
+## Milestone 5 follow-up
+
+1. Add coach-facing log review and planned-versus-actual views.
+2. Add an end-to-end browser test for create, rename, confirmed save, live update, and snapshot immutability using isolated coach and athlete sessions.
+3. Add offline draft storage and retry for workout-day check-ins; they currently require an active connection to load and save.
+4. Replace the Progress and Profile placeholders with athlete analytics, meet details, bodyweight history, maxes, unit, and plate settings.
+5. Add the rest timer and next-set focus mode to Today.
+6. Consider IndexedDB for larger offline histories; the current queue stores compact pending workout drafts in browser local storage.
 
 ## Milestone 3 Phase B (requires approval)
 
@@ -24,8 +33,8 @@
 
 ## Later milestones
 
-1. Implement secure coach invites, athlete join requests, and link approval/removal flows (deferred from M2).
-2. Add secure role-choice onboarding for new Google OAuth accounts (deferred from M2).
-3. Do a mobile responsive pass on the authentication screens (deferred from M2).
-4. Define program versioning and true snapshot storage for snapshot assignments.
+1. Add secure role-choice onboarding for new Google OAuth accounts (deferred from M2).
+2. Do a mobile responsive pass on the authentication screens (deferred from M2).
+3. Build the coach-only peaking module and athlete-facing peak results in Milestone 6.
+4. Add deeper athlete/coach analytics and program export in Milestone 7.
 5. Continue with the approved build order and request approval before each later milestone.

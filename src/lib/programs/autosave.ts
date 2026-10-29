@@ -23,7 +23,7 @@ export function createDebouncedSave<T>(save: (value: T) => Promise<void>, delay 
     schedule(value) {
       latest = value;
       if (timer !== undefined) clearTimeout(timer);
-      timer = setTimeout(() => void flush(), delay);
+      timer = setTimeout(() => void flush().catch(() => undefined), delay);
     },
     flush,
     cancel() {
