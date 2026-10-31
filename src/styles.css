@@ -296,7 +296,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .workspace-athlete .workspace-body { grid-template-columns: 184px minmax(0, 1fr); }
 .workspace-athlete .workspace-sidebar { background: #12110e; }
 .workspace-athlete .workspace-nav-link { min-height: 48px; }
-.athlete-page { width: min(100%, 1180px); margin: 0 auto; padding: 34px clamp(18px, 4vw, 48px) 60px; }
+.athlete-page { width: 100%; margin: 0; padding: 34px clamp(20px, 3vw, 52px) 60px; }
 .athlete-page-heading { margin-bottom: 25px; display: flex; align-items: flex-start; justify-content: space-between; gap: 22px; }
 .athlete-page-heading h1 { margin: 7px 0 10px; color: var(--text); font: 700 clamp(30px, 4vw, 42px)/1.08 var(--display); letter-spacing: -1.5px; }
 .athlete-page-heading p:not(.eyebrow) { max-width: 640px; margin: 0; color: var(--secondary); font-size: 13px; line-height: 1.6; }
