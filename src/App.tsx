@@ -12,6 +12,8 @@ import { CoachSettingsPage } from './components/coach/CoachSettingsPage';
 import { ExerciseLibraryPage } from './components/coach/ExerciseLibraryPage';
 import { ProgramsPage } from './components/coach/ProgramsPage';
 import { ProgramBuilderPage } from './components/programs/ProgramBuilderPage';
+import { ThemeToggle } from './components/ThemeToggle';
+import { ThemeProvider } from './theme/ThemeProvider';
 import { supabase, supabaseConfigurationError } from './lib/supabase';
 import './styles.css';
 
@@ -36,6 +38,7 @@ function WorkspaceLayout({ role }: { role: 'coach' | 'athlete' }) {
           <nav className="workspace-nav" aria-label="Primary navigation">
             {navigation.map(({ label, to }, index) => <NavLink key={to} to={to} end={index === 0} className={({ isActive }) => `workspace-nav-link${isActive ? ' active' : ''}`}>{label}</NavLink>)}
           </nav>
+          <div className="workspace-sidebar-appearance"><span>Appearance</span><ThemeToggle /></div>
         </aside>
         {routeContent}
       </div>
@@ -57,10 +60,11 @@ function AppRoutes() {
   );
 }
 
-export default function App() {
+function AppContent() {
   if (supabaseConfigurationError.length > 0) {
     return (
       <main className="state-screen config-error-screen">
+        <ThemeToggle variant="icon" className="setup-theme-control" />
         <section className="state-card" role="alert">
           <p className="eyebrow">SETUP REQUIRED</p>
           <h1>Supabase environment needs attention</h1>
@@ -75,4 +79,8 @@ export default function App() {
   }
 
   return <BrowserRouter><AuthProvider><AppRoutes /></AuthProvider></BrowserRouter>;
+}
+
+export default function App() {
+  return <ThemeProvider><AppContent /></ThemeProvider>;
 }

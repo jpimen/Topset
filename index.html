@@ -3,9 +3,22 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#0E0D0A" />
+    <meta name="theme-color" content="" />
     <meta name="description" content="Topset — a clearer way to coach strength." />
     <title>Topset — Strength, with a plan</title>
+    <script>
+      (() => {
+        let theme = 'dark';
+        try {
+          const stored = localStorage.getItem('topset-theme');
+          if (stored === 'light' || stored === 'dark') theme = stored;
+        } catch {
+          // Keep the dark default when browser storage is unavailable.
+        }
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.style.colorScheme = theme;
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

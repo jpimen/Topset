@@ -27,6 +27,12 @@ Topset is a powerlifting program builder for coaches and athletes. Current miles
 
 If email confirmations are enabled in Supabase, confirm the email before signing in. Google sign-in is shown for existing accounts after enabling the Google provider and setting its callback URL in Supabase Auth. New Google account onboarding is deferred because it needs a secure role-choice callback.
 
+## Appearance themes
+
+Topset offers **Dark** and **Light** appearance choices. Dark is the default and keeps the existing charcoal and gold palette. The choice is saved in the browser's local storage on that device; if storage is blocked or the saved value is invalid, the app uses Dark. The preference is not synced to an account.
+
+The theme is applied with `data-theme` on the document root before the app starts. Color values belong in `src/theme/tokens.css`; add a semantic token there for both palettes, then reference it with `var(--token-name)` in styles. Do not put raw hex, RGB, or HSL colors in components or other stylesheets. `npm run lint` and Vitest enforce this rule.
+
 ## Database setup
 
 For a local Supabase stack, install Docker and the Supabase CLI, then run:
