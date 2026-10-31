@@ -68,6 +68,33 @@ export function CoachWorkoutCheckInsProvider({ preferredProgramId, children }: {
     return () => { active = false; };
   }, [selected?.id, retryKey]);
 
+  useEffect(() => {
+    if (!selected) return;
+    let active = true;
+    let refreshing = false;
+    const refresh = async () => {
+      if (refreshing || document.visibilityState !== 'visible') return;
+      refreshing = true;
+      try {
+        const [items, workoutSessions] = await Promise.all([loadCoachWorkoutCheckIns(selected), loadWorkoutSessions(selected.id)]);
+        if (active) { setRows(items); setSessions(workoutSessions); setError(''); }
+      } catch (cause) {
+        console.error('Coach workout logs could not be refreshed.', cause);
+      } finally {
+        refreshing = false;
+      }
+    };
+    const timer = window.setInterval(() => void refresh(), 8000);
+    window.addEventListener('focus', refresh);
+    document.addEventListener('visibilitychange', refresh);
+    return () => {
+      active = false;
+      window.clearInterval(timer);
+      window.removeEventListener('focus', refresh);
+      document.removeEventListener('visibilitychange', refresh);
+    };
+  }, [selected?.id]);
+
   const value: CheckInContextValue = {
     assignments,
     assignmentsLoading,
@@ -126,6 +153,7 @@ export function CoachWorkoutCheckInsPanel({ dayId, dayName, unit = 'kg', exercis
     </>}
     <section className="coach-workout-log-review" aria-labelledby={`coach-workout-log-${dayId}`}>
       <div className="coach-workout-log-review-heading"><h4 id={`coach-workout-log-${dayId}`}>Athlete workout log</h4>{selected && <span>{selected.athlete?.name ?? 'Athlete'}</span>}</div>
+      <p className="coach-workout-log-refresh">Updates automatically while this page is open.</p>
       {assignmentsLoading || loading ? <p className="coach-checkins-updated">Loading workout entries…</p> : error ? <p className="coach-checkins-updated">Workout logs could not be loaded.</p> : workoutSessions.length === 0 ? <p className="coach-checkins-updated">No workout entries have synced for this day yet.</p> : workoutSessions.map((session) => <div className="coach-workout-log-session" key={session.id}>
         <p className="coach-checkins-updated"><time dateTime={session.session_date}>{new Date(`${session.session_date}T12:00:00`).toLocaleDateString()}</time></p>
         {session.logged_sets.filter((set) => set.load_lifted !== null || set.rpe_lifted !== null || set.notes_athlete !== null).map((set, index) => <div className="coach-workout-log-entry" key={`${set.program_exercise_id}-${set.set_number}-${index}`}>

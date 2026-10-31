@@ -357,6 +357,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .coach-workout-log-review-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
 .coach-workout-log-review-heading h4 { margin: 0; color: var(--text); font: 700 14px var(--display); }
 .coach-workout-log-review-heading span, .coach-workout-log-session > .coach-checkins-updated { color: var(--muted); font-size: 10px; }
+.coach-workout-log-refresh { margin: 5px 0 0; color: var(--muted); font-size: 9px; }
 .coach-workout-log-session { margin-top: 10px; }
 .coach-workout-log-entry { padding: 9px 0; display: grid; grid-template-columns: minmax(0, 1fr) auto auto auto; gap: 8px; border-bottom: 1px solid #ffffff0d; color: var(--secondary); font-size: 10px; }
 .coach-workout-log-entry strong { color: var(--text); }
