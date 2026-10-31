@@ -1,12 +1,10 @@
 import { useCallback, useEffect, useMemo, useState, type ChangeEvent } from 'react';
-import { Link } from 'react-router-dom';
-import { useAuth } from '../../auth/AuthProvider';
 import { loadWorkoutSessions, readWorkoutDrafts, storeWorkoutDraft, type AthleteWorkoutSession } from '../../lib/athlete/logs';
 import { findNextWorkout } from '../../lib/athlete/programs';
+import type { UserProfile } from '../../auth/AuthProvider';
+import type { AthleteProgramState } from '../../lib/athlete/programs';
 import { loggedSetInputSchema, type LoggedSetInput, type WorkoutDraft } from '../../lib/athlete/types';
-import { AthleteCoachLinkCard } from './AthleteCoachLinkCard';
 import { useAthleteWorkoutSync } from './AthleteWorkoutSyncProvider';
-import { useAthleteProgram } from './useAthleteProgram';
 
 function todayLocal() {
   const date = new Date();
@@ -38,27 +36,25 @@ function overlayDrafts(sessions: AthleteWorkoutSession[], drafts: WorkoutDraft[]
   return [...map.values()];
 }
 
-export function TodayWorkoutPage() {
-  const { profile } = useAuth();
+export function AthleteWorkoutSection({ profile, result, refreshProgram }: {
+  profile: UserProfile | null;
+  result: AthleteProgramState;
+  refreshProgram: () => void;
+}) {
   const { state: syncState, offline, error: syncError, syncVersion, retry: retrySync } = useAthleteWorkoutSync();
-  const { result, loading: programLoading, error: programError, refresh: refreshProgram } = useAthleteProgram(profile?.id);
   const [sessions, setSessions] = useState<AthleteWorkoutSession[]>([]);
   const [drafts, setDrafts] = useState<WorkoutDraft[]>([]);
-  const [sessionLoading, setSessionLoading] = useState(false);
   const [sessionError, setSessionError] = useState('');
   const [storageError, setStorageError] = useState('');
 
   const reloadSessions = useCallback(async () => {
     if (!profile?.id || !result?.assignment.id) return;
-    setSessionLoading(true);
     try {
       setSessions(await loadWorkoutSessions(result.assignment.id));
       setSessionError('');
     } catch (cause) {
       console.error('Workout sessions could not be loaded.', cause);
       if (window.navigator.onLine) setSessionError('Saved workout history could not be loaded. Your local entries are still available.');
-    } finally {
-      setSessionLoading(false);
     }
     setDrafts(readWorkoutDrafts(profile.id));
   }, [profile?.id, result?.assignment.id]);
@@ -121,10 +117,7 @@ export function TodayWorkoutPage() {
     });
   };
 
-  if (programLoading || sessionLoading && !result) return <main className="athlete-page"><div className="dashboard-skeleton" aria-label="Loading today's workout" /></main>;
-  if (programError) return <main className="athlete-page"><section className="coach-panel empty-state" role="alert"><h1>Workout unavailable</h1><p>{programError}</p>{syncError && <p>{syncError}</p>}<button className="button button-secondary" onClick={refreshProgram}>Try again</button>{drafts.length > 0 && <button className="button button-quiet" onClick={() => void retrySync()}>Retry workout sync</button>}</section></main>;
-  if (!result) return <main className="athlete-page"><section className="coach-panel athlete-empty"><p className="eyebrow">TODAY</p><h1>No assigned program yet</h1><p>When your coach assigns a program, your next workout will appear here.</p><AthleteCoachLinkCard /></section></main>;
-  if (!nextWorkout) return <main className="athlete-page"><header className="athlete-page-heading"><div><p className="eyebrow">TODAY</p><h1>Plan complete</h1><p>You have completed every workout in {result.program.program.name}. {syncState === 'saved' ? 'Your workout logs are synced.' : 'Workout logs are still saved on this device and need to sync.'}</p></div><Link className="button button-secondary" to="/athlete/program">Review your program</Link></header><div className={`workout-sync sync-${syncState}`} role="status"><span aria-hidden="true" />{offline ? 'Offline · saved on this device' : syncState === 'saved' ? 'Synced' : syncState === 'saving' ? 'Syncing…' : syncState === 'error' ? 'Sync issue' : 'Saved on this device · pending sync'}</div>{syncError && <div className="alert-banner alert-info" role="status"><span className="alert-mark">i</span><div>{syncError}{drafts.length > 0 && <button className="button button-quiet" onClick={() => void retrySync()}>Retry sync</button>}</div></div>}</main>;
+  if (!nextWorkout) return <section className="athlete-next-workout"><header className="athlete-page-heading"><div><p className="eyebrow">NEXT WORKOUT</p><h2>Plan complete</h2><p>You have completed every workout in {result.program.program.name}. {syncState === 'saved' ? 'Your workout logs are synced.' : 'Workout logs are still saved on this device and need to sync.'}</p></div></header><div className={`workout-sync sync-${syncState}`} role="status"><span aria-hidden="true" />{offline ? 'Offline · saved on this device' : syncState === 'saved' ? 'Synced' : syncState === 'saving' ? 'Syncing…' : syncState === 'error' ? 'Sync issue' : 'Saved on this device · pending sync'}</div>{syncError && <div className="alert-banner alert-info" role="status"><span className="alert-mark">i</span><div>{syncError}{drafts.length > 0 && <button className="button button-quiet" onClick={() => void retrySync()}>Retry sync</button>}</div></div>}</section>;
   if (!draft) return null;
 
   const { week, day } = nextWorkout;
@@ -132,9 +125,9 @@ export function TodayWorkoutPage() {
   const existingSet = (exerciseId: string, setNumber: number) => draft.sets.find((set) => set.program_exercise_id === exerciseId && set.set_number === setNumber);
 
   return (
-    <main className="athlete-page">
+    <section className="athlete-next-workout" aria-label="Next workout">
       <header className="athlete-page-heading">
-        <div><p className="eyebrow">TODAY · {week.name.toUpperCase()} / {day.name.toUpperCase()}</p><h1>{result.program.program.name}</h1><p>{day.notes || 'Your next planned workout. Prescriptions are set by your coach.'}</p></div>
+        <div><p className="eyebrow">NEXT WORKOUT · {week.name.toUpperCase()} / {day.name.toUpperCase()}</p><h2>{day.name}</h2><p>{day.notes || `From ${result.program.program.name}. Prescriptions are set by your coach.`}</p></div>
         <div className="athlete-program-heading-actions"><div className={`workout-sync sync-${syncState}`} role="status"><span aria-hidden="true" />{offline ? 'Offline · saved on this device' : syncLabel}</div><button className="button button-secondary" onClick={refreshProgram}>Refresh program</button></div>
       </header>
       {(syncError || storageError || sessionError) && <div className="alert-banner alert-info" role="status"><span className="alert-mark">i</span><div>{storageError || syncError || sessionError}{drafts.length > 0 && <button className="button button-quiet" onClick={() => void retrySync()}>Retry sync</button>}</div></div>}
@@ -166,6 +159,6 @@ export function TodayWorkoutPage() {
         })}
       </section>
       <footer className="athlete-session-footer"><p>Prescription is read-only. Your coach can see your synced training log.</p><button className="button button-primary athlete-finish-button" onClick={() => updateDraft((current) => ({ ...current, completed: true }))} disabled={draft.completed}>{draft.completed ? 'Workout completed' : 'Finish workout'}</button></footer>
-    </main>
+    </section>
   );
 }
