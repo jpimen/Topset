@@ -20,6 +20,13 @@ type CheckInContextValue = {
 
 const CheckInContext = createContext<CheckInContextValue | null>(null);
 
+export function useCoachWorkoutLogSets(dayId: string, programExerciseId: string) {
+  const context = useContext(CheckInContext);
+  if (!context) throw new Error('Workout log cells must be inside CoachWorkoutCheckInsProvider.');
+  const session = context.sessions.find((item) => item.day_id === dayId && item.logged_sets.some((set) => set.load_lifted !== null || set.rpe_lifted !== null || set.notes_athlete !== null));
+  return session?.logged_sets.filter((item) => item.program_exercise_id === programExerciseId) ?? [];
+}
+
 export function CoachWorkoutCheckInsProvider({ preferredProgramId, children }: { preferredProgramId?: string; children: ReactNode }) {
   const coachId = useCoachId();
   const [assignments, setAssignments] = useState<ProgramAssignment[]>([]);

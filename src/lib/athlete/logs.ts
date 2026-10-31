@@ -14,6 +14,7 @@ const serverSessionSchema = z.object({
   id: z.string().uuid(),
   day_id: z.string().uuid(),
   session_date: z.string(),
+  updated_at: z.string(),
   completed_at: z.string().nullable(),
   logged_sets: z.array(serverSetSchema),
 });
@@ -71,8 +72,8 @@ export function deleteWorkoutDraft(athleteId: string, sessionId: string): Workou
 
 export async function loadWorkoutSessions(assignmentId: string): Promise<AthleteWorkoutSession[]> {
   const { data, error } = await client().from('workout_sessions')
-    .select('id, day_id, session_date, completed_at, logged_sets(program_exercise_id, set_number, load_lifted, rpe_lifted, notes_athlete)')
-    .eq('assignment_id', assignmentId).order('session_date', { ascending: false });
+    .select('id, day_id, session_date, updated_at, completed_at, logged_sets(program_exercise_id, set_number, load_lifted, rpe_lifted, notes_athlete)')
+    .eq('assignment_id', assignmentId).order('updated_at', { ascending: false });
   if (error) throw error;
   return z.array(serverSessionSchema).parse(data ?? []);
 }
