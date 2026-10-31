@@ -309,7 +309,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .athlete-empty h1 { margin: 8px 0; font: 700 30px var(--display); }
 .athlete-empty > p:not(.eyebrow) { color: var(--secondary); line-height: 1.6; }
 .athlete-session { display: grid; gap: 14px; }
-.athlete-exercise-card { padding: clamp(16px, 3vw, 23px); }
+.athlete-exercise-entry { padding: 20px 4px; border-bottom: 1px solid var(--border); }
+.athlete-exercise-entry:last-child { border-bottom: 0; }
 .athlete-exercise-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; }
 .athlete-exercise-heading h2 { margin: 5px 0 0; font: 700 19px var(--display); }
 .athlete-prescription { padding: 7px 9px; border: 1px solid #50452a; border-radius: 8px; color: var(--gold-light); background: #302a1a; font: 600 11px var(--mono); white-space: nowrap; }
@@ -437,6 +438,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .athlete-profile-save-row { align-items: stretch; flex-direction: column; }
   .athlete-profile-save-row .button { width: 100%; }
   .athlete-next-workout .athlete-page-heading-actions { align-items: flex-start; }
+  .athlete-exercise-entry { padding: 18px 2px; }
   .athlete-exercise-heading { flex-direction: column; }
   .athlete-prescription { white-space: normal; }
 }

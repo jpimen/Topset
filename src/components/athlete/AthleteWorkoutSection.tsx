@@ -135,7 +135,7 @@ export function AthleteWorkoutSection({ profile, result, refreshProgram }: {
       <section className="athlete-session" aria-label={`${week.name} ${day.name} workout`}>
         {day.exercises.length === 0 ? <div className="coach-panel empty-state"><h2>No exercises in this workout</h2><p>Your coach has not added exercises to this day yet.</p></div> : day.exercises.map((row, rowIndex) => {
           const setCount = row.sets ?? 1;
-          return <article className="coach-panel athlete-exercise-card" key={row.id}>
+          return <article className="athlete-exercise-entry" key={row.id}>
             <div className="athlete-exercise-heading"><div><p className="eyebrow">EXERCISE {String(rowIndex + 1).padStart(2, '0')}</p><h2>{row.exercise.name}</h2></div><span className="athlete-prescription">{setCount} × {row.reps}{row.rpe === null ? '' : ` @ RPE ${row.rpe}`}</span></div>
             <p className="athlete-prescribed-load">{formatLoad(row, result.program.program.unit)}</p>
             {row.notes_coach && <p className="athlete-coach-note"><strong>Coach note</strong>{row.notes_coach}</p>}
