@@ -573,7 +573,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .form-field option { background: #171510; }
 .form-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; }
 .checkbox-line { display: flex; align-items: center; gap: 8px; margin: 12px 0 19px; color: var(--secondary); font-size: 12px; }
-.checkbox-line input, .athlete-columns-toggle input { accent-color: var(--gold); }
+.checkbox-line input { accent-color: var(--gold); }
 .dialog-actions { display: flex; justify-content: flex-end; gap: 9px; }
 
 .program-builder-page { min-width: 1000px; max-width: none; padding-top: 20px; overflow-x: auto; }
@@ -599,7 +599,6 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .week-tabs button { min-height: 38px; padding: 0 14px; color: var(--secondary); background: transparent; border: 1px solid transparent; border-radius: 8px 8px 0 0; font-size: 12px; white-space: nowrap; }
 .week-tabs button.selected { color: var(--gold-light); border-color: #493e25; border-bottom-color: var(--page); background: #211e16; box-shadow: inset 0 -2px var(--gold); }
 .week-actions .button { min-height: 32px; padding: 0 10px; font-size: 10px; }
-.athlete-columns-toggle { display: flex; align-items: center; gap: 6px; color: var(--secondary); font-size: 10px; white-space: nowrap; }
 .week-heading { min-height: 66px; margin: 5px 0 14px; display: flex; align-items: center; justify-content: space-between; gap: 18px; }
 .week-heading .eyebrow { font-size: 9px; }
 .week-heading input { margin-top: 3px; font-size: 19px; }
