@@ -1,5 +1,12 @@
 # Decisions
 
+## 2026-11-01 — Device-level Dark and Light appearance
+
+- Offer Dark and Light as the two appearance choices. Dark remains the first-visit default and preserves the existing dark palette; the user requested a two-choice toggle, so System is not an option.
+- Store the choice in browser local storage for this device. Apply the document theme before React starts, set native `color-scheme`, and keep the browser theme-color metadata in sync. If storage is blocked or invalid, use Dark.
+- Keep all color values in `src/theme/tokens.css`. Use semantic tokens in components and styles, and enforce the rule with the color-literal check in lint and Vitest.
+- Do not add database fields or sync theme preference to profiles in this task; keep that as follow-up work.
+
 ## 2026-10-31 — Remove athlete next-workout logging section
 
 - Remove the entire Next workout section and its set-entry controls from the athlete Program page, as requested. Program remains a read-only prescription overview with per-day check-ins.

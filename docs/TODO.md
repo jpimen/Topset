@@ -42,4 +42,8 @@
 6. add a chat system between coach and athlete.
 7. add a feature that athletes can upload videos of there training and the coach will view.
 
+## Appearance follow-up
+
+- Sync the user's Light/Dark theme preference to their profile when cross-device settings are implemented.
+
 

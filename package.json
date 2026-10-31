@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
-    "lint": "eslint .",
+    "lint": "eslint . && node scripts/check-color-tokens.mjs",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:db": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/test-db.ps1",
