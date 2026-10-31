@@ -725,6 +725,202 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .save-indicator { min-width: 80px; font-size: 9px; }
 }
 
+/* Responsive layouts are deliberately limited to tablet and phone widths. */
+@media (max-width: 1023px) {
+  .auth-page { min-width: 0; }
+  .auth-login-page { grid-template-columns: minmax(0, 1fr); gap: 16px; padding: 20px; }
+  .login-card { min-width: 0; min-height: auto; padding: clamp(26px, 5vw, 48px); }
+  .brand-panel { min-height: auto; padding: 32px clamp(24px, 5vw, 48px); }
+  .brand-panel h2 { font-size: clamp(42px, 7vw, 64px); letter-spacing: -3px; }
+  .brand-description { font-size: 15px; }
+  .brand-panel-footer { margin-top: 32px; }
+
+  .auth-signup-page { max-width: none; padding: 20px; }
+  .wizard-card { margin-top: 20px; padding: 28px clamp(22px, 4vw, 38px); }
+  .role-step, .credentials-step { max-width: 760px; }
+
+  .workspace-body { grid-template-columns: 180px minmax(0, 1fr); }
+  .coach-page, .program-builder-page { min-width: 0; }
+  .program-builder-page { width: 100%; max-width: 100%; overflow: visible; }
+  .builder-day-checkin-row { grid-template-columns: minmax(0, 1fr); min-width: 0; }
+  .builder-topbar { flex-direction: column; align-items: stretch; }
+  .builder-program-name { min-width: 0; }
+  .builder-top-actions { width: 100%; flex-wrap: wrap; align-items: center; }
+  .week-navigation { flex-wrap: wrap; justify-content: flex-start; padding-bottom: 10px; }
+  .week-tabs { width: 100%; max-width: 100%; }
+  .week-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+  .day-header-actions { flex-wrap: wrap; justify-content: flex-end; }
+
+  .dialog-backdrop { z-index: 50; align-items: start; overflow-y: auto; padding: max(16px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom)); }
+  .exercise-dialog { max-height: calc(100dvh - 32px - env(safe-area-inset-top) - env(safe-area-inset-bottom)); overflow-y: auto; margin: auto 0; }
+}
+
+@media (max-width: 700px) {
+  .auth-login-page { gap: 12px; padding: 12px; }
+  .login-card { padding: 24px 18px; border-radius: 16px; }
+  .auth-card-top { align-items: flex-start; flex-wrap: wrap; gap: 14px; margin-bottom: 30px; }
+  .auth-header-actions { margin-left: auto; }
+  .auth-header-actions .theme-toggle-icon { min-width: 44px; min-height: 44px; }
+  .password-shell .password-toggle { width: 44px; height: 44px; }
+  .setup-theme-control .theme-toggle-icon { min-width: 44px; min-height: 44px; }
+  .calibration-mark { font-size: 9px; letter-spacing: .35px; }
+  .login-card h1, .wizard-heading h1 { font-size: clamp(30px, 9vw, 40px); letter-spacing: -1.5px; }
+  .auth-subtitle, .wizard-heading > p:last-child { margin-bottom: 24px; font-size: 14px; }
+  .auth-form { gap: 18px; }
+  .input-shell { height: 52px; }
+  .auth-button { min-height: 48px; }
+  .brand-panel { padding: 24px 18px; border-radius: 16px; }
+  .brand-panel h2 { margin: 26px 0 16px; font-size: clamp(36px, 11vw, 52px); letter-spacing: -2.2px; }
+  .telemetry-pill { width: fit-content; font-size: 9px; letter-spacing: .6px; }
+  .sample-program { padding: 14px; }
+  .sample-card-heading h3 { font-size: 16px; }
+  .brand-panel-footer { flex-wrap: wrap; font-size: 9px; letter-spacing: .6px; }
+
+  .auth-signup-page { padding: 12px; }
+  .wizard-topline { min-height: 40px; align-items: flex-start; gap: 8px; flex-wrap: wrap; }
+  .wizard-topline .auth-header { min-width: 0; gap: 8px; }
+  .wizard-topline .logo-lockup { gap: 7px; font-size: 15px; }
+  .wizard-topline .logo-mark { width: 34px; height: 34px; }
+  .wizard-topline .header-mark { font-size: 8px; letter-spacing: .4px; }
+  .wizard-topline .theme-toggle-icon { min-width: 44px; min-height: 44px; }
+  .wizard-side-note { align-self: center; margin-left: auto; font-size: 8px; letter-spacing: .7px; }
+  .wizard-card { margin-top: 14px; padding: 20px 14px 22px; border-radius: 16px; }
+  .progress-steps { gap: 10px; padding-bottom: 16px; }
+  .progress-label { gap: 7px; font-size: 9px; letter-spacing: .6px; }
+  .progress-label b { width: 27px; height: 27px; }
+  .progress-bars span { width: 22px; }
+  .wizard-heading { margin: 20px 0; }
+  .wizard-heading .eyebrow { margin-bottom: 9px; }
+  .role-options { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+  .role-card { min-height: 0; padding: 17px; }
+  .role-card-title { margin-top: 14px; font-size: 20px; }
+  .role-features { gap: 7px; }
+  .role-step > .auth-button { max-width: none; margin-top: 16px; }
+  .signup-grid { grid-template-columns: minmax(0, 1fr); row-gap: 8px; }
+  .signup-grid > .strength-wrap { min-height: 0; padding-top: 4px; }
+  .signup-grid .input-shell { height: 48px; }
+  .metrics-panel { padding: 14px; }
+  .metrics-heading { align-items: flex-start; flex-wrap: wrap; gap: 12px; }
+  .metrics-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 11px; }
+  .metrics-grid .input-shell { height: 44px; }
+  .wizard-footer { margin-top: 22px; padding-top: 16px; gap: 10px; font-size: 9px; letter-spacing: .5px; }
+  .wizard-footer > span:last-child { text-align: right; }
+  .state-screen { align-items: flex-start; padding: max(20px, env(safe-area-inset-top)) 14px max(20px, env(safe-area-inset-bottom)); }
+  .state-card { padding: 24px 18px; }
+
+  .workspace-header { height: 62px; padding-inline: 14px; gap: 8px; }
+  .workspace-user { min-width: 0; gap: 7px; font-size: 11px; }
+  .workspace-user > span:not(.user-avatar) { max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .workspace-user button { min-height: 44px; padding: 0 10px; margin-left: 0; }
+  .workspace-user .user-avatar { width: 30px; height: 30px; }
+  .workspace-content { min-width: 0; }
+
+  .workspace-coach .workspace-body { display: block; min-height: calc(100vh - 62px); }
+  .workspace-coach .workspace-sidebar { position: sticky; z-index: 30; top: 62px; width: 100%; height: auto; min-height: 0; padding: 7px 10px; display: block; overflow-x: auto; overflow-y: hidden; border-right: 0; border-bottom: 1px solid var(--border); background: var(--surface-sidebar-mobile); backdrop-filter: blur(18px); }
+  .workspace-coach .workspace-sidebar > .eyebrow { display: none; }
+  .workspace-coach .workspace-nav { width: max-content; min-width: 100%; display: flex; gap: 5px; }
+  .workspace-coach .workspace-nav-link { min-height: 44px; padding: 0 11px; white-space: nowrap; }
+  .workspace-coach .workspace-sidebar-appearance { margin-top: 7px; padding: 7px 0 0; display: flex; align-items: center; justify-content: space-between; gap: 10px; border-top: 1px solid var(--border); }
+  .workspace-coach .workspace-sidebar-appearance .theme-toggle { width: auto; }
+  .workspace-coach .workspace-sidebar-appearance .theme-toggle button { min-height: 36px; }
+  .workspace-athlete .workspace-body { display: block; min-height: calc(100vh - 62px); }
+  .workspace-athlete .workspace-content { padding-bottom: calc(82px + env(safe-area-inset-bottom)); }
+  .workspace-athlete .workspace-sidebar { height: auto; padding: 7px 8px max(7px, env(safe-area-inset-bottom)); }
+  .workspace-athlete .workspace-nav-link { min-height: 44px; }
+  .workspace-sidebar-appearance .theme-toggle button, .athlete-appearance-row .theme-toggle button { min-height: 44px; }
+
+  .coach-page { width: 100%; padding: 24px 15px 36px; }
+  .coach-page-header { min-height: 0; margin-bottom: 20px; align-items: stretch; flex-direction: column; gap: 14px; }
+  .coach-page-header h1 { font-size: clamp(30px, 8vw, 38px); }
+  .coach-page-header .button { min-height: 44px; }
+  .coach-page .button, .athlete-page .button { min-height: 44px; }
+  .form-field input, .form-field select { min-height: 44px; }
+  .athlete-page { padding: 24px 15px 34px; }
+  .athlete-page-heading { margin-bottom: 20px; flex-direction: column; gap: 12px; }
+  .athlete-program-heading-actions { width: 100%; flex-wrap: wrap; }
+  .athlete-program-heading-actions .button { min-height: 44px; }
+  .athlete-week-tabs button { min-height: 44px; flex: none; }
+  .athlete-day-checkin-layout { grid-template-columns: minmax(0, 1fr); }
+  .athlete-program-day { padding-inline: 14px; }
+  .athlete-program-day summary { min-height: 56px; }
+  .athlete-program-table-viewport { width: 100%; max-width: 100%; overscroll-behavior-x: contain; }
+  .athlete-program-scroll-hint { line-height: 1.5; }
+  .athlete-profile-card { grid-template-columns: auto minmax(0, 1fr); gap: 12px; }
+  .athlete-profile-card > .button, .athlete-profile-card > .athlete-photo-upload { min-height: 44px; margin-left: 0; }
+  .athlete-profile-card > .button { grid-column: 1 / -1; }
+  .athlete-profile-card > .athlete-photo-upload { grid-column: 1 / -1; }
+  .athlete-profile-save-row { align-items: stretch; flex-direction: column; gap: 14px; }
+  .athlete-profile-save-row .button { min-height: 44px; }
+
+  .coach-panel { min-width: 0; }
+  .metric-cards { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+  .metric-cards article { min-height: 112px; padding: 16px; }
+  .recent-programs, .programs-panel, .library-panel, .roster-panel, .invite-panel { padding: 16px 14px 18px; }
+  .list-toolbar { align-items: stretch; flex-direction: column; gap: 10px; }
+  .search-field { width: 100%; min-height: 44px; }
+  .program-list-row { align-items: flex-start; flex-wrap: wrap; }
+  .program-list-icon { align-self: flex-start; }
+  .program-list-main { flex-basis: calc(100% - 52px); }
+  .program-row-actions { width: 100%; flex-wrap: wrap; justify-content: flex-start; padding-left: 0; }
+  .program-row-actions .button, .roster-row .button { min-height: 44px; }
+  .roster-row, .roster-athlete-row { align-items: stretch; flex-direction: column; }
+  .roster-athlete-main { width: 100%; }
+  .roster-profile-details { grid-template-columns: minmax(0, 1fr); }
+  .roster-profile-long-detail { grid-column: auto; }
+  .roster-athlete-profile-button { min-height: 48px; }
+  .invite-link-row, .athlete-link-form { align-items: stretch; flex-direction: column; }
+  .invite-link-row input { min-height: 44px; }
+  .athlete-link-form .button { min-height: 44px; }
+  .filter-chips { max-width: 100%; overflow-x: auto; padding-bottom: 4px; overscroll-behavior-x: contain; }
+  .filter-chips button { min-height: 40px; flex: none; }
+  .exercise-cards { grid-template-columns: minmax(0, 1fr); }
+
+  .program-builder-page { padding-top: 16px; }
+  .builder-breadcrumb { flex-wrap: wrap; }
+  .builder-topbar { padding: 13px; gap: 12px; }
+  .builder-top-actions { gap: 6px; }
+  .builder-top-actions .button, .week-actions .button, .week-heading .button, .day-header-actions .button, .builder-footer .button { min-height: 44px; }
+  .builder-cell, .builder-cell > button, .builder-cell > input, .builder-cell > select { min-height: 44px; }
+  .builder-cell > button { height: 42px; }
+  .builder-cell > input, .builder-cell > select { height: 42px; }
+  .row-actions button, .icon-button { min-width: 40px; min-height: 40px; }
+  .save-indicator { min-height: 34px; justify-content: flex-start; }
+  .week-navigation { align-items: stretch; gap: 8px; }
+  .week-tabs { padding-bottom: 4px; }
+  .week-heading { align-items: flex-start; flex-direction: column; gap: 10px; padding: 10px 0; }
+  .day-card-header { align-items: flex-start; flex-wrap: wrap; }
+  .day-name-field { min-width: 0; flex: 1 1 150px; }
+  .day-header-actions { width: 100%; margin-left: 0; justify-content: flex-start; }
+  .day-card-body { max-width: 100%; overflow-x: auto; overscroll-behavior-x: contain; }
+  .program-grid { min-width: 1050px; }
+  .builder-footer { align-items: flex-start; flex-wrap: wrap; padding: 12px 6px; }
+  .builder-footer span:nth-child(2) { margin-left: 0; }
+
+  .dialog-backdrop { padding: max(12px, env(safe-area-inset-top)) 12px max(12px, env(safe-area-inset-bottom)); }
+  .exercise-dialog { width: 100%; padding: 20px 16px; max-height: calc(100dvh - 24px - env(safe-area-inset-top) - env(safe-area-inset-bottom)); }
+  .dialog-actions { flex-wrap: wrap; }
+  .dialog-actions .button { min-height: 44px; flex: 1 1 120px; }
+  .form-two-col { grid-template-columns: minmax(0, 1fr); gap: 4px; }
+}
+
+@media (max-width: 380px) {
+  .auth-login-page { padding: 8px; }
+  .login-card { padding: 22px 14px; }
+  .calibration-mark { max-width: 142px; }
+  .wizard-side-note { font-size: 7px; letter-spacing: .35px; }
+  .wizard-footer { align-items: flex-start; flex-direction: column; }
+  .wizard-footer > span:last-child { text-align: left; }
+  .metrics-grid { grid-template-columns: minmax(0, 1fr); }
+  .metrics-heading { flex-direction: column; }
+  .workspace-header { padding-inline: 10px; }
+  .workspace-user > span:not(.user-avatar) { max-width: 76px; }
+  .workspace-coach .workspace-nav-link { padding-inline: 9px; font-size: 11px; }
+  .coach-page, .athlete-page { padding-inline: 12px; }
+  .panel-heading { align-items: flex-start; gap: 10px; }
+  .exercise-title-line { min-width: 0; }
+  .tag { font-size: 7px; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; }
 }
