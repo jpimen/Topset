@@ -825,7 +825,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .workspace-coach .workspace-sidebar-appearance .theme-toggle button { min-height: 36px; }
   .workspace-athlete .workspace-body { display: block; min-height: calc(100vh - 62px); }
   .workspace-athlete .workspace-content { padding-bottom: calc(82px + env(safe-area-inset-bottom)); }
-  .workspace-athlete .workspace-sidebar { padding: 7px 8px max(7px, env(safe-area-inset-bottom)); }
+  .workspace-athlete .workspace-sidebar { height: auto; padding: 7px 8px max(7px, env(safe-area-inset-bottom)); }
   .workspace-athlete .workspace-nav-link { min-height: 44px; }
   .workspace-sidebar-appearance .theme-toggle button, .athlete-appearance-row .theme-toggle button { min-height: 44px; }
 
