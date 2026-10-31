@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../../auth/AuthProvider';
 import { AthleteWorkoutCheckInPanel } from './AthleteWorkoutCheckInPanel';
-import { AthleteWorkoutLogPanel } from './AthleteWorkoutLogPanel';
+import { AthleteWorkoutLogRows } from './AthleteWorkoutLogRows';
 import { useAthleteProgram } from './useAthleteProgram';
 
 function loadLabel(row: { load_mode: string; load_value: number | null; load_min: number | null; load_max: number | null; percent_of?: 'e1rm' | 'tm' | null }, unit: string) {
@@ -42,11 +42,11 @@ export function AthleteProgramPage() {
               <summary><span><strong>{day.name}</strong><small>{day.exercises.length} {day.exercises.length === 1 ? 'exercise' : 'exercises'}</small></span><span aria-hidden="true">⌄</span></summary>
               {day.notes && <p className="athlete-coach-note"><strong>Coach note</strong>{day.notes}</p>}
               {day.exercises.length === 0 ? <p className="athlete-program-empty-day">No exercises in this day.</p> : <div className="athlete-program-table-viewport" role="region" aria-label={`${week.name} ${day.name} prescriptions`} tabIndex={0}>
-                <p className="athlete-program-scroll-hint">Swipe horizontally to view every prescription column.</p>
+                <p className="athlete-program-scroll-hint">Swipe horizontally to view all columns. Load and RPE lifted are recorded for every set in that exercise.</p>
                 <table className="athlete-program-table">
-                  <caption className="visually-hidden">{week.name}, {day.name} exercise prescriptions</caption>
-                  <thead><tr><th scope="col">Exercise</th><th scope="col">Set type</th><th scope="col">Sets</th><th scope="col">Reps</th><th scope="col">RPE</th><th scope="col">Load</th><th scope="col">Coach notes</th></tr></thead>
-                  <tbody>{day.exercises.map((row) => <tr key={row.id}>
+                  <caption className="visually-hidden">{week.name}, {day.name} exercise prescriptions and athlete workout log</caption>
+                  <thead><tr><th scope="col">Exercise</th><th scope="col">Set type</th><th scope="col">Sets</th><th scope="col">Reps</th><th scope="col">RPE</th><th scope="col">Load</th><th scope="col">Coach notes</th><th scope="col">Load lifted ({result.program.program.unit})</th><th scope="col">RPE lifted</th><th scope="col">Athlete notes</th></tr></thead>
+                  <tbody>{profile?.id ? <AthleteWorkoutLogRows athleteId={profile.id} assignmentId={result.assignment.id} day={day} unit={result.program.program.unit} /> : day.exercises.map((row) => <tr key={row.id}>
                     <th scope="row" className="athlete-program-exercise">{row.exercise.name}</th>
                     <td><span className={`athlete-program-set-type${row.set_type ? ` set-type-${row.set_type}` : ''}`}>{row.set_type ?? '—'}</span></td>
                     <td>{row.sets ?? '—'}</td>
@@ -54,10 +54,10 @@ export function AthleteProgramPage() {
                     <td>{row.rpe ?? '—'}</td>
                     <td>{loadLabel(row, result.program.program.unit)}</td>
                     <td className="athlete-program-coach-notes">{row.notes_coach || '—'}</td>
+                    <td>—</td><td>—</td><td>—</td>
                   </tr>)}</tbody>
                 </table>
               </div>}
-              {profile?.id && <AthleteWorkoutLogPanel athleteId={profile.id} assignmentId={result.assignment.id} day={day} unit={result.program.program.unit} />}
             </details>{profile?.id && <AthleteWorkoutCheckInPanel athleteId={profile.id} assignmentId={result.assignment.id} dayId={day.id} dayName={day.name} defaultUnit={result.program.program.unit} />}</div>)}
           </section>
       </>}
