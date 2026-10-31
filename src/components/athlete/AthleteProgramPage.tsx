@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../../auth/AuthProvider';
 import { AthleteWorkoutCheckInPanel } from './AthleteWorkoutCheckInPanel';
-import { AthleteWorkoutSection } from './AthleteWorkoutSection';
+import { AthleteWorkoutLogRows } from './AthleteWorkoutLogRows';
 import { useAthleteProgram } from './useAthleteProgram';
 
 function loadLabel(row: { load_mode: string; load_value: number | null; load_min: number | null; load_max: number | null; percent_of?: 'e1rm' | 'tm' | null }, unit: string) {
@@ -31,7 +31,6 @@ export function AthleteProgramPage() {
   const week = result.program.weeks[selectedWeek];
   return (
     <main className="athlete-page">
-      <AthleteWorkoutSection profile={profile} result={result} refreshProgram={refresh} />
       <header className="athlete-page-heading"><div><p className="eyebrow">PROGRAM · {result.assignment.sync_mode === 'live' ? 'LIVE PLAN' : 'SAVED SNAPSHOT'}</p><h1>{result.program.program.name}</h1><p>{result.program.program.description || 'Your coach’s plan, available here to review at any time.'}</p></div><div className="athlete-program-heading-actions"><span className="athlete-readonly-tag">Read only</span><button className="button button-secondary" onClick={refresh}>Refresh program</button></div></header>
       {result.program.weeks.length === 0 ? <section className="coach-panel empty-state"><h2>Your program is being prepared</h2><p>There are no weeks in this plan yet.</p></section> : <>
         <nav className="athlete-week-tabs" aria-label="Program weeks">
@@ -43,11 +42,11 @@ export function AthleteProgramPage() {
               <summary><span><strong>{day.name}</strong><small>{day.exercises.length} {day.exercises.length === 1 ? 'exercise' : 'exercises'}</small></span><span aria-hidden="true">⌄</span></summary>
               {day.notes && <p className="athlete-coach-note"><strong>Coach note</strong>{day.notes}</p>}
               {day.exercises.length === 0 ? <p className="athlete-program-empty-day">No exercises in this day.</p> : <div className="athlete-program-table-viewport" role="region" aria-label={`${week.name} ${day.name} prescriptions`} tabIndex={0}>
-                <p className="athlete-program-scroll-hint">Swipe horizontally to view every prescription column.</p>
+                <p className="athlete-program-scroll-hint">Swipe horizontally to view all columns. Press Save changes after logging; load and RPE lifted apply to every set in that exercise.</p>
                 <table className="athlete-program-table">
-                  <caption className="visually-hidden">{week.name}, {day.name} exercise prescriptions</caption>
-                  <thead><tr><th scope="col">Exercise</th><th scope="col">Set type</th><th scope="col">Sets</th><th scope="col">Reps</th><th scope="col">RPE</th><th scope="col">Load</th><th scope="col">Coach notes</th></tr></thead>
-                  <tbody>{day.exercises.map((row) => <tr key={row.id}>
+                  <caption className="visually-hidden">{week.name}, {day.name} exercise prescriptions and athlete workout log</caption>
+                  <thead><tr><th scope="col">Exercise</th><th scope="col">Set type</th><th scope="col">Sets</th><th scope="col">Reps</th><th scope="col">RPE</th><th scope="col">Load</th><th scope="col">Coach notes</th><th scope="col">Load lifted ({result.program.program.unit})</th><th scope="col">RPE lifted</th><th scope="col">Athlete notes</th></tr></thead>
+                  <tbody>{profile?.id ? <AthleteWorkoutLogRows athleteId={profile.id} assignmentId={result.assignment.id} day={day} unit={result.program.program.unit} /> : day.exercises.map((row) => <tr key={row.id}>
                     <th scope="row" className="athlete-program-exercise">{row.exercise.name}</th>
                     <td><span className={`athlete-program-set-type${row.set_type ? ` set-type-${row.set_type}` : ''}`}>{row.set_type ?? '—'}</span></td>
                     <td>{row.sets ?? '—'}</td>
@@ -55,6 +54,7 @@ export function AthleteProgramPage() {
                     <td>{row.rpe ?? '—'}</td>
                     <td>{loadLabel(row, result.program.program.unit)}</td>
                     <td className="athlete-program-coach-notes">{row.notes_coach || '—'}</td>
+                    <td>—</td><td>—</td><td>—</td>
                   </tr>)}</tbody>
                 </table>
               </div>}

@@ -1,5 +1,11 @@
 # Decisions
 
+## 2026-10-31 — Remove athlete next-workout logging section
+
+- Remove the entire Next workout section and its set-entry controls from the athlete Program page, as requested. Program remains a read-only prescription overview with per-day check-ins.
+- Keep the background sync provider so workout drafts already queued on a device can still sync; show pending/error status globally because Program no longer has an inline sync panel.
+- New workout sets cannot be entered in the athlete UI until a replacement logging surface is requested.
+
 ## 2026-10-31 — Athlete program landing and profile details
 
 - Remove Today as a separate athlete destination and route `/athlete` to Program. Keep the existing next-workout logging controls, offline drafts, and sync status inside Program so the navigation change does not remove workout capability.
