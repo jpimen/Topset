@@ -489,6 +489,14 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .program-list-main > a { display: inline-block; max-width: 100%; overflow: hidden; color: var(--text); font-size: 14px; font-weight: 700; text-decoration: none; text-overflow: ellipsis; white-space: nowrap; }
 .program-list-main > a:hover { color: var(--gold-light); }
 .program-list-main p { margin: 5px 0 0; color: var(--secondary); font: 10px var(--mono); }
+.program-assigned-athletes { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 8px; }
+.program-assigned-athlete { min-width: 0; padding: 6px 9px 6px 6px; display: flex; align-items: center; gap: 8px; background: #171610; border: 1px solid var(--border); border-radius: 10px; }
+.program-athlete-avatar, .assignment-athlete-avatar { width: 34px; height: 34px; flex: none; display: grid; place-items: center; overflow: hidden; color: var(--gold-light); background: #302a1a; border: 1px solid #51452b; border-radius: 50%; object-fit: cover; font: 700 13px var(--display); }
+.program-assigned-athlete > span:last-child { min-width: 0; display: grid; gap: 3px; }
+.program-assigned-athlete strong, .assignment-athlete-copy strong { color: var(--text); font-size: 10px; }
+.program-assigned-athlete small, .assignment-athlete-copy small { max-width: 220px; overflow: hidden; color: var(--muted); font-size: 9px; text-overflow: ellipsis; white-space: nowrap; }
+.program-no-athletes { display: inline-block; margin-top: 8px; color: var(--muted); font-size: 10px; }
+.program-athlete-avatar-fallback, .assignment-athlete-avatar-fallback { font-size: 13px; }
 .program-row-actions { display: flex; align-items: center; gap: 5px; }
 .program-row-actions .button { min-height: 33px; padding: 0 10px; font-size: 11px; }
 .coach-checkins-panel { min-width: 0; padding: 19px 16px 16px; }
@@ -551,7 +559,10 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .assignment-dialog { max-height: min(90vh, 720px); overflow-y: auto; }
 .assignment-athletes { max-height: 230px; overflow: auto; margin: 12px 0; padding: 12px; border: 1px solid var(--border); border-radius: 9px; }
 .assignment-athletes legend { padding: 0 5px; }
-.assignment-athletes .checkbox-line { margin: 10px 0; }
+.assignment-athlete-option { min-width: 0; margin: 7px 0; padding: 9px; display: flex; align-items: center; gap: 10px; color: var(--secondary); background: #15140f; border: 1px solid transparent; border-radius: 9px; cursor: pointer; }
+.assignment-athlete-option.selected { background: #272216; border-color: #57492a; }
+.assignment-athlete-option input { flex: none; accent-color: var(--gold); }
+.assignment-athlete-copy { min-width: 0; display: grid; gap: 4px; }
 .assignment-dialog .field-help { display: block; margin: 8px 0; color: var(--muted); font-size: 11px; }
 .athlete-link-card { margin-top: 22px; padding: 20px; }
 .athlete-link-card h2 { margin: 6px 0; color: var(--text); font-size: 17px; }
@@ -560,6 +571,10 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .athlete-link-form .form-field { flex: 1; }
 .invite-code-field { grid-column: 1 / -1; }
 @media (max-width: 700px) {
+  .program-list-row { align-items: flex-start; flex-wrap: wrap; }
+  .program-list-icon { align-self: flex-start; }
+  .program-list-main { flex-basis: calc(100% - 52px); }
+  .program-row-actions { width: 100%; flex-wrap: wrap; justify-content: flex-start; padding-left: 48px; }
   .roster-row, .roster-athlete-row { align-items: flex-start; flex-direction: column; }
   .roster-profile-details { grid-template-columns: minmax(0, 1fr); }
   .roster-profile-long-detail { grid-column: auto; }
