@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../../auth/AuthProvider';
 import { AthleteWorkoutCheckInPanel } from './AthleteWorkoutCheckInPanel';
-import { AthleteWorkoutSection } from './AthleteWorkoutSection';
 import { useAthleteProgram } from './useAthleteProgram';
 
 function loadLabel(row: { load_mode: string; load_value: number | null; load_min: number | null; load_max: number | null; percent_of?: 'e1rm' | 'tm' | null }, unit: string) {
@@ -31,7 +30,6 @@ export function AthleteProgramPage() {
   const week = result.program.weeks[selectedWeek];
   return (
     <main className="athlete-page">
-      <AthleteWorkoutSection profile={profile} result={result} refreshProgram={refresh} />
       <header className="athlete-page-heading"><div><p className="eyebrow">PROGRAM · {result.assignment.sync_mode === 'live' ? 'LIVE PLAN' : 'SAVED SNAPSHOT'}</p><h1>{result.program.program.name}</h1><p>{result.program.program.description || 'Your coach’s plan, available here to review at any time.'}</p></div><div className="athlete-program-heading-actions"><span className="athlete-readonly-tag">Read only</span><button className="button button-secondary" onClick={refresh}>Refresh program</button></div></header>
       {result.program.weeks.length === 0 ? <section className="coach-panel empty-state"><h2>Your program is being prepared</h2><p>There are no weeks in this plan yet.</p></section> : <>
         <nav className="athlete-week-tabs" aria-label="Program weeks">

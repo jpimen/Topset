@@ -308,26 +308,9 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .athlete-empty { padding: 28px; }
 .athlete-empty h1 { margin: 8px 0; font: 700 30px var(--display); }
 .athlete-empty > p:not(.eyebrow) { color: var(--secondary); line-height: 1.6; }
-.athlete-session { display: grid; gap: 14px; }
-.athlete-exercise-entry { padding: 20px 4px; border-bottom: 1px solid var(--border); }
-.athlete-exercise-entry:last-child { border-bottom: 0; }
-.athlete-exercise-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; }
-.athlete-exercise-heading h2 { margin: 5px 0 0; font: 700 19px var(--display); }
-.athlete-prescription { padding: 7px 9px; border: 1px solid #50452a; border-radius: 8px; color: var(--gold-light); background: #302a1a; font: 600 11px var(--mono); white-space: nowrap; }
-.athlete-prescribed-load { margin: 10px 0 0; color: var(--secondary); font-size: 12px; }
 .athlete-coach-note { margin: 13px 0 0; padding: 11px 13px; display: grid; gap: 4px; border-left: 2px solid var(--gold); color: var(--secondary); background: #ffffff06; font-size: 12px; line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; }
 .athlete-coach-note strong { color: var(--gold-light); font-size: 10px; text-transform: uppercase; letter-spacing: .6px; }
-.athlete-log-grid { margin-top: 18px; display: grid; grid-template-columns: 42px minmax(0, 1fr) minmax(0, 1fr); align-items: center; gap: 8px 10px; }
-.log-column-label { color: var(--muted); font: 700 9px var(--mono); letter-spacing: .45px; }
-.athlete-set-row { display: contents; }
-.athlete-set-number { color: var(--secondary); font: 700 12px var(--mono); }
-.athlete-set-row input, .athlete-set-row select, .athlete-notes-field textarea { width: 100%; min-height: 44px; padding: 0 11px; border: 1px solid #393427; border-radius: 9px; color: var(--text); background: #11100d; font: 500 14px 'Plus Jakarta Sans', sans-serif; }
-.athlete-set-row input:focus-visible, .athlete-set-row select:focus-visible, .athlete-notes-field textarea:focus-visible, .athlete-week-tabs button:focus-visible, .athlete-program-day summary:focus-visible { outline: 2px solid var(--gold-light); outline-offset: 2px; }
-.athlete-notes-field { display: block; margin-top: 16px; color: var(--secondary); font-size: 10px; font-weight: 700; letter-spacing: .7px; text-transform: uppercase; }
-.athlete-notes-field textarea { display: block; height: auto; min-height: 64px; margin-top: 7px; padding: 10px 11px; resize: vertical; font-size: 12px; letter-spacing: 0; text-transform: none; }
-.athlete-session-footer { margin-top: 18px; padding: 18px 0 0; display: flex; align-items: center; justify-content: space-between; gap: 18px; border-top: 1px solid var(--border); }
-.athlete-session-footer p { margin: 0; color: var(--muted); font-size: 11px; line-height: 1.5; }
-.athlete-finish-button { min-height: 48px; padding-inline: 20px; }
+.athlete-week-tabs button:focus-visible, .athlete-program-day summary:focus-visible { outline: 2px solid var(--gold-light); outline-offset: 2px; }
 .athlete-week-tabs { margin-bottom: 16px; display: flex; gap: 8px; overflow-x: auto; padding: 3px 1px 9px; }
 .athlete-week-tabs button { min-height: 42px; padding: 0 15px; flex: none; border: 1px solid var(--border); border-radius: 9px; color: var(--secondary); background: #171510; font-size: 12px; font-weight: 700; }
 .athlete-week-tabs button.selected { color: var(--gold-light); border-color: #6b5d35; background: #302a1a; }
@@ -410,9 +393,6 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .athlete-profile-form textarea:focus-visible { outline: 2px solid var(--gold-light); outline-offset: 2px; }
 .athlete-profile-save-row { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding-top: 4px; }
 .athlete-profile-save-row .field-help { margin: 0; }
-.athlete-next-workout { margin-bottom: 32px; padding-bottom: 25px; border-bottom: 1px solid var(--border); }
-.athlete-next-workout .athlete-page-heading { margin-bottom: 16px; }
-.athlete-next-workout .athlete-page-heading h2 { margin: 7px 0 8px; color: var(--text); font: 700 clamp(24px, 3vw, 32px)/1.1 var(--display); }
 .athlete-global-sync { margin: 18px clamp(15px, 4vw, 48px) 0; }
 @media (max-width: 700px) {
   .workspace-athlete .workspace-body { display: block; min-height: calc(100vh - 62px); }
@@ -430,23 +410,12 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .athlete-program-heading-actions { width: 100%; justify-content: space-between; }
   .athlete-day-checkin-layout { grid-template-columns: minmax(0, 1fr); }
   .athlete-program-scroll-hint { display: block; margin: 0; padding: 8px 14px; color: var(--muted); font-size: 10px; }
-  .athlete-session-footer { align-items: stretch; flex-direction: column; }
-  .athlete-finish-button { width: 100%; }
   .athlete-profile-card { flex-wrap: wrap; }
   .athlete-profile-card .button { margin-left: auto; }
   .athlete-profile-form-row { grid-template-columns: minmax(0, 1fr); }
   .athlete-profile-save-row { align-items: stretch; flex-direction: column; }
   .athlete-profile-save-row .button { width: 100%; }
-  .athlete-next-workout .athlete-page-heading-actions { align-items: flex-start; }
-  .athlete-exercise-entry { padding: 18px 2px; }
-  .athlete-exercise-heading { flex-direction: column; }
-  .athlete-prescription { white-space: normal; }
 }
-@media (max-width: 370px) {
-  .athlete-log-grid { grid-template-columns: 30px minmax(0, 1fr) minmax(0, 1fr); gap: 7px; }
-  .log-column-label { font-size: 8px; }
-}
-
 /* Coach workspace: dense, desktop-first charcoal and gold surfaces. */
 .coach-page { width: min(100%, 1720px); min-width: 820px; margin: 0 auto; padding: 38px 42px 62px; }
 .coach-page-header { min-height: 108px; margin-bottom: 28px; display: flex; align-items: flex-end; justify-content: space-between; gap: 28px; }
