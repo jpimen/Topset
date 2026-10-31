@@ -353,6 +353,10 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .athlete-program-log-note { min-width: 130px; }
 .athlete-program-log-input:disabled { opacity: .55; }
 .athlete-program-log-loading { height: 58px; }
+.athlete-program-log-save-row td { padding: 10px 12px; border-top: 1px solid var(--border); }
+.athlete-program-log-save-controls { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+.athlete-program-log-save-controls .checkin-status { display: block; }
+.athlete-program-log-error { margin: 4px 0 0; color: var(--error); font-size: 10px; line-height: 1.5; }
 .coach-workout-log-review { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--border); }
 .coach-workout-log-review-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
 .coach-workout-log-review-heading h4 { margin: 0; color: var(--text); font: 700 14px var(--display); }
