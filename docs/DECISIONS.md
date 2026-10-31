@@ -1,5 +1,11 @@
 # Decisions
 
+## 2026-11-01 — Mobile and tablet layout
+
+- Scope responsive layout changes to viewports below 1024 CSS pixels so the desktop UI at 1024 pixels and wider keeps its existing rules and appearance.
+- Use mobile-scoped CSS to stack auth forms, keep role navigation discoverable, add safe-area and fixed-nav spacing, and contain horizontal scrolling inside the coach builder and athlete prescription tables.
+- Support narrow phones from 320 CSS pixels through tablet widths below 1024 pixels without changing routes, data behavior, or authorization.
+
 ## 2026-11-01 — Device-level Dark and Light appearance
 
 - Offer Dark and Light as the two appearance choices. Dark remains the first-visit default and preserves the existing dark palette; the user requested a two-choice toggle, so System is not an option.
