@@ -529,6 +529,22 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .roster-row strong { color: var(--text); font-size: 13px; }
 .roster-row small, .invite-panel small { color: var(--muted); font-size: 10px; }
 .roster-athlete-row { align-items: flex-start; }
+.roster-athlete-main { min-width: 0; }
+.roster-athlete-profile-button { width: fit-content; max-width: 100%; padding: 0; display: flex; align-items: center; gap: 11px; color: inherit; background: none; border: 0; text-align: left; cursor: pointer; }
+.roster-athlete-profile-button:focus-visible { outline: 2px solid var(--gold-light); outline-offset: 4px; border-radius: 8px; }
+.roster-athlete-avatar { width: 46px; height: 46px; flex: none; display: grid; place-items: center; overflow: hidden; color: var(--gold-light); background: #302a1a; border: 1px solid #51452b; border-radius: 50%; object-fit: cover; font: 700 17px var(--display); }
+.roster-athlete-identity { display: grid; gap: 4px; }
+.roster-athlete-identity small { color: var(--gold-light); }
+.athlete-roster-profile-dialog { max-height: min(90vh, 760px); overflow-y: auto; }
+.roster-profile-summary { display: flex; align-items: center; gap: 14px; padding: 0 0 18px; border-bottom: 1px solid var(--border); }
+.roster-profile-photo { width: 68px; height: 68px; flex: none; display: grid; place-items: center; color: var(--gold-light); background: #302a1a; border: 1px solid #51452b; border-radius: 14px; object-fit: cover; font: 700 24px var(--display); }
+.roster-profile-summary > div { display: grid; gap: 6px; }
+.roster-profile-summary small { color: var(--muted); font-size: 10px; }
+.roster-profile-details { margin: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 18px; }
+.roster-profile-details > div { padding: 15px 0; border-bottom: 1px solid var(--border); }
+.roster-profile-details dt { margin-bottom: 6px; color: var(--muted); font: 700 9px var(--mono); letter-spacing: .07em; text-transform: uppercase; }
+.roster-profile-details dd { margin: 0; color: var(--text); font-size: 12px; line-height: 1.6; white-space: pre-wrap; overflow-wrap: anywhere; }
+.roster-profile-long-detail { grid-column: 1 / -1; }
 .invite-panel > p { color: var(--secondary); font-size: 12px; }
 .invite-link-row { display: flex; gap: 9px; margin: 14px 0 8px; }
 .invite-link-row input { min-width: 0; flex: 1; padding: 0 12px; color: var(--text); background: #11100d; border: 1px solid #393427; border-radius: 8px; font: 11px var(--mono); }
@@ -545,6 +561,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .invite-code-field { grid-column: 1 / -1; }
 @media (max-width: 700px) {
   .roster-row, .roster-athlete-row { align-items: flex-start; flex-direction: column; }
+  .roster-profile-details { grid-template-columns: minmax(0, 1fr); }
+  .roster-profile-long-detail { grid-column: auto; }
   .invite-link-row, .athlete-link-form { align-items: stretch; flex-direction: column; }
   .invite-link-row input { min-height: 42px; }
 }
