@@ -296,7 +296,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .workspace-athlete .workspace-body { grid-template-columns: 184px minmax(0, 1fr); }
 .workspace-athlete .workspace-sidebar { background: #12110e; }
 .workspace-athlete .workspace-nav-link { min-height: 48px; }
-.athlete-page { width: min(100%, 1180px); margin: 0 auto; padding: 34px clamp(18px, 4vw, 48px) 60px; }
+.athlete-page { width: 100%; margin: 0; padding: 34px clamp(20px, 3vw, 52px) 60px; }
 .athlete-page-heading { margin-bottom: 25px; display: flex; align-items: flex-start; justify-content: space-between; gap: 22px; }
 .athlete-page-heading h1 { margin: 7px 0 10px; color: var(--text); font: 700 clamp(30px, 4vw, 42px)/1.08 var(--display); letter-spacing: -1.5px; }
 .athlete-page-heading p:not(.eyebrow) { max-width: 640px; margin: 0; color: var(--secondary); font-size: 13px; line-height: 1.6; }
@@ -309,7 +309,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .athlete-empty h1 { margin: 8px 0; font: 700 30px var(--display); }
 .athlete-empty > p:not(.eyebrow) { color: var(--secondary); line-height: 1.6; }
 .athlete-session { display: grid; gap: 14px; }
-.athlete-exercise-card { padding: clamp(16px, 3vw, 23px); }
+.athlete-exercise-entry { padding: 20px 4px; border-bottom: 1px solid var(--border); }
+.athlete-exercise-entry:last-child { border-bottom: 0; }
 .athlete-exercise-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; }
 .athlete-exercise-heading h2 { margin: 5px 0 0; font: 700 19px var(--display); }
 .athlete-prescription { padding: 7px 9px; border: 1px solid #50452a; border-radius: 8px; color: var(--gold-light); background: #302a1a; font: 600 11px var(--mono); white-space: nowrap; }
@@ -437,6 +438,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .athlete-profile-save-row { align-items: stretch; flex-direction: column; }
   .athlete-profile-save-row .button { width: 100%; }
   .athlete-next-workout .athlete-page-heading-actions { align-items: flex-start; }
+  .athlete-exercise-entry { padding: 18px 2px; }
   .athlete-exercise-heading { flex-direction: column; }
   .athlete-prescription { white-space: normal; }
 }
