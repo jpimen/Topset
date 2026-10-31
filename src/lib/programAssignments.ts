@@ -8,7 +8,14 @@ export type ProgramAssignment = {
   start_date: string;
   sync_mode: 'live' | 'snapshot';
   status: 'active' | 'ended';
-  athlete: { id: string; name: string } | null;
+  athlete: {
+    id: string;
+    name: string;
+    category: string | null;
+    weight_class: string | null;
+    team_name: string | null;
+    profile_photo_path: string | null;
+  } | null;
   program: { id: string; name: string } | null;
 };
 
@@ -38,7 +45,7 @@ export async function assignProgramToAthletes(input: {
 
 export async function listActiveAssignments(coachId: string): Promise<ProgramAssignment[]> {
   const { data, error } = await client().from('program_assignments')
-    .select('id, program_id, coach_id, athlete_id, start_date, sync_mode, status, athlete:profiles!program_assignments_athlete_id_fkey(id, name), program:programs!program_assignments_program_id_fkey(id, name)')
+    .select('id, program_id, coach_id, athlete_id, start_date, sync_mode, status, athlete:profiles!program_assignments_athlete_id_fkey(id, name, category, weight_class, team_name, profile_photo_path), program:programs!program_assignments_program_id_fkey(id, name)')
     .eq('coach_id', coachId).eq('status', 'active').order('start_date', { ascending: true });
   raise(error);
   return (data ?? []) as unknown as ProgramAssignment[];

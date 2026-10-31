@@ -38,3 +38,8 @@
 3. Build the coach-only peaking module and athlete-facing peak results in Milestone 6.
 4. Add deeper athlete/coach analytics and program export in Milestone 7.
 5. Continue with the approved build order and request approval before each later milestone.
+
+6. add a chat system between coach and athlete.
+7. add a feature that athletes can upload videos of there training and the coach will view.
+
+

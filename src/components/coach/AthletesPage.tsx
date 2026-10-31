@@ -10,6 +10,7 @@ import {
   type CoachLink,
 } from '../../lib/coachAthletes';
 import { endProgramAssignment, listActiveAssignments, type ProgramAssignment } from '../../lib/programAssignments';
+import { supabase } from '../../lib/supabase';
 
 export function AthletesPage() {
   const coachId = useCoachId();
@@ -20,6 +21,50 @@ export function AthletesPage() {
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
   const [inviteLink, setInviteLink] = useState('');
+  const [selectedAthlete, setSelectedAthlete] = useState<CoachLink | null>(null);
+  const [selectedPhotoUrl, setSelectedPhotoUrl] = useState<string | null>(null);
+  const [rosterPhotoUrls, setRosterPhotoUrls] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    let current = true;
+    const withPhotos = links.filter((link) => link.status === 'active' && link.athlete?.profile_photo_path);
+    if (!supabase || !withPhotos.length) {
+      setRosterPhotoUrls({});
+      return () => { current = false; };
+    }
+    const storageClient = supabase;
+    void Promise.all(withPhotos.map(async (link) => {
+      const { data, error: photoError } = await storageClient.storage.from('athlete-profile-photos').createSignedUrl(link.athlete!.profile_photo_path!, 3600);
+      return photoError ? null : [link.athlete_id, data.signedUrl] as const;
+    })).then((results) => {
+      if (current) setRosterPhotoUrls(Object.fromEntries(results.filter((result): result is readonly [string, string] => result !== null)));
+    });
+    return () => { current = false; };
+  }, [links]);
+
+  useEffect(() => {
+    let current = true;
+    const photoPath = selectedAthlete?.athlete?.profile_photo_path;
+    if (!photoPath || !supabase) {
+      setSelectedPhotoUrl(null);
+      return () => { current = false; };
+    }
+    void supabase.storage.from('athlete-profile-photos').createSignedUrl(photoPath, 3600)
+      .then(({ data, error: photoError }) => {
+        if (!current) return;
+        setSelectedPhotoUrl(photoError ? null : data.signedUrl);
+      });
+    return () => { current = false; };
+  }, [selectedAthlete]);
+
+  useEffect(() => {
+    if (!selectedAthlete) return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setSelectedAthlete(null);
+    };
+    window.addEventListener('keydown', closeOnEscape);
+    return () => window.removeEventListener('keydown', closeOnEscape);
+  }, [selectedAthlete]);
 
   const refresh = useCallback(async () => {
     setError('');
@@ -173,7 +218,12 @@ export function AthletesPage() {
               const athleteAssignments = assignmentsByAthlete.get(link.athlete_id) ?? [];
               return (
                 <article className="roster-row roster-athlete-row" key={link.id}>
-                  <div><strong>{link.athlete?.name ?? 'Athlete'}</strong><small>Linked {new Date(link.created_at).toLocaleDateString()}</small>
+                  <div className="roster-athlete-main">
+                    <button className="roster-athlete-profile-button" onClick={() => setSelectedAthlete(link)} aria-label={`View ${link.athlete?.name ?? 'athlete'} profile`}>
+                      {rosterPhotoUrls[link.athlete_id] ? <img className="roster-athlete-avatar" src={rosterPhotoUrls[link.athlete_id]} alt="" /> : <span className="roster-athlete-avatar" aria-hidden="true">{link.athlete?.name?.slice(0, 1).toUpperCase() ?? 'A'}</span>}
+                      <span className="roster-athlete-identity"><strong>{link.athlete?.name ?? 'Athlete'}</strong><small>View athlete profile</small></span>
+                    </button>
+                    <small>Linked {new Date(link.created_at).toLocaleDateString()}</small>
                     {athleteAssignments.length ? <small>Program: {athleteAssignments.map((item) => `${item.program?.name ?? 'Program'} · ${item.sync_mode} · starts ${item.start_date}`).join(', ')}</small> : <small>No program assigned</small>}
                   </div>
                   <div className="program-row-actions">
@@ -186,6 +236,22 @@ export function AthletesPage() {
           </div>
         )}
       </section>
+
+      {selectedAthlete?.athlete && <div className="dialog-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setSelectedAthlete(null); }}>
+        <section className="exercise-dialog athlete-roster-profile-dialog" role="dialog" aria-modal="true" aria-labelledby="roster-profile-title">
+          <div className="panel-heading"><div><p className="eyebrow">ATHLETE PROFILE</p><h2 id="roster-profile-title">{selectedAthlete.athlete.name}</h2></div><button className="icon-button" aria-label="Close athlete profile" onClick={() => setSelectedAthlete(null)}>×</button></div>
+          <div className="roster-profile-summary">
+            {selectedPhotoUrl ? <img className="roster-profile-photo" src={selectedPhotoUrl} alt={`${selectedAthlete.athlete.name} profile`} /> : <span className="roster-profile-photo roster-profile-photo-fallback" aria-hidden="true">{selectedAthlete.athlete.name.slice(0, 1).toUpperCase()}</span>}
+            <div><strong>{selectedAthlete.athlete.category || 'Athlete'}</strong><small>Linked {new Date(selectedAthlete.created_at).toLocaleDateString()}</small></div>
+          </div>
+          <dl className="roster-profile-details">
+            <div><dt>Weight class</dt><dd>{selectedAthlete.athlete.weight_class || 'Not provided'}</dd></div>
+            <div><dt>Team or gym</dt><dd>{selectedAthlete.athlete.team_name || 'Not provided'}</dd></div>
+            <div className="roster-profile-long-detail"><dt>Bio</dt><dd>{selectedAthlete.athlete.bio || 'No bio provided.'}</dd></div>
+            <div className="roster-profile-long-detail"><dt>Achievements</dt><dd>{selectedAthlete.athlete.achievements || 'No achievements provided.'}</dd></div>
+          </dl>
+        </section>
+      </div>}
     </main>
   );
 }
