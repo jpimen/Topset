@@ -1,5 +1,11 @@
 # Decisions
 
+## 2026-10-31 — Athlete program landing and profile details
+
+- Remove Today as a separate athlete destination and route `/athlete` to Program. Keep the existing next-workout logging controls, offline drafts, and sync status inside Program so the navigation change does not remove workout capability.
+- Store athlete bio, category, achievements, team, weight class, and photo path on the existing profile row. Profile fields remain scoped by current profile RLS and role identity protections.
+- Store athlete pictures in a private Supabase Storage bucket under the athlete UUID. Allow the athlete to manage their own files and currently linked coaches to read them; render signed URLs in the athlete profile.
+
 ## 2026-10-29 — Program save and live refresh
 
 - Flush the latest builder document before leaving through either an app link or the Exit button. Keep the coach in the builder if that save fails, so a visible retry can recover the edits instead of discarding them during unmount.

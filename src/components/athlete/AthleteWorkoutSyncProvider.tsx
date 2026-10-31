@@ -116,7 +116,7 @@ export function AthleteWorkoutSyncProvider({ children }: { children: ReactNode }
 
   const value = useMemo(() => ({ state, offline, error, syncVersion, retry }), [state, offline, error, syncVersion, retry]);
   const pendingCount = profile?.id ? readWorkoutDrafts(profile.id).length : 0;
-  const showPendingElsewhere = location.pathname !== '/athlete' && (state === 'error' || pendingCount > 0 && (offline || state === 'pending' || state === 'saving'));
+  const showPendingElsewhere = location.pathname !== '/athlete/program' && (state === 'error' || pendingCount > 0 && (offline || state === 'pending' || state === 'saving'));
   return <WorkoutSyncContext.Provider value={value}>
     {showPendingElsewhere && <div className="alert-banner alert-info athlete-global-sync" role="status"><span className="alert-mark">i</span><div>{error || (offline ? `${pendingCount} workout ${pendingCount === 1 ? 'entry is' : 'entries are'} saved on this device and waiting to sync.` : state === 'saving' ? 'Syncing your workout entries…' : `${pendingCount} workout ${pendingCount === 1 ? 'entry is' : 'entries are'} waiting to sync.`)}{pendingCount > 0 && state !== 'saving' && <button className="button button-quiet" onClick={() => void retry()}>Retry sync</button>}</div></div>}
     {children}

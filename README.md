@@ -54,6 +54,8 @@ supabase db push
 
 Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` from that project in `.env`.
 
+For a safe deployed test, use a Supabase staging project with a Vercel Preview deployment. See [Deployed preview testing](docs/DEPLOYMENT_TESTING.md) for environment setup, migration steps, and an athlete smoke-test checklist.
+
 ## Troubleshooting
 
 - Docker Desktop must be running before starting local Supabase.

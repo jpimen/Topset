@@ -393,6 +393,25 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .athlete-profile-card > div { flex: 1; }
 .athlete-profile-card h2 { margin: 5px 0 0; font: 700 18px var(--display); }
 .athlete-profile-card .user-avatar { width: 48px; height: 48px; font-size: 17px; }
+.athlete-profile-photo { width: 68px; height: 68px; flex: none; border: 1px solid #66572f; border-radius: 14px; object-fit: cover; background: #211e16; }
+.athlete-profile-photo-fallback { display: grid; place-items: center; color: var(--gold-light); font: 700 24px var(--display); }
+.athlete-profile-subtitle { margin: 5px 0 0; color: var(--secondary); font-size: 11px; }
+.athlete-photo-upload { position: relative; overflow: hidden; cursor: pointer; }
+.athlete-photo-upload input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+.athlete-photo-upload:focus-within { outline: 2px solid var(--gold-light); outline-offset: 2px; }
+.athlete-profile-details { margin-top: 16px; padding: clamp(18px, 3vw, 28px); }
+.athlete-profile-details .panel-heading { margin-bottom: 8px; }
+.athlete-profile-details .panel-heading h2 { margin: 5px 0 0; font: 700 22px var(--display); }
+.athlete-profile-help { max-width: 650px; margin: 0 0 20px; color: var(--secondary); font-size: 12px; line-height: 1.6; }
+.athlete-profile-form { max-width: 760px; display: grid; gap: 16px; }
+.athlete-profile-form-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.athlete-profile-form textarea { min-height: 84px; padding: 11px 12px; resize: vertical; border: 1px solid #393427; border-radius: 9px; color: var(--text); background: #11100d; font: 500 13px/1.5 'Plus Jakarta Sans', sans-serif; }
+.athlete-profile-form textarea:focus-visible { outline: 2px solid var(--gold-light); outline-offset: 2px; }
+.athlete-profile-save-row { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding-top: 4px; }
+.athlete-profile-save-row .field-help { margin: 0; }
+.athlete-next-workout { margin-bottom: 32px; padding-bottom: 25px; border-bottom: 1px solid var(--border); }
+.athlete-next-workout .athlete-page-heading { margin-bottom: 16px; }
+.athlete-next-workout .athlete-page-heading h2 { margin: 7px 0 8px; color: var(--text); font: 700 clamp(24px, 3vw, 32px)/1.1 var(--display); }
 .athlete-global-sync { margin: 18px clamp(15px, 4vw, 48px) 0; }
 @media (max-width: 700px) {
   .workspace-athlete .workspace-body { display: block; min-height: calc(100vh - 62px); }
@@ -402,7 +421,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .workspace-athlete .workspace-user .user-avatar { width: 29px; height: 29px; }
   .workspace-athlete .workspace-sidebar { position: fixed; z-index: 20; inset: auto 0 0; min-height: 0; padding: 7px 8px max(7px, env(safe-area-inset-bottom)); border-top: 1px solid var(--border); border-right: 0; background: #12110ef2; backdrop-filter: blur(18px); }
   .workspace-athlete .workspace-sidebar > .eyebrow { display: none; }
-  .workspace-athlete .workspace-nav { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; }
+  .workspace-athlete .workspace-nav { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; }
   .workspace-athlete .workspace-nav-link { min-height: 48px; padding: 0 4px; justify-content: center; font-size: 10px; }
   .workspace-athlete .workspace-content { padding-bottom: 82px; }
   .athlete-page { padding: 25px 15px 30px; }
@@ -414,6 +433,10 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .athlete-finish-button { width: 100%; }
   .athlete-profile-card { flex-wrap: wrap; }
   .athlete-profile-card .button { margin-left: auto; }
+  .athlete-profile-form-row { grid-template-columns: minmax(0, 1fr); }
+  .athlete-profile-save-row { align-items: stretch; flex-direction: column; }
+  .athlete-profile-save-row .button { width: 100%; }
+  .athlete-next-workout .athlete-page-heading-actions { align-items: flex-start; }
   .athlete-exercise-heading { flex-direction: column; }
   .athlete-prescription { white-space: normal; }
 }

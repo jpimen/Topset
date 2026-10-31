@@ -17,6 +17,11 @@ export interface UserProfile {
   role: Role;
   name: string;
   team_name: string | null;
+  weight_class: string | null;
+  bio: string | null;
+  category: string | null;
+  achievements: string | null;
+  profile_photo_path: string | null;
 }
 
 interface AuthContextValue {
@@ -34,7 +39,7 @@ async function readProfile(userId: string): Promise<UserProfile | null> {
   if (!supabase) return null;
   const { data, error } = await supabase
     .from('profiles')
-    .select('id, role, name, team_name')
+    .select('id, role, name, team_name, weight_class, bio, category, achievements, profile_photo_path')
     .eq('id', userId)
     .maybeSingle();
   if (error) throw error;
