@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../../auth/AuthProvider';
 import { AthleteWorkoutCheckInPanel } from './AthleteWorkoutCheckInPanel';
+import { AthleteWorkoutLogPanel } from './AthleteWorkoutLogPanel';
 import { useAthleteProgram } from './useAthleteProgram';
 
 function loadLabel(row: { load_mode: string; load_value: number | null; load_min: number | null; load_max: number | null; percent_of?: 'e1rm' | 'tm' | null }, unit: string) {
@@ -56,6 +57,7 @@ export function AthleteProgramPage() {
                   </tr>)}</tbody>
                 </table>
               </div>}
+              {profile?.id && <AthleteWorkoutLogPanel athleteId={profile.id} assignmentId={result.assignment.id} day={day} unit={result.program.program.unit} />}
             </details>{profile?.id && <AthleteWorkoutCheckInPanel athleteId={profile.id} assignmentId={result.assignment.id} dayId={day.id} dayName={day.name} defaultUnit={result.program.program.unit} />}</div>)}
           </section>
       </>}
