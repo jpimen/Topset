@@ -364,7 +364,18 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .athlete-program-log-save-row td { padding: 10px 12px; border-top: 1px solid var(--border); }
 .athlete-program-log-save-controls { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
 .athlete-program-log-save-controls .checkin-status { display: block; }
+.athlete-program-log-actions { display: flex; align-items: center; gap: 8px; flex: none; }
 .athlete-program-log-error { margin: 4px 0 0; color: var(--error); font-size: 10px; line-height: 1.5; }
+.athlete-post-video-card { max-width: 760px; padding: 22px; }
+.athlete-post-video-form { display: grid; gap: 14px; }
+.athlete-post-video-form .form-field { margin: 0; }
+.athlete-post-video-form .form-field input[type='file'] { height: auto; min-height: 44px; padding: 10px; }
+.athlete-post-video-form .field-help { font: 500 11px/1.5 'Plus Jakarta Sans', sans-serif; letter-spacing: 0; text-transform: none; }
+.athlete-post-video-preview { display: grid; gap: 8px; color: var(--secondary); font-size: 11px; }
+.athlete-post-video-preview video { width: min(100%, 560px); max-height: 360px; border-radius: 10px; background: var(--surface-field); }
+.athlete-post-video-actions { display: flex; justify-content: flex-end; gap: 9px; }
+.athlete-post-video-another { justify-self: start; }
+.athlete-post-video-limit { max-width: 760px; margin-top: 12px; }
 .coach-workout-log-review { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--border); }
 .coach-workout-log-review-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
 .coach-workout-log-review-heading h4 { margin: 0; color: var(--text); font: 700 14px var(--display); }
@@ -373,6 +384,19 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .coach-workout-log-session { margin-top: 10px; }
 .coach-workout-log-entry { padding: 9px 0; display: grid; grid-template-columns: minmax(0, 1fr) auto auto auto; gap: 8px; border-bottom: 1px solid var(--border-divider); color: var(--secondary); font-size: 10px; }
 .coach-workout-log-entry strong { color: var(--text); }
+.coach-videos-page { min-width: 0; }
+.coach-videos-heading { margin: 14px 0 24px; display: flex; align-items: flex-end; justify-content: space-between; gap: 22px; }
+.coach-videos-heading h1 { margin: 7px 0 0; color: var(--text); font: 700 clamp(30px, 3vw, 42px)/1.06 var(--display); letter-spacing: -1.5px; }
+.coach-videos-heading p:not(.eyebrow) { margin: 10px 0 0; color: var(--secondary); font-size: 13px; }
+.coach-video-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 330px), 1fr)); gap: 14px; }
+.coach-video-card { min-width: 0; padding: 16px; }
+.coach-video-card > header { margin-bottom: 12px; display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.coach-video-card > header .eyebrow { margin: 0 0 5px; }
+.coach-video-card h2 { margin: 0; color: var(--text); font: 700 17px var(--display); }
+.coach-video-card time { color: var(--muted); font-size: 10px; text-align: right; }
+.coach-video-card video { display: block; width: 100%; max-height: 420px; border-radius: 9px; background: var(--surface-field); }
+.coach-video-file-details { margin: 10px 0 0; display: flex; justify-content: space-between; gap: 12px; color: var(--secondary); font-size: 10px; }
+.coach-video-file-details span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .coach-workout-log-entry p { grid-column: 1 / -1; margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
 .athlete-checkin-panel { min-width: 0; padding: 16px 13px; }
 .athlete-checkin-heading { margin-bottom: 15px; }
@@ -432,8 +456,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .workspace-athlete .workspace-user .user-avatar { width: 29px; height: 29px; }
   .workspace-athlete .workspace-sidebar { position: fixed; z-index: 20; inset: auto 0 0; min-height: 0; padding: 7px 8px max(7px, env(safe-area-inset-bottom)); border-top: 1px solid var(--border); border-right: 0; background: var(--surface-sidebar-mobile); backdrop-filter: blur(18px); }
   .workspace-athlete .workspace-sidebar > .eyebrow { display: none; }
-  .workspace-athlete .workspace-nav { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; }
-  .workspace-athlete .workspace-nav-link { min-height: 48px; padding: 0 4px; justify-content: center; font-size: 10px; }
+  .workspace-athlete .workspace-nav { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; }
+  .workspace-athlete .workspace-nav-link { min-width: 0; min-height: 48px; padding: 0 1px; justify-content: center; font-size: 9px; white-space: nowrap; }
   .workspace-athlete .workspace-content { padding-bottom: 82px; }
   .athlete-page { padding: 25px 15px 30px; }
   .athlete-page-heading { flex-direction: column; gap: 12px; }
@@ -445,6 +469,9 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .athlete-profile-form-row { grid-template-columns: minmax(0, 1fr); }
   .athlete-profile-save-row { align-items: stretch; flex-direction: column; }
   .athlete-profile-save-row .button { width: 100%; }
+  .athlete-post-video-card { padding: 16px; }
+  .athlete-post-video-actions { align-items: stretch; flex-direction: column-reverse; }
+  .athlete-post-video-actions .button { width: 100%; }
 }
 /* Coach workspace: dense, desktop-first charcoal and gold surfaces. */
 .coach-page { width: min(100%, 1720px); min-width: 820px; margin: 0 auto; padding: 38px 42px 62px; }
@@ -817,6 +844,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .workspace-athlete .theme-toggle button { min-height: 44px; }
 
   .coach-page { width: 100%; padding: 24px 15px 36px; }
+  .coach-videos-heading { align-items: stretch; flex-direction: column; gap: 14px; }
+  .coach-videos-heading .button { align-self: flex-start; }
   .coach-page-header { min-height: 0; margin-bottom: 20px; align-items: stretch; flex-direction: column; gap: 14px; }
   .coach-page-header h1 { font-size: clamp(30px, 8vw, 38px); }
   .coach-page-header .button { min-height: 44px; }
