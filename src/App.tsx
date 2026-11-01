@@ -21,7 +21,7 @@ function WorkspaceLayout({ role }: { role: 'coach' | 'athlete' }) {
   const { profile } = useAuth();
   const navigation = role === 'coach'
     ? [{ label: 'Dashboard', to: '/coach' }, { label: 'Programs', to: '/coach/programs' }, { label: 'Athletes', to: '/coach/athletes' }, { label: 'Exercises', to: '/coach/exercises' }, { label: 'Calculators', to: '/coach/calculators' }, { label: 'Settings', to: '/coach/settings' }]
-    : [{ label: 'Program', to: '/athlete/program' }, { label: 'Progress', to: '/athlete/progress' }, { label: 'Profile', to: '/athlete/profile' }, { label: 'Settings', to: '/athlete/settings' }];
+    : [{ label: 'Program', to: '/athlete/program' }, { label: 'Progress', to: '/athlete/progress' }, { label: 'Calculators', to: '/athlete/calculators' }, { label: 'Profile', to: '/athlete/profile' }, { label: 'Settings', to: '/athlete/settings' }];
   const routeContent = role === 'athlete'
     ? <AthleteWorkoutSyncProvider><div className="workspace-content"><Outlet /></div></AthleteWorkoutSyncProvider>
     : <div className="workspace-content"><Outlet /></div>;

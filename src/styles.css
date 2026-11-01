@@ -432,8 +432,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .workspace-athlete .workspace-user .user-avatar { width: 29px; height: 29px; }
   .workspace-athlete .workspace-sidebar { position: fixed; z-index: 20; inset: auto 0 0; min-height: 0; padding: 7px 8px max(7px, env(safe-area-inset-bottom)); border-top: 1px solid var(--border); border-right: 0; background: var(--surface-sidebar-mobile); backdrop-filter: blur(18px); }
   .workspace-athlete .workspace-sidebar > .eyebrow { display: none; }
-  .workspace-athlete .workspace-nav { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; }
-  .workspace-athlete .workspace-nav-link { min-height: 48px; padding: 0 4px; justify-content: center; font-size: 10px; }
+  .workspace-athlete .workspace-nav { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; }
+  .workspace-athlete .workspace-nav-link { min-width: 0; min-height: 48px; padding: 0 1px; justify-content: center; font-size: 9px; white-space: nowrap; }
   .workspace-athlete .workspace-content { padding-bottom: 82px; }
   .athlete-page { padding: 25px 15px 30px; }
   .athlete-page-heading { flex-direction: column; gap: 12px; }

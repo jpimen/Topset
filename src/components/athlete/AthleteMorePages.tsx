@@ -134,7 +134,6 @@ export function AthleteProfilePage() {
       <section className="coach-panel athlete-profile-card">
         {photoUrl ? <img className="athlete-profile-photo" src={photoUrl} alt={`${profile.name} profile`} /> : <span className="user-avatar athlete-profile-photo-fallback" aria-hidden="true">{profile.name.slice(0, 1).toUpperCase()}</span>}
         <div><p className="eyebrow">ATHLETE</p><h2>{profile.name}</h2><p className="athlete-profile-subtitle">{category || 'Add your category'}{weightClass ? ` · ${weightClass}` : ''}</p></div>
-        <Link className="button button-secondary" to="/athlete/calculators">Calculators</Link>
         <label className="button button-secondary athlete-photo-upload">{uploading ? 'Uploading…' : photoUrl ? 'Change photo' : 'Upload photo'}<input type="file" accept="image/jpeg,image/png,image/webp" aria-label="Upload athlete profile picture" onChange={(event) => void uploadPhoto(event)} disabled={uploading} /></label>
       </section>
       <section className="coach-panel athlete-profile-details" aria-labelledby="athlete-details-heading">
