@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useLayoutEffect, useMemo, useState, type ReactNode } from 'react';
-import { readThemePreference, storeThemePreference, type ThemePreference } from '../lib/themePreference';
+import { useLocation } from 'react-router-dom';
+import { readThemePreference, storeThemePreference, type ThemePreference, type ThemeScope } from '../lib/themePreference';
 
 interface ThemeContextValue {
   theme: ThemePreference;
@@ -18,12 +19,15 @@ function applyTheme(theme: ThemePreference): void {
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setThemeState] = useState<ThemePreference>(() => readThemePreference());
+  const { pathname } = useLocation();
+  const scope: ThemeScope | undefined = pathname.startsWith('/coach') ? 'coach' : pathname.startsWith('/athlete') ? 'athlete' : undefined;
+  const [theme, setThemeState] = useState<ThemePreference>(() => readThemePreference(undefined, scope));
   const setTheme = useCallback((nextTheme: ThemePreference) => {
-    storeThemePreference(nextTheme);
+    storeThemePreference(nextTheme, undefined, scope);
     setThemeState(nextTheme);
-  }, []);
+  }, [scope]);
 
+  useLayoutEffect(() => setThemeState(readThemePreference(undefined, scope)), [scope]);
   useLayoutEffect(() => applyTheme(theme), [theme]);
 
   const value = useMemo(() => ({ theme, setTheme }), [theme, setTheme]);

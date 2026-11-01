@@ -1,5 +1,11 @@
 # Decisions
 
+## 2026-11-01 — Role-specific appearance settings
+
+- Keep Coach and Athlete theme preferences in separate device-local storage keys so changing one workspace does not restyle the other.
+- Place the Coach appearance control in Settings and the Athlete control in Profile; remove the duplicate workspace-sidebar control.
+- Read the previous device-wide preference as a migration fallback until each role selects its own theme.
+
 ## 2026-11-01 — Mobile and tablet layout
 
 - Scope responsive layout changes to viewports below 1024 CSS pixels so the desktop UI at 1024 pixels and wider keeps its existing rules and appearance.

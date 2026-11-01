@@ -9,6 +9,18 @@ export function AthleteProgressPage() {
   return <main className="athlete-page"><header className="athlete-page-heading"><div><p className="eyebrow">PROGRESS</p><h1>Your training, over time</h1><p>Strength trends and training history will appear here as you log workouts.</p></div></header><section className="coach-panel empty-state athlete-placeholder"><span className="empty-state-mark">↗</span><h2>Progress tracking is next</h2><p>For now, your completed sessions are available in your Program and your coach can review synced logs.</p><Link className="button button-secondary" to="/athlete/program">Go to your program</Link></section></main>;
 }
 
+export function AthleteSettingsPage() {
+  return <main className="athlete-page">
+    <header className="athlete-page-heading"><div><p className="eyebrow">SETTINGS</p><h1>Settings</h1><p>Personalize your athlete workspace.</p></div></header>
+    <section className="coach-panel theme-toggle-settings" aria-labelledby="athlete-appearance-heading">
+      <div className="appearance-setting-row">
+        <div className="appearance-setting-copy"><h2 id="athlete-appearance-heading">Appearance</h2><p>Choose the display theme for this device.</p></div>
+        <ThemeToggle />
+      </div>
+    </section>
+  </main>;
+}
+
 export function AthleteProfilePage() {
   const { profile, refreshProfile } = useAuth();
   const [bio, setBio] = useState('');
@@ -125,7 +137,6 @@ export function AthleteProfilePage() {
         <Link className="button button-secondary" to="/athlete/calculators">Calculators</Link>
         <label className="button button-secondary athlete-photo-upload">{uploading ? 'Uploading…' : photoUrl ? 'Change photo' : 'Upload photo'}<input type="file" accept="image/jpeg,image/png,image/webp" aria-label="Upload athlete profile picture" onChange={(event) => void uploadPhoto(event)} disabled={uploading} /></label>
       </section>
-      <section className="coach-panel athlete-appearance-panel" aria-label="Appearance settings"><div className="athlete-appearance-row"><div><span>Appearance</span><strong>Theme</strong><p>Choose the display theme for this device.</p></div><ThemeToggle /></div></section>
       <section className="coach-panel athlete-profile-details" aria-labelledby="athlete-details-heading">
         <div className="panel-heading"><div><p className="eyebrow">YOUR DETAILS</p><h2 id="athlete-details-heading">Training profile</h2></div></div>
         <p className="athlete-profile-help">Your linked coach can see these details. Keep personal information relevant to your training.</p>
