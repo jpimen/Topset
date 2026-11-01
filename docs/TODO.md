@@ -40,7 +40,6 @@
 5. Continue with the approved build order and request approval before each later milestone.
 
 6. add a chat system between coach and athlete.
-7. Build a coach-facing video review screen for videos uploaded by linked athletes.
 
 ## Appearance follow-up
 

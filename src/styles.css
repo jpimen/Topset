@@ -384,6 +384,19 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .coach-workout-log-session { margin-top: 10px; }
 .coach-workout-log-entry { padding: 9px 0; display: grid; grid-template-columns: minmax(0, 1fr) auto auto auto; gap: 8px; border-bottom: 1px solid var(--border-divider); color: var(--secondary); font-size: 10px; }
 .coach-workout-log-entry strong { color: var(--text); }
+.coach-videos-page { min-width: 0; }
+.coach-videos-heading { margin: 14px 0 24px; display: flex; align-items: flex-end; justify-content: space-between; gap: 22px; }
+.coach-videos-heading h1 { margin: 7px 0 0; color: var(--text); font: 700 clamp(30px, 3vw, 42px)/1.06 var(--display); letter-spacing: -1.5px; }
+.coach-videos-heading p:not(.eyebrow) { margin: 10px 0 0; color: var(--secondary); font-size: 13px; }
+.coach-video-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 330px), 1fr)); gap: 14px; }
+.coach-video-card { min-width: 0; padding: 16px; }
+.coach-video-card > header { margin-bottom: 12px; display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.coach-video-card > header .eyebrow { margin: 0 0 5px; }
+.coach-video-card h2 { margin: 0; color: var(--text); font: 700 17px var(--display); }
+.coach-video-card time { color: var(--muted); font-size: 10px; text-align: right; }
+.coach-video-card video { display: block; width: 100%; max-height: 420px; border-radius: 9px; background: var(--surface-field); }
+.coach-video-file-details { margin: 10px 0 0; display: flex; justify-content: space-between; gap: 12px; color: var(--secondary); font-size: 10px; }
+.coach-video-file-details span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .coach-workout-log-entry p { grid-column: 1 / -1; margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
 .athlete-checkin-panel { min-width: 0; padding: 16px 13px; }
 .athlete-checkin-heading { margin-bottom: 15px; }
@@ -831,6 +844,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .workspace-athlete .theme-toggle button { min-height: 44px; }
 
   .coach-page { width: 100%; padding: 24px 15px 36px; }
+  .coach-videos-heading { align-items: stretch; flex-direction: column; gap: 14px; }
+  .coach-videos-heading .button { align-self: flex-start; }
   .coach-page-header { min-height: 0; margin-bottom: 20px; align-items: stretch; flex-direction: column; gap: 14px; }
   .coach-page-header h1 { font-size: clamp(30px, 8vw, 38px); }
   .coach-page-header .button { min-height: 44px; }

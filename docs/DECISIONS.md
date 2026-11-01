@@ -1,5 +1,10 @@
 # Decisions
 
+## 2026-11-02 — Coach training video review
+
+- Add a Videos action to each program day card and show videos for that day on a dedicated coach page.
+- Query video records through existing row-level access policies and issue short-lived signed playback URLs from the private bucket; provide manual refresh for new uploads.
+
 ## 2026-11-01 — Athlete training video uploads
 
 - Attach video uploads to the active assigned training day from the workout log action row; collect a `Topset` or numbered set label on a dedicated athlete page.
