@@ -38,7 +38,6 @@ function WorkspaceLayout({ role }: { role: 'coach' | 'athlete' }) {
           <nav className="workspace-nav" aria-label="Primary navigation">
             {navigation.map(({ label, to }, index) => <NavLink key={to} to={to} end={index === 0} className={({ isActive }) => `workspace-nav-link${isActive ? ' active' : ''}`}>{label}</NavLink>)}
           </nav>
-          <div className="workspace-sidebar-appearance"><span>Appearance</span><ThemeToggle /></div>
         </aside>
         {routeContent}
       </div>
@@ -78,9 +77,9 @@ function AppContent() {
     );
   }
 
-  return <BrowserRouter><AuthProvider><AppRoutes /></AuthProvider></BrowserRouter>;
+  return <AuthProvider><AppRoutes /></AuthProvider>;
 }
 
 export default function App() {
-  return <ThemeProvider><AppContent /></ThemeProvider>;
+  return <BrowserRouter><ThemeProvider><AppContent /></ThemeProvider></BrowserRouter>;
 }

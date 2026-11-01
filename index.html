@@ -10,8 +10,11 @@
       (() => {
         let theme = 'dark';
         try {
+          const scope = location.pathname.startsWith('/coach') ? 'coach' : location.pathname.startsWith('/athlete') ? 'athlete' : null;
           const stored = localStorage.getItem('topset-theme');
-          if (stored === 'light' || stored === 'dark') theme = stored;
+          const scoped = scope ? localStorage.getItem(`topset-theme:${scope}`) : null;
+          if (scoped === 'light' || scoped === 'dark') theme = scoped;
+          else if (stored === 'light' || stored === 'dark') theme = stored;
         } catch {
           // Keep the dark default when browser storage is unavailable.
         }
