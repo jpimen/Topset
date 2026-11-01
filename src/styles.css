@@ -364,7 +364,17 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .athlete-program-log-save-row td { padding: 10px 12px; border-top: 1px solid var(--border); }
 .athlete-program-log-save-controls { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
 .athlete-program-log-save-controls .checkin-status { display: block; }
+.athlete-program-log-actions { display: flex; align-items: center; gap: 8px; flex: none; }
 .athlete-program-log-error { margin: 4px 0 0; color: var(--error); font-size: 10px; line-height: 1.5; }
+.athlete-post-video-card { max-width: 760px; padding: 22px; }
+.athlete-post-video-form { display: grid; gap: 14px; }
+.athlete-post-video-form .form-field { margin: 0; }
+.athlete-post-video-form .form-field input[type='file'] { height: auto; min-height: 44px; padding: 10px; }
+.athlete-post-video-form .field-help { font: 500 11px/1.5 'Plus Jakarta Sans', sans-serif; letter-spacing: 0; text-transform: none; }
+.athlete-post-video-preview { display: grid; gap: 8px; color: var(--secondary); font-size: 11px; }
+.athlete-post-video-preview video { width: min(100%, 560px); max-height: 360px; border-radius: 10px; background: var(--surface-field); }
+.athlete-post-video-actions { display: flex; justify-content: flex-end; gap: 9px; }
+.athlete-post-video-limit { max-width: 760px; margin-top: 12px; }
 .coach-workout-log-review { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--border); }
 .coach-workout-log-review-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
 .coach-workout-log-review-heading h4 { margin: 0; color: var(--text); font: 700 14px var(--display); }
@@ -445,6 +455,9 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .athlete-profile-form-row { grid-template-columns: minmax(0, 1fr); }
   .athlete-profile-save-row { align-items: stretch; flex-direction: column; }
   .athlete-profile-save-row .button { width: 100%; }
+  .athlete-post-video-card { padding: 16px; }
+  .athlete-post-video-actions { align-items: stretch; flex-direction: column-reverse; }
+  .athlete-post-video-actions .button { width: 100%; }
 }
 /* Coach workspace: dense, desktop-first charcoal and gold surfaces. */
 .coach-page { width: min(100%, 1720px); min-width: 820px; margin: 0 auto; padding: 38px 42px 62px; }

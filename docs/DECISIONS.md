@@ -1,5 +1,11 @@
 # Decisions
 
+## 2026-11-01 — Athlete training video uploads
+
+- Attach video uploads to the active assigned training day from the workout log action row; collect a `Topset` or numbered set label on a dedicated athlete page.
+- Keep videos private in Supabase Storage, validate assignment/day access for athlete uploads, and allow only the athlete and currently linked coach to read active-assignment video rows and objects.
+- Limit uploads to MP4, MOV, M4V, and WebM files up to 100 MB. Coach-side video review remains a separate UI task.
+
 ## 2026-11-01 — Role-specific appearance settings
 
 - Keep Coach and Athlete theme preferences in separate device-local storage keys so changing one workspace does not restyle the other.

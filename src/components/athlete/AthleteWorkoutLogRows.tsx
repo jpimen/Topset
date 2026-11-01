@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { deleteWorkoutDraft, getLocalDraftForDay, loadWorkoutSessions, readWorkoutDrafts, storeWorkoutDraft, syncWorkoutDraft } from '../../lib/athlete/logs';
 import { workoutDraftSchema, type AthleteDay, type WorkoutDraft } from '../../lib/athlete/types';
 import type { AthleteWorkoutSession } from '../../lib/athlete/logs';
@@ -171,7 +172,7 @@ export function AthleteWorkoutLogRows({ athleteId, assignmentId, day, unit }: { 
     })}
     {draft && !loading && !loadError && <tr className="athlete-program-log-save-row"><td colSpan={10}><div className="athlete-program-log-save-controls">
       <div><span className="checkin-status" role="status">{saving ? 'Saving changes…' : saveStatus || (pendingSync || pendingDraft ? 'Waiting to sync' : 'Changes save to your coach when you press Save changes.')}</span>{saveError && <p className="athlete-program-log-error" role="alert">{saveError}</p>}</div>
-      <button className="button button-primary" type="button" onClick={() => void saveChanges()} disabled={!hasChanges || saving}>{saving ? 'Saving…' : 'Save changes'}</button>
+      <div className="athlete-program-log-actions"><Link className="button button-secondary" to={`/athlete/post-video?${new URLSearchParams({ assignmentId, dayId: day.id, dayName: day.name })}`}>Post Video</Link><button className="button button-primary" type="button" onClick={() => void saveChanges()} disabled={!hasChanges || saving}>{saving ? 'Saving…' : 'Save changes'}</button></div>
     </div></td></tr>}
   </>;
 }
