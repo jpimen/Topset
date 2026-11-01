@@ -4,7 +4,7 @@ import { HomeRedirect, RequireRole } from './auth/RouteGuards';
 import { AuthPage } from './components/AuthPage';
 import { AthleteWorkoutSyncProvider } from './components/athlete/AthleteWorkoutSyncProvider';
 import { AthleteProgramPage } from './components/athlete/AthleteProgramPage';
-import { AthleteProfilePage, AthleteProgressPage } from './components/athlete/AthleteMorePages';
+import { AthleteProfilePage, AthleteProgressPage, AthleteSettingsPage } from './components/athlete/AthleteMorePages';
 import { CalculatorsPage } from './components/CalculatorsPage';
 import { AthletesPage } from './components/coach/AthletesPage';
 import { CoachDashboard } from './components/coach/CoachDashboard';
@@ -21,7 +21,7 @@ function WorkspaceLayout({ role }: { role: 'coach' | 'athlete' }) {
   const { profile } = useAuth();
   const navigation = role === 'coach'
     ? [{ label: 'Dashboard', to: '/coach' }, { label: 'Programs', to: '/coach/programs' }, { label: 'Athletes', to: '/coach/athletes' }, { label: 'Exercises', to: '/coach/exercises' }, { label: 'Calculators', to: '/coach/calculators' }, { label: 'Settings', to: '/coach/settings' }]
-    : [{ label: 'Program', to: '/athlete/program' }, { label: 'Progress', to: '/athlete/progress' }, { label: 'Profile', to: '/athlete/profile' }];
+    : [{ label: 'Program', to: '/athlete/program' }, { label: 'Progress', to: '/athlete/progress' }, { label: 'Profile', to: '/athlete/profile' }, { label: 'Settings', to: '/athlete/settings' }];
   const routeContent = role === 'athlete'
     ? <AthleteWorkoutSyncProvider><div className="workspace-content"><Outlet /></div></AthleteWorkoutSyncProvider>
     : <div className="workspace-content"><Outlet /></div>;
@@ -53,7 +53,7 @@ function AppRoutes() {
       <Route path="/signup" element={<AuthPage mode="signup" />} />
       <Route path="/auth/callback" element={<HomeRedirect />} />
       <Route element={<RequireRole role="coach" />}><Route path="/coach" element={<WorkspaceLayout role="coach" />}><Route index element={<CoachDashboard />} /><Route path="programs" element={<ProgramsPage />} /><Route path="programs/:id" element={<ProgramBuilderPage />} /><Route path="athletes" element={<AthletesPage />} /><Route path="exercises" element={<ExerciseLibraryPage />} /><Route path="calculators" element={<CalculatorsPage />} /><Route path="settings" element={<CoachSettingsPage />} /><Route path="*" element={<Navigate to="/coach" replace />} /></Route></Route>
-      <Route element={<RequireRole role="athlete" />}><Route path="/athlete" element={<WorkspaceLayout role="athlete" />}><Route index element={<Navigate to="/athlete/program" replace />} /><Route path="program" element={<AthleteProgramPage />} /><Route path="progress" element={<AthleteProgressPage />} /><Route path="profile" element={<AthleteProfilePage />} /><Route path="calculators" element={<CalculatorsPage />} /><Route path="*" element={<Navigate to="/athlete/program" replace />} /></Route></Route>
+      <Route element={<RequireRole role="athlete" />}><Route path="/athlete" element={<WorkspaceLayout role="athlete" />}><Route index element={<Navigate to="/athlete/program" replace />} /><Route path="program" element={<AthleteProgramPage />} /><Route path="progress" element={<AthleteProgressPage />} /><Route path="profile" element={<AthleteProfilePage />} /><Route path="settings" element={<AthleteSettingsPage />} /><Route path="calculators" element={<CalculatorsPage />} /><Route path="*" element={<Navigate to="/athlete/program" replace />} /></Route></Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
