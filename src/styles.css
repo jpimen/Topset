@@ -374,6 +374,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .athlete-post-video-preview { display: grid; gap: 8px; color: var(--secondary); font-size: 11px; }
 .athlete-post-video-preview video { width: min(100%, 560px); max-height: 360px; border-radius: 10px; background: var(--surface-field); }
 .athlete-post-video-actions { display: flex; justify-content: flex-end; gap: 9px; }
+.athlete-post-video-another { justify-self: start; }
 .athlete-post-video-limit { max-width: 760px; margin-top: 12px; }
 .coach-workout-log-review { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--border); }
 .coach-workout-log-review-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }

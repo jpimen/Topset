@@ -1,4 +1,4 @@
-import { useEffect, useState, type ChangeEvent, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { z } from 'zod';
 import { useAuth } from '../../auth/AuthProvider';
@@ -9,6 +9,7 @@ const uuidSchema = z.string().uuid();
 export function AthletePostVideoPage() {
   const { profile } = useAuth();
   const [searchParams] = useSearchParams();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const assignmentId = uuidSchema.safeParse(searchParams.get('assignmentId'));
   const dayId = uuidSchema.safeParse(searchParams.get('dayId'));
   const dayName = searchParams.get('dayName')?.trim() ?? '';
@@ -42,6 +43,7 @@ export function AthletePostVideoPage() {
       await postAthleteTrainingVideo({ athleteId: profile.id, assignmentId: assignmentId.data, dayId: dayId.data, dayName, label, file });
       setNotice(`${label} video posted for ${dayName}.`);
       setFile(null);
+      if (fileInputRef.current) fileInputRef.current.value = '';
     } catch (cause) {
       console.error('Athlete training video could not be posted.', cause);
       const message = cause instanceof Error ? cause.message : '';
@@ -63,10 +65,11 @@ export function AthletePostVideoPage() {
       <div className="panel-heading"><div><p className="eyebrow">{dayName}</p><h2 id="post-video-heading">Training video</h2></div></div>
       <form className="athlete-post-video-form" onSubmit={(event) => void submit(event)}>
         <label className="form-field" htmlFor="training-video-label">Video label<select id="training-video-label" value={label} onChange={(event) => setLabel(event.currentTarget.value as (typeof trainingVideoLabels)[number])}>{trainingVideoLabels.map((option) => <option key={option} value={option}>{option}</option>)}</select></label>
-        <label className="form-field" htmlFor="training-video-file">Video file<input id="training-video-file" type="file" accept="video/mp4,video/quicktime,video/webm,video/x-m4v,.mp4,.mov,.webm,.m4v" onChange={chooseFile} /> <span className="field-help">MP4, MOV, M4V, or WebM · up to 100 MB</span></label>
+        <label className="form-field" htmlFor="training-video-file">Video file<input ref={fileInputRef} id="training-video-file" type="file" accept="video/mp4,video/quicktime,video/webm,video/x-m4v,.mp4,.mov,.webm,.m4v" onChange={chooseFile} /> <span className="field-help">MP4, MOV, M4V, or WebM · up to 100 MB</span></label>
         {file && <div className="athlete-post-video-preview"><video src={previewUrl} controls playsInline preload="metadata">Video preview is not supported by this browser.</video><span>{file.name} · {(file.size / (1024 * 1024)).toFixed(1)} MB</span></div>}
         {error && <p className="inline-error" role="alert">{error}</p>}
         {notice && <p className="inline-state" role="status">{notice}</p>}
+        {notice && <button className="button button-secondary athlete-post-video-another" type="button" onClick={() => { setNotice(''); fileInputRef.current?.click(); }}>Post another video</button>}
         <div className="athlete-post-video-actions"><Link className="button button-secondary" to="/athlete/program">Back to program</Link><button className="button button-primary" type="submit" disabled={!file || uploading || !profile}>{uploading ? 'Posting video…' : 'Post video'}</button></div>
       </form>
     </section>
