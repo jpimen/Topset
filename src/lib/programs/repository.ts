@@ -19,12 +19,11 @@ export async function listPrograms(coachId: string) {
 
 export async function loadProgram(programId: string): Promise<ProgramDocument> {
   const db = client();
-  const [programResult, weeksResult, exercisesResult] = await Promise.all([
+  const [programResult, weeksResult] = await Promise.all([
     db.from('programs').select('*').eq('id', programId).maybeSingle(),
     db.from('weeks').select('*, days(*, program_exercises(*, exercises(*)))').eq('program_id', programId).order('week_number'),
-    db.from('exercises').select('*').order('name'),
   ]);
-  raise(programResult.error); raise(weeksResult.error); raise(exercisesResult.error);
+  raise(programResult.error); raise(weeksResult.error);
   if (!programResult.data) throw new Error('Program not found or you do not have access to it.');
   const weeks = (weeksResult.data ?? []).map((week) => ({
     ...week,

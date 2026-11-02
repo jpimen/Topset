@@ -1,4 +1,5 @@
 import { BrowserRouter, NavLink, Navigate, Outlet, Route, Routes } from 'react-router-dom';
+import { useState } from 'react';
 import { AuthProvider, useAuth } from './auth/AuthProvider';
 import { HomeRedirect, RequireRole } from './auth/RouteGuards';
 import { AuthPage } from './components/AuthPage';
@@ -20,19 +21,35 @@ import { supabase, supabaseConfigurationError } from './lib/supabase';
 import './styles.css';
 
 function WorkspaceLayout({ role }: { role: 'coach' | 'athlete' }) {
-  const { profile } = useAuth();
+  const { profile, storageWarning } = useAuth();
+  const [signOutError, setSignOutError] = useState('');
+  const [signingOut, setSigningOut] = useState(false);
+  const signOut = async () => {
+    if (!supabase) return;
+    setSigningOut(true);
+    setSignOutError('');
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+    } catch (cause) {
+      console.error('Sign out failed.', cause);
+      setSignOutError('We could not sign you out. Check your connection and try again.');
+    } finally { setSigningOut(false); }
+  };
   const navigation = role === 'coach'
     ? [{ label: 'Dashboard', to: '/coach' }, { label: 'Programs', to: '/coach/programs' }, { label: 'Athletes', to: '/coach/athletes' }, { label: 'Exercises', to: '/coach/exercises' }, { label: 'Calculators', to: '/coach/calculators' }, { label: 'Settings', to: '/coach/settings' }]
     : [{ label: 'Program', to: '/athlete/program' }, { label: 'Progress', to: '/athlete/progress' }, { label: 'Calculators', to: '/athlete/calculators' }, { label: 'Profile', to: '/athlete/profile' }, { label: 'Settings', to: '/athlete/settings' }];
-  const routeContent = role === 'athlete'
-    ? <AthleteWorkoutSyncProvider><div className="workspace-content"><Outlet /></div></AthleteWorkoutSyncProvider>
-    : <div className="workspace-content"><Outlet /></div>;
+  const content = <div className="workspace-content">
+    {(storageWarning || signOutError) && <p role="alert" className="inline-error">{storageWarning || signOutError}</p>}
+    <Outlet />
+  </div>;
+  const routeContent = role === 'athlete' ? <AthleteWorkoutSyncProvider>{content}</AthleteWorkoutSyncProvider> : content;
 
   return (
-    <div className={`workspace-shell workspace-${role}`}>
+    <div key={`${profile?.id}:${role}`} className={`workspace-shell workspace-${role}`}>
       <header className="workspace-header">
         <NavLink className="brand-lockup" to="/"><span className="brand-mark">T</span><span>topset<span className="brand-period">.</span></span></NavLink>
-        <div className="workspace-user"><span className="user-avatar">{profile?.name.slice(0, 1).toUpperCase() ?? 'T'}</span><span>{profile?.name}</span><button onClick={() => void supabase?.auth.signOut()}>Sign out</button></div>
+        <div className="workspace-user"><span className="user-avatar">{profile?.name.slice(0, 1).toUpperCase() ?? 'T'}</span><span>{profile?.name}</span><button disabled={signingOut} onClick={() => void signOut()}>{signingOut ? 'Signing out...' : 'Sign out'}</button></div>
       </header>
       <div className="workspace-body">
         <aside className="workspace-sidebar">

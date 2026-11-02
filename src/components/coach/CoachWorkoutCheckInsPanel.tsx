@@ -33,88 +33,77 @@ export function CoachWorkoutCheckInsProvider({ preferredProgramId, children }: {
   const [assignmentsLoading, setAssignmentsLoading] = useState(true);
   const [assignmentsError, setAssignmentsError] = useState('');
   const [selectedId, setSelectedId] = useState('');
-  const [rows, setRows] = useState<CoachWorkoutCheckIn[]>([]);
-  const [sessions, setSessions] = useState<AthleteWorkoutSession[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [response, setResponse] = useState<{ assignmentId: string; rows: CoachWorkoutCheckIn[]; sessions: AthleteWorkoutSession[] } | null>(null);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [retryKey, setRetryKey] = useState(0);
-  const selected = assignments.find((item) => item.id === selectedId)
-    ?? assignments.find((item) => item.program_id === preferredProgramId)
-    ?? assignments[0]
-    ?? null;
+  const selected = assignments.find((item) => item.id === selectedId) ?? assignments[0] ?? null;
 
   useEffect(() => {
-    let active = true;
-    setAssignmentsLoading(true);
-    setAssignmentsError('');
-    void Promise.all([listActiveAssignments(coachId), listCoachLinks(coachId)]).then(([items, links]) => {
-      const linkedAthleteIds = new Set(links.filter((link) => link.status === 'active').map((link) => link.athlete_id));
-      const now = new Date();
-      const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-      if (active) setAssignments(items.filter((item) => linkedAthleteIds.has(item.athlete_id)
-        && item.start_date <= today
-        && (!preferredProgramId || item.program_id === preferredProgramId)));
-    }).catch((cause: unknown) => {
-      console.error('Coach check-in assignments could not be loaded.', cause);
-      if (active) setAssignmentsError('We could not load linked athlete assignments. Try reloading this page.');
-    }).finally(() => { if (active) setAssignmentsLoading(false); });
-    return () => { active = false; };
-  }, [coachId, preferredProgramId]);
-
-  useEffect(() => {
-    if (!selected) { setRows([]); setSessions([]); setLoading(false); setError(''); return; }
-    let active = true;
-    setLoading(true);
-    setError('');
-    void Promise.all([loadCoachWorkoutCheckIns(selected), loadWorkoutSessions(selected.id)]).then(([items, workoutSessions]) => {
-      if (active) { setRows(items); setSessions(workoutSessions); }
-    }).catch((cause: unknown) => {
-      console.error('Athlete check-ins could not be loaded for coach review.', cause);
-      if (active) setError('We could not load this athlete’s check-ins. Try again.');
-    }).finally(() => { if (active) setLoading(false); });
-    return () => { active = false; };
-  }, [selected?.id, retryKey]);
-
-  useEffect(() => {
-    if (!selected) return;
     let active = true;
     let refreshing = false;
+    setLoading(true);
     const refresh = async () => {
-      if (refreshing || document.visibilityState !== 'visible') return;
+      if (refreshing || !active) return;
       refreshing = true;
       try {
-        const [items, workoutSessions] = await Promise.all([loadCoachWorkoutCheckIns(selected), loadWorkoutSessions(selected.id)]);
-        if (active) { setRows(items); setSessions(workoutSessions); setError(''); }
+        // Refresh membership too: polling health data must not retain ended assignments.
+        const [items, links] = await Promise.all([listActiveAssignments(coachId), listCoachLinks(coachId)]);
+        if (!active) return;
+        const linkedAthletes = new Set(links.filter((link) => link.status === 'active').map((link) => link.athlete_id));
+        const now = new Date();
+        const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+        const accessible = items.filter((item) => linkedAthletes.has(item.athlete_id) && item.start_date <= today
+          && (!preferredProgramId || item.program_id === preferredProgramId));
+        setAssignments(accessible);
+        setAssignmentsLoading(false);
+        setAssignmentsError('');
+        const target = accessible.find((item) => item.id === selectedId) ?? accessible[0];
+        if (!target) { setResponse(null); setError(''); return; }
+        try {
+          const [rows, sessions] = await Promise.all([loadCoachWorkoutCheckIns(target), loadWorkoutSessions(target.id)]);
+          if (active) { setResponse({ assignmentId: target.id, rows, sessions }); setError(''); }
+        } catch (cause) {
+          console.error('Coach workout responses could not be refreshed.', cause);
+          if (active) {
+            setResponse(null);
+            setError('Athlete responses could not be refreshed. Previous values are hidden; retry to load current data.');
+          }
+        }
       } catch (cause) {
-        console.error('Coach workout logs could not be refreshed.', cause);
+        console.error('Coach assignments could not be refreshed.', cause);
+        if (active) {
+          setAssignments([]);
+          setResponse(null);
+          setAssignmentsError('Linked athlete assignments could not be refreshed. Try again.');
+        }
       } finally {
         refreshing = false;
+        if (active) { setLoading(false); setAssignmentsLoading(false); }
       }
     };
-    const timer = window.setInterval(() => void refresh(), 8000);
-    window.addEventListener('focus', refresh);
-    document.addEventListener('visibilitychange', refresh);
+    const visible = () => { if (document.visibilityState === 'visible') void refresh(); };
+    void refresh();
+    const timer = window.setInterval(visible, 8000);
+    window.addEventListener('focus', visible);
+    window.addEventListener('online', visible);
+    document.addEventListener('visibilitychange', visible);
     return () => {
       active = false;
       window.clearInterval(timer);
-      window.removeEventListener('focus', refresh);
-      document.removeEventListener('visibilitychange', refresh);
+      window.removeEventListener('focus', visible);
+      window.removeEventListener('online', visible);
+      document.removeEventListener('visibilitychange', visible);
     };
-  }, [selected?.id]);
+  }, [coachId, preferredProgramId, selectedId, retryKey]);
 
+  const matchingResponse = response?.assignmentId === selected?.id ? response : null;
   const value: CheckInContextValue = {
-    assignments,
-    assignmentsLoading,
-    assignmentsError,
-    selected,
-    setSelectedId,
-    rows,
-    sessions,
-    loading,
-    error,
-    retry: () => setRetryKey((key) => key + 1),
+    assignments, assignmentsLoading, assignmentsError, selected, setSelectedId,
+    rows: matchingResponse?.rows ?? [],
+    sessions: matchingResponse?.sessions ?? [],
+    loading, error, retry: () => setRetryKey((key) => key + 1),
   };
-
   return <CheckInContext.Provider value={value}>{children}</CheckInContext.Provider>;
 }
 
@@ -135,7 +124,7 @@ export function CoachWorkoutCheckInsPanel({ dayId, dayName, unit = 'kg', exercis
       <div><p className="eyebrow">ATHLETE RESPONSE · {dayName.toUpperCase()}</p><h3 id={titleId}>Training check-in</h3><p>Recovery and nutrition for this day.</p></div>
       {selected && <button className="button button-quiet" type="button" onClick={retry} disabled={loading}>Refresh</button>}
     </header>
-    {assignmentsLoading ? <div className="dashboard-skeleton coach-checkins-skeleton" aria-label="Loading assigned athletes" /> : assignmentsError ? <div className="coach-checkins-empty" role="alert"><p>{assignmentsError}</p></div> : assignments.length === 0 ? <div className="coach-checkins-empty"><h4>No athletes assigned</h4><p>Assign this program to a currently linked athlete to view check-ins.</p></div> : <>
+    {assignmentsLoading ? <div className="dashboard-skeleton coach-checkins-skeleton" aria-label="Loading assigned athletes" /> : assignmentsError ? <div className="coach-checkins-empty" role="alert"><p>{assignmentsError}</p><button className="button button-secondary" type="button" onClick={retry}>Try again</button></div> : assignments.length === 0 ? <div className="coach-checkins-empty"><h4>No athletes assigned</h4><p>Assign this program to a currently linked athlete to view check-ins.</p></div> : <>
       <label className="coach-checkins-select">Athlete
         <select aria-label={`${dayName}: select athlete`} value={selected?.id ?? ''} onChange={(event) => setSelectedId(event.currentTarget.value)}>
           {assignments.map((item) => <option key={item.id} value={item.id}>{item.athlete?.name ?? 'Athlete'}</option>)}

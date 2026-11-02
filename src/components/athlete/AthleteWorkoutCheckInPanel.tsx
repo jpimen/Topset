@@ -12,8 +12,9 @@ function numberValue(event: ChangeEvent<HTMLInputElement>) {
   return event.currentTarget.value === '' ? null : Number(event.currentTarget.value);
 }
 
-export function AthleteWorkoutCheckInPanel({ athleteId, assignmentId, dayId, dayName, defaultUnit }: {
+export function AthleteWorkoutCheckInPanel({ athleteId, assignmentId, dayId, dayName, defaultUnit, onEditStateChange }: {
   athleteId: string; assignmentId: string; dayId: string; dayName: string; defaultUnit: 'kg' | 'lb';
+  onEditStateChange?: (key: string, dirty: boolean) => void;
 }) {
   const [draft, setDraft] = useState(() => emptyDraft(defaultUnit));
   const [loading, setLoading] = useState(true);
@@ -22,6 +23,13 @@ export function AthleteWorkoutCheckInPanel({ athleteId, assignmentId, dayId, day
   const [error, setError] = useState('');
   const [status, setStatus] = useState('');
   const [retryKey, setRetryKey] = useState(0);
+  const [savedSnapshot, setSavedSnapshot] = useState('');
+  const dirty = Boolean(savedSnapshot && savedSnapshot !== JSON.stringify(draft));
+  const editKey = `checkin:${assignmentId}:${dayId}`;
+  useEffect(() => {
+    onEditStateChange?.(editKey, dirty);
+    return () => onEditStateChange?.(editKey, false);
+  }, [dirty, editKey, onEditStateChange]);
 
   useEffect(() => {
     let active = true;
@@ -30,7 +38,11 @@ export function AthleteWorkoutCheckInPanel({ athleteId, assignmentId, dayId, day
     setError('');
     setStatus('');
     void loadWorkoutCheckIn(athleteId, assignmentId, dayId).then((value) => {
-      if (active) setDraft(value ? workoutCheckInDraftSchema.parse(value) : emptyDraft(defaultUnit));
+      if (active) {
+        const next = value ? workoutCheckInDraftSchema.parse(value) : emptyDraft(defaultUnit);
+        setDraft(next);
+        setSavedSnapshot(JSON.stringify(next));
+      }
     }).catch((cause: unknown) => {
       console.error('Athlete workout check-in could not be loaded.', cause);
       if (active) { setLoadFailed(true); setError('We could not load this check-in. Try again before saving so existing entries are not overwritten.'); }
@@ -52,6 +64,7 @@ export function AthleteWorkoutCheckInPanel({ athleteId, assignmentId, dayId, day
     try {
       const saved = await saveWorkoutCheckIn(parsed.data);
       setDraft(saved);
+      setSavedSnapshot(JSON.stringify(saved));
       setStatus('Saved to your account');
     } catch (cause) {
       console.error('Athlete workout check-in could not be saved.', cause);

@@ -1,7 +1,8 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { deleteWorkoutDraft, getLocalDraftForDay, loadWorkoutSessions, readWorkoutDrafts, storeWorkoutDraft, syncWorkoutDraft } from '../../lib/athlete/logs';
+import { getLocalDraftForDay, storeWorkoutDraft } from '../../lib/athlete/logs';
 import { workoutDraftSchema, type AthleteDay, type WorkoutDraft } from '../../lib/athlete/types';
+import { useAthleteWorkoutSessions } from './AthleteWorkoutSessionsProvider';
 import type { AthleteWorkoutSession } from '../../lib/athlete/logs';
 
 function loadLabel(row: AthleteDay['exercises'][number], unit: string) {
@@ -32,129 +33,100 @@ function makeDraft(assignmentId: string, day: AthleteDay, session?: AthleteWorko
   };
 }
 
-export function AthleteWorkoutLogRows({ athleteId, assignmentId, day, unit }: { athleteId: string; assignmentId: string; day: AthleteDay; unit: 'kg' | 'lb' }) {
+export function AthleteWorkoutLogRows({ athleteId, assignmentId, day, unit, onEditStateChange }: {
+  athleteId: string; assignmentId: string; day: AthleteDay; unit: 'kg' | 'lb';
+  onEditStateChange?: (key: string, dirty: boolean) => void;
+}) {
+  const { sessions, loading, error: historyError, refresh } = useAthleteWorkoutSessions();
   const [draft, setDraft] = useState<WorkoutDraft | null>(null);
-  const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState('');
   const [saveError, setSaveError] = useState('');
   const [saveStatus, setSaveStatus] = useState('');
   const [saving, setSaving] = useState(false);
   const [pendingSync, setPendingSync] = useState(false);
   const [savedSnapshot, setSavedSnapshot] = useState('');
+  const [localVersion, setLocalVersion] = useState(0);
   const dirtyRef = useRef(false);
-  const [retryKey, setRetryKey] = useState(0);
   const dirty = Boolean(draft && savedSnapshot && JSON.stringify(draft) !== savedSnapshot);
   dirtyRef.current = dirty;
+  const editable = Boolean(draft && !loadError && (pendingSync || sessions !== null));
+  const editKey = `log:${assignmentId}:${day.id}`;
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    setLoadError('');
+  useEffect(() => {
+    onEditStateChange?.(editKey, dirty);
+    return () => onEditStateChange?.(editKey, false);
+  }, [dirty, editKey, onEditStateChange]);
+
+  useEffect(() => {
+    if (dirtyRef.current) return;
     try {
-      const sessions = await loadWorkoutSessions(assignmentId);
-      const session = sessions.find((item) => item.day_id === day.id);
       const local = getLocalDraftForDay(athleteId, assignmentId, day.id);
+      setPendingSync(Boolean(local));
+      setLoadError('');
+      if (!local && (loading || sessions === null)) return;
+      const session = sessions?.find((item) => item.day_id === day.id);
       const value = local ?? makeDraft(assignmentId, day, session);
       setDraft(value);
       setSavedSnapshot(JSON.stringify(value));
-      setPendingSync(Boolean(local));
-      setSaveStatus(local ? 'Saved on this device · waiting to sync' : session ? 'Synced to coach' : '');
-    } catch (error) {
-      console.error('Workout log could not be loaded.', error);
-      setLoadError('We could not load this day’s workout log. Try again before editing.');
-    } finally {
-      setLoading(false);
+      setSaveStatus(local ? 'Saved on this device - waiting to sync' : session ? 'Synced to coach' : '');
+    } catch (cause) {
+      console.error('Local workout draft could not be loaded.', cause);
+      setLoadError(cause instanceof Error ? cause.message : 'Pending workout input could not be read.');
     }
-  }, [athleteId, assignmentId, day, retryKey]);
-
-  useEffect(() => { void load(); }, [load]);
+  }, [athleteId, assignmentId, day, sessions, loading, localVersion]);
 
   useEffect(() => {
     const changed = (event: Event) => {
-      if ((event as CustomEvent<{ athleteId: string }>).detail?.athleteId !== athleteId) return;
-      const local = getLocalDraftForDay(athleteId, assignmentId, day.id);
-      setPendingSync(Boolean(local));
-      if (local) {
-        if (!dirtyRef.current) {
-          setDraft(local);
-          setSavedSnapshot(JSON.stringify(local));
-          setSaveStatus('Saved on this device · waiting to sync');
-        }
-      } else {
-        void loadWorkoutSessions(assignmentId).then((sessions) => {
-          const session = sessions.find((item) => item.day_id === day.id);
-          if (session && !dirtyRef.current) {
-            const value = makeDraft(assignmentId, day, session);
-            setDraft(value);
-            setSavedSnapshot(JSON.stringify(value));
-            setSaveStatus('Synced to coach');
-          }
-        }).catch(() => undefined);
-      }
+      if ((event as CustomEvent<{ athleteId: string }>).detail?.athleteId === athleteId) setLocalVersion((value) => value + 1);
+    };
+    const storage = (event: StorageEvent) => {
+      if (event.key === null || event.key === `topset:workout-drafts:v1:${athleteId}`) setLocalVersion((value) => value + 1);
     };
     window.addEventListener('topset:workout-drafts-changed', changed);
-    return () => window.removeEventListener('topset:workout-drafts-changed', changed);
-  }, [athleteId, assignmentId, day, load]);
+    window.addEventListener('storage', storage);
+    return () => {
+      window.removeEventListener('topset:workout-drafts-changed', changed);
+      window.removeEventListener('storage', storage);
+    };
+  }, [athleteId]);
 
   const updateSet = (exerciseId: string, field: 'load_lifted' | 'rpe_lifted', value: number | null) => {
     if (!draft) return;
-    const next = { ...draft, sets: draft.sets.map((item) => item.program_exercise_id === exerciseId ? { ...item, [field]: value } : item) };
-    setDraft(next);
+    setDraft({ ...draft, sets: draft.sets.map((item) => item.program_exercise_id === exerciseId ? { ...item, [field]: value } : item) });
     setSaveError('');
-    setSaveStatus(JSON.stringify(next) === savedSnapshot ? '' : 'Unsaved changes');
+    setSaveStatus('Unsaved changes');
   };
-
   const updateNotes = (exerciseId: string, note: string) => {
     if (!draft) return;
-    const next = { ...draft, sets: draft.sets.map((item) => item.program_exercise_id === exerciseId ? { ...item, notes_athlete: item.set_number === 1 ? (note || null) : null } : item) };
-    setDraft(next);
+    setDraft({ ...draft, sets: draft.sets.map((item) => item.program_exercise_id === exerciseId ? { ...item, notes_athlete: item.set_number === 1 ? (note || null) : null } : item) });
     setSaveError('');
-    setSaveStatus(JSON.stringify(next) === savedSnapshot ? '' : 'Unsaved changes');
+    setSaveStatus('Unsaved changes');
   };
-
-  const pendingDraft = draft ? readWorkoutDrafts(athleteId).some((item) => item.id === draft.id) : false;
-  const hasChanges = dirty || pendingSync || pendingDraft;
-
-  const saveChanges = async () => {
-    if (!draft || saving || !hasChanges) return;
+  const hasChanges = dirty || pendingSync;
+  const saveChanges = () => {
+    if (!draft || !editable || saving || !hasChanges) return;
     const parsed = workoutDraftSchema.safeParse({ ...draft, session_date: today() });
-    if (!parsed.success) {
-      setSaveError(parsed.error.issues[0]?.message ?? 'Check the workout values and try again.');
-      return;
-    }
-    const value = parsed.data;
+    if (!parsed.success) { setSaveError(parsed.error.issues[0]?.message ?? 'Check the workout values.'); return; }
     setSaving(true);
     setSaveError('');
-    setSaveStatus(navigator.onLine ? 'Saving changes…' : 'Saving on this device…');
     try {
-      if (!navigator.onLine) throw new Error('You are offline.');
-      await syncWorkoutDraft(value);
-      if (readWorkoutDrafts(athleteId).some((item) => item.id === value.id)) deleteWorkoutDraft(athleteId, value.id);
-      setDraft(value);
-      setSavedSnapshot(JSON.stringify(value));
-      setPendingSync(false);
-      setSaveStatus('Saved and synced to your coach');
-    } catch (error) {
-      try {
-        storeWorkoutDraft(athleteId, value);
-        setDraft(value);
-        setSavedSnapshot(JSON.stringify(value));
-        setPendingSync(true);
-        setSaveStatus('Saved on this device · waiting to sync');
-        setSaveError(navigator.onLine
-          ? `The workout is saved on this device, but could not sync yet. ${error instanceof Error ? error.message : ''}`
-          : 'The workout is saved on this device and will sync when you are back online.');
-      } catch (storageError) {
-        setSaveError(storageError instanceof Error ? storageError.message : 'Could not save this workout on the device.');
-        setSaveStatus('Changes were not saved');
-      }
-    } finally {
-      setSaving(false);
-    }
+      // Persist first. The workspace sync provider is the only remote writer.
+      storeWorkoutDraft(athleteId, parsed.data);
+      setDraft(parsed.data);
+      setSavedSnapshot(JSON.stringify(parsed.data));
+      setPendingSync(true);
+      setSaveStatus('Saved on this device - waiting to sync');
+    } catch (cause) {
+      setSaveError(cause instanceof Error ? cause.message : 'Could not save this workout on the device.');
+      setSaveStatus('Changes were not saved');
+    } finally { setSaving(false); }
   };
 
   return <>
-    {loading ? <tr><td colSpan={10}><div className="dashboard-skeleton athlete-program-log-loading" aria-label="Loading workout log" /></td></tr> : loadError ? <tr><td colSpan={10}><div className="athlete-checkin-error" role="alert"><p>{loadError}</p><button className="button button-secondary" type="button" onClick={() => setRetryKey((current) => current + 1)}>Try again</button></div></td></tr> : draft && day.exercises.map((exercise) => {
-      const sets = draft.sets.filter((item) => item.program_exercise_id === exercise.id).sort((a, b) => a.set_number - b.set_number);
+    {(loadError || historyError) && <tr><td colSpan={10}><div className="athlete-checkin-error" role="alert"><p>{loadError || historyError}</p><button className="button button-secondary" type="button" onClick={() => { setLocalVersion((value) => value + 1); refresh(); }}>Try again</button></div></td></tr>}
+    {loading && <tr><td colSpan={10}><p role="status">Loading workout entries...</p></td></tr>}
+    {day.exercises.map((exercise) => {
+      const sets = draft?.sets.filter((item) => item.program_exercise_id === exercise.id).sort((a, b) => a.set_number - b.set_number) ?? [];
       const first = sets[0];
       const note = sets.find((item) => item.notes_athlete)?.notes_athlete ?? '';
       return <tr key={exercise.id}>
@@ -165,14 +137,14 @@ export function AthleteWorkoutLogRows({ athleteId, assignmentId, day, unit }: { 
         <td>{exercise.rpe ?? '—'}</td>
         <td>{loadLabel(exercise, unit)}</td>
         <td className="athlete-program-coach-notes">{exercise.notes_coach || '—'}</td>
-        <td><input className="athlete-program-log-input" aria-label={`${exercise.exercise.name}, load lifted for all sets`} type="number" min="0" max="10000" step="0.5" value={first?.load_lifted ?? ''} placeholder="—" disabled={!first || saving} onChange={(event) => updateSet(exercise.id, 'load_lifted', event.currentTarget.value === '' ? null : Number(event.currentTarget.value))} /></td>
-        <td><select className="athlete-program-log-input" aria-label={`${exercise.exercise.name}, RPE lifted for all sets`} value={first?.rpe_lifted ?? ''} disabled={!first || saving} onChange={(event) => updateSet(exercise.id, 'rpe_lifted', event.currentTarget.value ? Number(event.currentTarget.value) : null)}><option value="">—</option>{Array.from({ length: 19 }, (_, index) => (index + 2) / 2).map((value) => <option key={value} value={value}>{value.toFixed(1)}</option>)}</select></td>
-        <td><input className="athlete-program-log-input athlete-program-log-note" aria-label={`${exercise.exercise.name}, athlete notes`} maxLength={2000} value={note} placeholder="Add note" disabled={!first || saving} onChange={(event) => updateNotes(exercise.id, event.currentTarget.value)} /></td>
+        <td><input className="athlete-program-log-input" aria-label={`${exercise.exercise.name}, load lifted for all sets`} type="number" min="0" max="10000" step="0.5" value={first?.load_lifted ?? ''} placeholder="—" disabled={!editable || !first || saving} onChange={(event) => updateSet(exercise.id, 'load_lifted', event.currentTarget.value === '' ? null : Number(event.currentTarget.value))} /></td>
+        <td><select className="athlete-program-log-input" aria-label={`${exercise.exercise.name}, RPE lifted for all sets`} value={first?.rpe_lifted ?? ''} disabled={!editable || !first || saving} onChange={(event) => updateSet(exercise.id, 'rpe_lifted', event.currentTarget.value ? Number(event.currentTarget.value) : null)}><option value="">—</option>{Array.from({ length: 19 }, (_, index) => (index + 2) / 2).map((value) => <option key={value} value={value}>{value.toFixed(1)}</option>)}</select></td>
+        <td><input className="athlete-program-log-input athlete-program-log-note" aria-label={`${exercise.exercise.name}, athlete notes`} maxLength={2000} value={note} placeholder="Add note" disabled={!editable || !first || saving} onChange={(event) => updateNotes(exercise.id, event.currentTarget.value)} /></td>
       </tr>;
     })}
-    {draft && !loading && !loadError && <tr className="athlete-program-log-save-row"><td colSpan={10}><div className="athlete-program-log-save-controls">
-      <div><span className="checkin-status" role="status">{saving ? 'Saving changes…' : saveStatus || (pendingSync || pendingDraft ? 'Waiting to sync' : 'Changes save to your coach when you press Save changes.')}</span>{saveError && <p className="athlete-program-log-error" role="alert">{saveError}</p>}</div>
-      <div className="athlete-program-log-actions"><Link className="button button-secondary" to={`/athlete/post-video?${new URLSearchParams({ assignmentId, dayId: day.id, dayName: day.name })}`}>Post Video</Link><button className="button button-primary" type="button" onClick={() => void saveChanges()} disabled={!hasChanges || saving}>{saving ? 'Saving…' : 'Save changes'}</button></div>
+    {draft && !loadError && <tr className="athlete-program-log-save-row"><td colSpan={10}><div className="athlete-program-log-save-controls">
+      <div><span className="checkin-status" role="status">{saving ? 'Saving changes…' : saveStatus || (pendingSync ? 'Waiting to sync' : 'Changes save to your coach when you press Save changes.')}</span>{saveError && <p className="athlete-program-log-error" role="alert">{saveError}</p>}</div>
+      <div className="athlete-program-log-actions"><Link className="button button-secondary" to={`/athlete/post-video?${new URLSearchParams({ assignmentId, dayId: day.id, dayName: day.name })}`}>Post Video</Link><button className="button button-primary" type="button" onClick={() => void saveChanges()} disabled={!editable || !hasChanges || saving}>{saving ? 'Saving…' : 'Save changes'}</button></div>
     </div></td></tr>}
   </>;
 }

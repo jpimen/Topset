@@ -1,108 +1,99 @@
-import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { useAuth } from '../../auth/AuthProvider';
 import { deleteWorkoutDraft, readWorkoutDrafts, syncWorkoutDraft } from '../../lib/athlete/logs';
 
 export function AthleteWorkoutSyncProvider({ children }: { children: ReactNode }) {
   const { profile } = useAuth();
-  const [state, setState] = useState<'saved' | 'pending' | 'saving' | 'error'>('saved');
-  const [offline, setOffline] = useState(!window.navigator.onLine);
+  const [pendingCount, setPendingCount] = useState(0);
+  const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
-  const syncing = useRef(false);
-  const rerun = useRef(false);
-  const syncTimer = useRef<number | null>(null);
-
-  const retry = useCallback(async () => {
-    if (!profile?.id) return;
-    if (!window.navigator.onLine) {
-      setOffline(true);
-      setState('pending');
-      return;
-    }
-    if (syncing.current) { rerun.current = true; return; }
-
-    const queue = readWorkoutDrafts(profile.id);
-    if (queue.length === 0) {
-      setState('saved');
-      setError('');
-      return;
-    }
-
-    syncing.current = true;
-    setState('saving');
-    setError('');
-    let failed = false;
-    try {
-      for (const submitted of queue) {
-        await syncWorkoutDraft(submitted);
-        const latest = readWorkoutDrafts(profile.id).find((item) => item.id === submitted.id);
-        if (latest && JSON.stringify(latest) === JSON.stringify(submitted)) deleteWorkoutDraft(profile.id, submitted.id);
-      }
-    } catch (cause) {
-      failed = true;
-      console.error('Workout sync failed.', cause);
-      setState(window.navigator.onLine ? 'error' : 'pending');
-      setError(window.navigator.onLine
-        ? 'Some workout entries are still saved on this device. Check your coach connection or retry sync.'
-        : 'Workout saved on this device. It will sync when you are back online.');
-    } finally {
-      syncing.current = false;
-    }
-
-    if (!failed) {
-      const remaining = readWorkoutDrafts(profile.id);
-      setState(remaining.length === 0 ? 'saved' : 'pending');
-      if (remaining.length === 0) setError('');
-      else if (rerun.current) setError('');
-    }
-    if (rerun.current) {
-      rerun.current = false;
-      if (!failed) window.setTimeout(() => void retry(), 0);
-    }
-  }, [profile?.id]);
+  const [offline, setOffline] = useState(!navigator.onLine);
+  const [retryKey, setRetryKey] = useState(0);
 
   useEffect(() => {
-    if (!profile?.id) return;
-    const online = () => {
-      setOffline(false);
+    const athleteId = profile?.role === 'athlete' ? profile.id : undefined;
+    if (!athleteId) return;
+    let active = true;
+    let syncing = false;
+    let rerun = false;
+    let timer: number | undefined;
+    const readQueue = () => {
+      const queue = readWorkoutDrafts(athleteId);
+      if (active) setPendingCount(queue.length);
+      return queue;
+    };
+    const retry = async () => {
+      if (!active) return;
+      if (syncing) { rerun = true; return; }
+      syncing = true;
       setError('');
-      if (syncTimer.current !== null) window.clearTimeout(syncTimer.current);
-      void retry();
-    };
-    const offlineNow = () => {
-      setOffline(true);
-      if (syncTimer.current !== null) window.clearTimeout(syncTimer.current);
-      if (readWorkoutDrafts(profile.id).length > 0) setState('pending');
-    };
-    const changed = (event: Event) => {
-      if ((event as CustomEvent<{ athleteId: string }>).detail?.athleteId !== profile.id) return;
-      const queue = readWorkoutDrafts(profile.id);
-      if (queue.length > 0) setState('pending');
-      if (window.navigator.onLine) {
-        if (syncTimer.current !== null) window.clearTimeout(syncTimer.current);
-        syncTimer.current = window.setTimeout(() => void retry(), 500);
+      try {
+        const queue = readQueue();
+        if (!navigator.onLine) { setOffline(true); return; }
+        setSaving(queue.length > 0);
+        for (const submitted of queue) {
+          if (!active) return;
+          await syncWorkoutDraft(submitted);
+          if (!active) return;
+          const latest = readQueue().find((item) => item.id === submitted.id);
+          // A newer edit made during this request must remain queued.
+          if (latest && JSON.stringify(latest) === JSON.stringify(submitted)) {
+            deleteWorkoutDraft(athleteId, submitted.id);
+          }
+        }
+        readQueue();
+      } catch (cause) {
+        console.error('Workout sync failed.', cause);
+        if (active) {
+          setError(cause instanceof Error && cause.message.startsWith('Pending workouts')
+            ? cause.message
+            : 'Some workout entries are still saved on this device. Check your connection or coach assignment, then retry sync.');
+        }
+        rerun = false;
+      } finally {
+        syncing = false;
+        if (active) {
+          setSaving(false);
+          if (rerun) { rerun = false; timer = window.setTimeout(() => void retry(), 0); }
+        }
       }
     };
-    const storage = (event: StorageEvent) => {
-      if (event.key?.startsWith(`topset:workout-drafts:v1:${profile.id}`)) changed(new CustomEvent('topset:workout-drafts-changed', { detail: { athleteId: profile.id } }));
+    const changed = (event: Event) => {
+      if ((event as CustomEvent<{ athleteId: string }>).detail?.athleteId !== athleteId) return;
+      try { readQueue(); } catch (cause) { setError((cause as Error).message); return; }
+      if (syncing) { rerun = true; return; }
+      window.clearTimeout(timer);
+      timer = window.setTimeout(() => void retry(), 500);
     };
-    window.addEventListener('online', online);
-    window.addEventListener('offline', offlineNow);
-    window.addEventListener('topset:workout-drafts-changed', changed);
+    const storage = (event: StorageEvent) => {
+      if (event.key === null || event.key === `topset:workout-drafts:v1:${athleteId}`) {
+        changed(new CustomEvent('topset:workout-drafts-changed', { detail: { athleteId } }));
+      }
+    };
+    const connection = () => {
+      setOffline(!navigator.onLine);
+      if (navigator.onLine) void retry();
+    };
+    window.addEventListener('online', connection);
+    window.addEventListener('offline', connection);
     window.addEventListener('storage', storage);
+    window.addEventListener('topset:workout-drafts-changed', changed);
     void retry();
     return () => {
-      window.removeEventListener('online', online);
-      window.removeEventListener('offline', offlineNow);
-      window.removeEventListener('topset:workout-drafts-changed', changed);
+      active = false;
+      window.clearTimeout(timer);
+      window.removeEventListener('online', connection);
+      window.removeEventListener('offline', connection);
       window.removeEventListener('storage', storage);
-      if (syncTimer.current !== null) window.clearTimeout(syncTimer.current);
+      window.removeEventListener('topset:workout-drafts-changed', changed);
     };
-  }, [profile?.id, retry]);
+  }, [profile?.id, profile?.role, retryKey]);
 
-  const pendingCount = profile?.id ? readWorkoutDrafts(profile.id).length : 0;
-  const showPendingSync = state === 'error' || pendingCount > 0 && (offline || state === 'pending' || state === 'saving');
   return <>
-    {showPendingSync && <div className="alert-banner alert-info athlete-global-sync" role="status"><span className="alert-mark">i</span><div>{error || (offline ? `${pendingCount} workout ${pendingCount === 1 ? 'entry is' : 'entries are'} saved on this device and waiting to sync.` : state === 'saving' ? 'Syncing your workout entries…' : `${pendingCount} workout ${pendingCount === 1 ? 'entry is' : 'entries are'} waiting to sync.`)}{pendingCount > 0 && state !== 'saving' && <button className="button button-quiet" onClick={() => void retry()}>Retry sync</button>}</div></div>}
+    {(error || pendingCount > 0) && <div className="alert-banner alert-info athlete-global-sync" role="status"><span className="alert-mark">i</span><div>
+      {error || (saving ? 'Syncing your workout entries…' : `${pendingCount} workout ${pendingCount === 1 ? 'entry' : 'entries'} saved on this device${offline ? ' · offline' : ' · waiting to sync'}.`)}
+      {!saving && <button className="button button-quiet" onClick={() => setRetryKey((value) => value + 1)}>Retry sync</button>}
+    </div></div>}
     {children}
   </>;
 }

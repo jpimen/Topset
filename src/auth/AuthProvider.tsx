@@ -4,11 +4,13 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from 'react';
 import type { Session } from '@supabase/supabase-js';
 import { isSupabaseConfigured, supabase } from '../lib/supabase';
+import { clearAthleteProgramCaches } from '../lib/athlete/programs';
 
 export type Role = 'coach' | 'athlete';
 
@@ -30,6 +32,7 @@ interface AuthContextValue {
   loading: boolean;
   profileError: string | null;
   configured: boolean;
+  storageWarning: string;
   refreshProfile: () => Promise<void>;
 }
 
@@ -51,19 +54,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [profileError, setProfileError] = useState<string | null>(null);
+  const [storageWarning, setStorageWarning] = useState('');
+  const identity = useRef<string | null | undefined>(undefined);
+  const verifiedProfile = useRef<UserProfile | null>(null);
+  const revision = useRef(0);
+  const mounted = useRef(false);
 
   const refreshProfile = useCallback(async () => {
-    if (!session?.user.id) {
-      setProfile(null);
-      setProfileError(null);
-      return;
-    }
+    const userId = session?.user.id;
+    if (!userId || identity.current !== userId) return;
+    const request = ++revision.current;
     try {
       setProfileError(null);
-      setProfile(await readProfile(session.user.id));
-    } catch {
-      setProfile(null);
-      setProfileError('We could not load your account profile. Please try again.');
+      const next = await readProfile(userId);
+      if (!mounted.current || revision.current !== request || identity.current !== userId) return;
+      if (next?.role !== verifiedProfile.current?.role) setStorageWarning(clearAthleteProgramCaches());
+      verifiedProfile.current = next;
+      setProfile(next);
+    } catch (cause) {
+      console.error('Account profile could not be refreshed.', cause);
+      if (mounted.current && revision.current === request) {
+        verifiedProfile.current = null;
+        setProfile(null);
+        setProfileError('We could not load your account profile. Please try again.');
+      }
     }
   }, [session?.user.id]);
 
@@ -73,44 +87,71 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    let active = true;
-    const applySession = async (nextSession: Session | null) => {
-      if (!active) return;
+    mounted.current = true;
+    let receivedAuthEvent = false;
+    const applySession = (nextSession: Session | null) => {
+      if (!mounted.current) return;
+      const nextId = nextSession?.user.id ?? null;
+      const restoredIdentity = identity.current === undefined;
+      const changed = identity.current !== nextId;
+      if (changed) {
+        const needsCleanup = identity.current !== undefined || nextId === null;
+        identity.current = nextId;
+        verifiedProfile.current = null;
+        setProfile(null);
+        if (needsCleanup) setStorageWarning(clearAthleteProgramCaches());
+      }
       setSession(nextSession);
       if (!nextSession) {
+        revision.current += 1;
         setProfile(null);
         setProfileError(null);
         setLoading(false);
         return;
       }
+      if (!changed && verifiedProfile.current?.id === nextId) return;
+      const request = ++revision.current;
+      setLoading(true);
+      setProfileError(null);
+      // Supabase auth callbacks remain synchronous; profile I/O runs outside the auth lock.
+      window.setTimeout(() => void (async () => {
+      if (!mounted.current || request !== revision.current) return;
       try {
         setProfileError(null);
         const nextProfile = await readProfile(nextSession.user.id);
-        if (active) setProfile(nextProfile);
-      } catch {
-        if (active) {
+        if (mounted.current && request === revision.current && identity.current === nextId) {
+          if (restoredIdentity) setStorageWarning(clearAthleteProgramCaches(nextProfile?.role === 'athlete' ? nextProfile.id : undefined));
+          verifiedProfile.current = nextProfile;
+          setProfile(nextProfile);
+        }
+      } catch (cause) {
+        console.error('Account profile could not be loaded.', cause);
+        if (mounted.current && request === revision.current) {
           setProfile(null);
           setProfileError('We could not load your account profile. Please try again.');
         }
       } finally {
-        if (active) setLoading(false);
+        if (mounted.current && request === revision.current) setLoading(false);
       }
+      })(), 0);
     };
 
     const { data: listener } = supabase.auth.onAuthStateChange((_event, nextSession) => {
-      window.setTimeout(() => void applySession(nextSession), 0);
+      receivedAuthEvent = true;
+      applySession(nextSession);
     });
-    void supabase.auth.getSession().then(({ data }) => applySession(data.session));
+    void supabase.auth.getSession().then(({ data }) => { if (!receivedAuthEvent) applySession(data.session); });
 
     return () => {
-      active = false;
+      mounted.current = false;
+      revision.current += 1;
       listener.subscription.unsubscribe();
     };
   }, []);
 
   const value = useMemo(
-    () => ({ session, profile, loading, profileError, configured: isSupabaseConfigured, refreshProfile }),
-    [session, profile, loading, profileError, refreshProfile],
+    () => ({ session, profile, loading, profileError, storageWarning, configured: isSupabaseConfigured, refreshProfile }),
+    [session, profile, loading, profileError, storageWarning, refreshProfile],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
