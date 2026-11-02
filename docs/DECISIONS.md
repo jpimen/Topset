@@ -1,5 +1,19 @@
 # Decisions
 
+## 2026-11-03 — Editable blank exercise rows
+
+- Let Coaches save an unassigned prescription row so exercise, set type, sets, reps, RPE, load and notes can be entered independently. Store the exercise reference as nullable so blank rows and partial entries persist.
+- Keep incomplete rows out of Athlete live prescriptions. Snapshot generation already joins assigned exercise records, so unassigned rows are not included in snapshots. No RLS policy changes are needed.
+
+## 2026-11-03 — Bounded Athlete caching and shared screen reads
+
+- Keep the existing Athlete prescription fallback, validate a v2 identity/role/assignment envelope and expire offline fallback after 24 hours. Revalidate on entry, manual refresh, tab return and reconnect; invalidate on authoritative empty results, access/validation failures and account cleanup. Keep live and snapshot sources separate.
+- Pause program refresh while workout or check-in edits are unsaved. Preserve mounted forms during revalidation, share workout-history reads within the Program page and keep server history out of browser persistence.
+- Persist workout saves before RPC submission and use the workspace sync provider as the sole writer. Retain drafts until their exact revision is confirmed; malformed/unavailable storage is an error, never an empty queue. Account cleanup preserves queued input and device settings.
+- Remove unused program-loader exercise queries and Coach response-label program loads instead of adding caches. Refresh Coach response membership while polling, and hide old response values on failure. Do not introduce persistent Coach, health-metric, video or signed-URL caches without demonstrated need.
+- Guard profile requests and remount identity-specific workspace state on account changes. Keep ordinary same-user token refresh from resetting forms. Cross-device changes retain manual/tab-return/reconnect freshness rather than adding a realtime mechanism.
+- See [data caching audit and limits](DATA_CACHING.md) for the complete screen inventory, cleanup rules and offline revocation/storage limitations.
+
 ## 2026-11-02 — Coach training video review
 
 - Add a Videos action to each program day card and show videos for that day on a dedicated coach page.

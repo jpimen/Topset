@@ -3,6 +3,7 @@
 ## Local development checks
 
 1. Resolve local Supabase CLI startup failure on this Windows machine: the `supabase.exe` is blocked by Application Control (`spawn UNKNOWN` from `npx`), even though Docker's Supabase containers are running. `npm run test:db` runs pgTAP through the Docker database container.
+2. Re-run `npm run test:db` with Docker Desktop's Linux engine and the local Supabase stack running. On 2026-11-03 the engine pipe was unavailable, so database permission checks could not execute during the caching changes.
 
 ## Calculation engine follow-up
 
@@ -17,12 +18,14 @@
 
 ## Milestone 5 follow-up
 
-1. Add coach-facing log review and planned-versus-actual views.
+1. Extend the existing Coach builder log review with planned-versus-actual analysis.
 2. Add an end-to-end browser test for create, rename, confirmed save, live update, and snapshot immutability using isolated coach and athlete sessions.
 3. Add offline draft storage and retry for workout-day check-ins; they currently require an active connection to load and save.
 4. Replace the Progress and Profile placeholders with athlete analytics, meet details, bodyweight history, maxes, unit, and plate settings.
 5. Add the rest timer and next-set focus mode to Today.
 6. Consider IndexedDB for larger offline histories; the current queue stores compact pending workout drafts in browser local storage.
+7. If requested, add a deliberate recovery/export flow for malformed or permanently unsynchronizable pending workouts. Existing input is retained and errors are shown; never delete these drafts as cache expiry.
+8. Full offline app startup and immediate cross-device updates remain outside the bounded prescription fallback. See [data caching audit](DATA_CACHING.md); collect navigation/request timing evidence before adding more Coach caches.
 
 ## Milestone 3 Phase B (requires approval)
 

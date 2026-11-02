@@ -697,7 +697,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .builder-cell:focus-within { border-color: var(--gold); box-shadow: 0 0 0 2px var(--focus-cell); }
 .builder-cell select option, .load-cell select option { color: var(--text); background: var(--surface-control-raised); }
 .exercise-name-cell > input { padding-right: 5px; }
-.set-type-cell > button { font: 700 8px var(--mono); text-transform: uppercase; }
+.set-type-cell > button { font: 700 8px var(--mono); text-transform: none; }
 .type-top > button { color: var(--gold-text); }
 .type-backoff > button { color: var(--text-type-backoff); }
 .type-warmup > button { color: var(--text-type-warmup); }

@@ -30,18 +30,18 @@ function storageKey(athleteId: string) {
   return `topset:workout-drafts:v1:${athleteId}`;
 }
 
-function notifyDraftChange(athleteId: string) {
-  window.dispatchEvent(new CustomEvent('topset:workout-drafts-changed', { detail: { athleteId } }));
+function notifyDraftChange(athleteId: string, synchronized = false) {
+  window.dispatchEvent(new CustomEvent('topset:workout-drafts-changed', { detail: { athleteId, synchronized } }));
 }
 
 export function readWorkoutDrafts(athleteId: string): WorkoutDraft[] {
   try {
     const raw = window.localStorage.getItem(storageKey(athleteId));
     if (!raw) return [];
-    const parsed = storedDraftsSchema.safeParse(JSON.parse(raw));
-    return parsed.success ? parsed.data : [];
-  } catch {
-    return [];
+    return storedDraftsSchema.parse(JSON.parse(raw));
+  } catch (cause) {
+    console.error('Pending workout storage could not be read.', cause);
+    throw new Error('Pending workouts could not be read on this device. Existing storage has been preserved; check browser storage permissions before retrying.', { cause });
   }
 }
 
@@ -66,7 +66,7 @@ export function storeWorkoutDraft(athleteId: string, value: WorkoutDraft): Worko
 export function deleteWorkoutDraft(athleteId: string, sessionId: string): WorkoutDraft[] {
   const next = readWorkoutDrafts(athleteId).filter((draft) => draft.id !== sessionId);
   writeWorkoutDrafts(athleteId, next);
-  notifyDraftChange(athleteId);
+  notifyDraftChange(athleteId, true);
   return next;
 }
 

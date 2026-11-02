@@ -98,11 +98,17 @@ export function programReducer(state: ProgramHistory, action: ProgramAction): Pr
   return { past: [...state.past, state.present].slice(-50), present: next, future: [] };
 }
 
-export function createRow(dayId: string, exerciseId: string, position: number, values: Partial<ProgramExercise> = {}): ProgramExercise {
+export function createRow(dayId: string, exerciseId: string | null, position: number, values: Partial<ProgramExercise> = {}): ProgramExercise {
   return {
     id: id(), day_id: dayId, exercise_id: exerciseId, position, set_type: 'working', sets: 3,
     reps: '5', reps_min: 5, reps_max: 5, rpe: null, load_mode: 'none', load_value: null,
     load_min: null, load_max: null, percent_of: null, notes_coach: null, superset_group: null,
     ...values,
   };
+}
+
+export function createBlankRow(dayId: string, position: number): ProgramExercise {
+  return createRow(dayId, null, position, {
+    set_type: null, sets: null, reps: '', reps_min: null, reps_max: null, rpe: null,
+  });
 }

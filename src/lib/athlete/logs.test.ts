@@ -30,4 +30,18 @@ describe('offline workout draft storage', () => {
     expect(deleteWorkoutDraft(athleteId, draft.id)).toEqual([]);
     expect(readWorkoutDrafts(athleteId)).toEqual([]);
   });
+
+  it('does not treat corrupt pending input as an empty queue or overwrite it', () => {
+    const key = `topset:workout-drafts:v1:${athleteId}`;
+    localStorage.setItem(key, '{broken');
+    expect(() => readWorkoutDrafts(athleteId)).toThrow('could not be read');
+    expect(() => storeWorkoutDraft(athleteId, draft)).toThrow();
+    expect(localStorage.getItem(key)).toBe('{broken');
+  });
+
+  it('keeps each athlete queue separate', () => {
+    storeWorkoutDraft(athleteId, draft);
+    expect(readWorkoutDrafts('20000000-0000-4000-8000-000000000002')).toEqual([]);
+    expect(readWorkoutDrafts(athleteId)).toEqual([draft]);
+  });
 });

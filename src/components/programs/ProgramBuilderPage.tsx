@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { EditableGridCell, focusProgramGridCell } from './EditableGridCell';
 import { useCoachId } from '../coach/useCoachId';
 import { createDebouncedSave } from '../../lib/programs/autosave';
-import { createProgramHistory, createRow, parseReps, programReducer, validateLoad } from '../../lib/programs/document';
+import { createBlankRow, createProgramHistory, createRow, parseReps, programReducer, validateLoad } from '../../lib/programs/document';
 import { createExercise, listExercises, loadProgram, saveProgram } from '../../lib/programs/repository';
 import type { Exercise, LoadMode, ProgramDocument, ProgramExercise, ProgramWeek, SetType } from '../../lib/programs/types';
 import { CoachWorkoutCheckInsPanel, CoachWorkoutCheckInsProvider, useCoachWorkoutLogSets } from '../coach/CoachWorkoutCheckInsPanel';
@@ -13,6 +13,10 @@ function repsSummary(rows: ProgramExercise[]) {
   const repCounts = rows.reduce((sum, row) => { const parsed = parseReps(row.reps); return sum + (parsed.min ?? 0) * (row.sets ?? 0); }, 0);
   return `${sets} sets · ${repCounts || '—'} reps`;
 }
+
+const setTypeLabels: Record<string, string> = {
+  '': '', top: 'Topset', backoff: 'Backoff', working: 'Working', warmup: 'Warmup', amrap: 'AMRAP',
+};
 
 function useProgramSave(document: ProgramDocument, expectedAt: React.MutableRefObject<string>, enabled: boolean, setStatus: (value: 'saved' | 'saving' | 'error' | 'conflict') => void, setSavedAt: (value: string) => void) {
   const previousDocument = useRef<ProgramDocument | null>(null);
@@ -72,12 +76,12 @@ function ExerciseNameCell({ row, index, exercise, exercises, onChoose, onCreate 
     else if (event.key === 'Tab') { event.preventDefault(); void selectValue(); window.requestAnimationFrame(() => focusProgramGridCell(index, event.shiftKey ? -1 : 1)); }
     else if (event.key === 'Escape') { event.preventDefault(); setValue(exercise?.name ?? ''); setEditing(false); window.requestAnimationFrame(() => focusProgramGridCell(index, 0)); }
   };
-  return <div role="gridcell" data-grid-cell={`${index}:0`} className="builder-cell exercise-name-cell">{editing ? <><input autoFocus aria-label="Exercise" list={`exercise-options-${row.id}`} value={value} onChange={(event) => setValue(event.target.value)} onBlur={() => { void selectValue(); }} onKeyDown={handleInputKeyDown} /><datalist id={`exercise-options-${row.id}`}>{exercises.map((item) => <option key={item.id} value={item.name} />)}</datalist></> : <button type="button" aria-label={`Exercise: ${exercise?.name ?? 'empty'}`} onClick={startEditing} onKeyDown={handleButtonKeyDown}>{exercise?.name ?? <span className="builder-cell-placeholder">Choose lift…</span>}</button>}</div>;
+  return <div role="gridcell" data-grid-cell={`${index}:0`} className="builder-cell exercise-name-cell">{editing || !exercise ? <><input autoFocus={editing} aria-label="Exercise" list={`exercise-options-${row.id}`} value={value} onChange={(event) => setValue(event.target.value)} onBlur={() => { void selectValue(); }} onKeyDown={handleInputKeyDown} /><datalist id={`exercise-options-${row.id}`}>{exercises.map((item) => <option key={item.id} value={item.name} />)}</datalist></> : <button type="button" aria-label={`Exercise: ${exercise.name}`} onClick={startEditing} onKeyDown={handleButtonKeyDown}>{exercise.name}</button>}</div>;
 }
 
 function ProgramRow({ row, rowIndex, dayId, exercises, programUnit, onPatch, onDelete, onDuplicate, onCreateExercise }: { row: ProgramExercise; rowIndex: number; dayId: string; exercises: Exercise[]; programUnit: 'kg' | 'lb'; onPatch: (patch: Partial<ProgramExercise>) => void; onDelete: () => void; onDuplicate: () => void; onCreateExercise: (name: string) => Promise<Exercise | undefined> }) {
   const loggedSets = useCoachWorkoutLogSets(dayId, row.id);
-  const chosenExercise = exercises.find((item) => item.id === row.exercise_id) ?? row.exercise;
+  const chosenExercise = exercises.find((item) => item.id === row.exercise_id) ?? row.exercise ?? undefined;
   const mode = row.load_mode;
   const loadValue = row.load_min !== null && row.load_max !== null && row.load_min !== row.load_max ? `${row.load_min}-${row.load_max}` : row.load_value === null ? '' : String(row.load_value);
   const loadHint = validateLoad(loadValue, mode, programUnit, row.reps, row.rpe);
@@ -94,9 +98,9 @@ function ProgramRow({ row, rowIndex, dayId, exercises, programUnit, onPatch, onD
   };
   return <div role="row" className="builder-grid-row with-athlete-columns">
     <ExerciseNameCell row={row} index={rowIndex} exercise={chosenExercise} exercises={exercises} onChoose={(item) => onPatch({ exercise_id: item.id, exercise: item })} onCreate={onCreateExercise} />
-    <EditableGridCell row={rowIndex} column={1} label="Set type" value={row.set_type ?? ''} options={['', 'top', 'backoff', 'working', 'warmup', 'amrap']} className={`set-type-cell type-${row.set_type ?? 'empty'}`} onCommit={(value) => onPatch({ set_type: value ? value as SetType : null })} onClear={() => onPatch({ set_type: null })} />
+    <EditableGridCell row={rowIndex} column={1} label="Set type" value={row.set_type ?? ''} options={['', 'top', 'backoff', 'working', 'warmup', 'amrap']} optionLabels={setTypeLabels} className={`set-type-cell type-${row.set_type ?? 'empty'}`} onCommit={(value) => onPatch({ set_type: value ? value as SetType : null })} onClear={() => onPatch({ set_type: null })} />
     <EditableGridCell row={rowIndex} column={2} label="Sets" value={row.sets === null ? '' : String(row.sets)} onCommit={(value) => { if (!value) onPatch({ sets: null }); else { const parsed = Number(value); if (Number.isInteger(parsed) && parsed > 0 && parsed <= 100) onPatch({ sets: parsed }); } }} onClear={() => onPatch({ sets: null })} />
-    <EditableGridCell row={rowIndex} column={3} label="Reps" value={row.reps} onCommit={commitReps} onClear={() => commitReps('')} className={!parseReps(row.reps).valid ? 'cell-invalid' : ''} />
+    <EditableGridCell row={rowIndex} column={3} label="Reps" value={row.reps} onCommit={commitReps} onClear={() => commitReps('')} className={row.reps && !parseReps(row.reps).valid ? 'cell-invalid' : ''} />
     <EditableGridCell row={rowIndex} column={4} label="RPE" value={row.rpe === null ? '' : row.rpe.toFixed(1).replace('.0', '')} inputOptions={Array.from({ length: 11 }, (_, index) => (5 + index * 0.5).toFixed(1).replace('.0', ''))} placeholder="5–10" className={row.rpe !== null ? `rpe-cell rpe-${Math.floor(row.rpe)}` : ''} onCommit={(value) => { const parsed = value ? Number(value) : null; if (parsed === null || (parsed >= 5 && parsed <= 10 && parsed * 2 === Math.trunc(parsed * 2))) onPatch({ rpe: parsed }); }} onClear={() => onPatch({ rpe: null })} />
     <div role="gridcell" data-grid-cell={`${rowIndex}:5`} className="builder-cell load-cell"><select aria-label="Load mode" value={mode} onChange={(event) => { const next = event.target.value as LoadMode; onPatch({ load_mode: next, load_value: null, load_min: null, load_max: null, percent_of: next === 'percent' ? 'e1rm' : null }); }}><option value="absolute">kg/lb</option><option value="percent">%</option><option value="rpe">RPE</option><option value="none">—</option></select>{mode === 'rpe' ? <span className="load-mode-note">Derived</span> : mode !== 'none' && <input aria-label="Load" key={`${row.id}-${mode}`} defaultValue={loadValue} placeholder={mode === 'percent' ? '85' : '130-132.5'} onBlur={(event) => commitLoad(event.currentTarget.value)} onKeyDown={(event) => { if (event.key === 'Enter') { event.preventDefault(); event.currentTarget.blur(); window.requestAnimationFrame(() => focusProgramGridCell(rowIndex + 1, 5)); } else if (event.key === 'Tab') { event.preventDefault(); event.currentTarget.blur(); window.requestAnimationFrame(() => focusProgramGridCell(rowIndex, event.shiftKey ? 4 : 6)); } else if (event.key === 'Escape') event.currentTarget.value = loadValue; }} />}{mode === 'percent' && <select aria-label="Percent basis" value={row.percent_of ?? 'e1rm'} onChange={(event) => onPatch({ percent_of: event.target.value as 'e1rm' | 'tm' })}><option value="e1rm">e1RM</option><option value="tm">TM</option></select>}</div>
     <EditableGridCell row={rowIndex} column={6} label="Coach notes" value={row.notes_coach ?? ''} placeholder="Add note" onCommit={(value) => onPatch({ notes_coach: value || null })} onClear={() => onPatch({ notes_coach: null })} />
@@ -112,9 +116,16 @@ function DayCard({ week, day, exercises, document, dispatch, onCreateExercise }:
   const allRowCount = week.days.reduce((sum, current) => sum + current.exercises.length, 0);
   const rowStart = 1 + week.days.slice(0, week.days.findIndex((current) => current.id === day.id)).reduce((sum, current) => sum + current.exercises.length, 0);
   const addRow = (exercise?: Exercise, values: Partial<ProgramExercise> = {}) => {
-    const first = exercise ?? exercises.find((item) => item.name === 'Comp Squat') ?? exercises.find((item) => item.category === 'main') ?? exercises[0];
-    if (!first) return;
-    dispatch({ type: 'add-row', weekId: week.id, dayId: day.id, row: createRow(day.id, first.id, day.exercises.length, { exercise: first, ...values }) });
+    const newRowIndex = keyboardRowIndex(day.exercises.length);
+    const row = exercise
+      ? createRow(day.id, exercise.id, day.exercises.length, { exercise, ...values })
+      : createBlankRow(day.id, day.exercises.length);
+    dispatch({ type: 'add-row', weekId: week.id, dayId: day.id, row });
+    if (!exercise) {
+      window.requestAnimationFrame(() => {
+        window.document.querySelector<HTMLInputElement>(`[data-grid-cell="${newRowIndex}:0"] input`)?.focus();
+      });
+    }
   };
   const keyboardRowIndex = (index: number) => rowStart + index;
   return <article className="day-card"><header className="day-card-header"><button className="collapse-day" onClick={() => setCollapsed(!collapsed)} aria-expanded={!collapsed} aria-label={`${collapsed ? 'Expand' : 'Collapse'} ${day.name}`}>{collapsed ? '▸' : '▾'}</button><label className="day-name-field"><span className="eyebrow">SESSION {String(day.day_number).padStart(2, '0')}</span><input aria-label="Day name" value={day.name} onChange={(event) => dispatch({ type: 'rename-day', weekId: week.id, dayId: day.id, name: event.target.value })} /></label><span className="day-summary">{repsSummary(day.exercises)}</span><div className="day-header-actions"><Link className="button button-quiet" to={`/coach/programs/${document.program.id}/days/${day.id}/videos`}>Videos</Link><button className="button button-quiet" onClick={() => addRow()}>＋ Add row</button><button className="button button-quiet" onClick={() => { const movement = window.prompt('Main lift (squat, bench, or deadlift)', 'squat')?.toLowerCase(); const exercise = exercises.find((item) => item.is_competition_lift && item.movement === movement); if (!exercise) return; addRow(exercise, { set_type: 'top', sets: 1, reps: '1', reps_min: 1, reps_max: 1, rpe: 7, load_mode: 'rpe' }); addRow(exercise, { set_type: 'backoff', sets: 3, reps: '3', reps_min: 3, reps_max: 3, rpe: 6, load_mode: 'rpe' }); }}>Quick add</button><button className="icon-button danger-icon" aria-label={`Delete ${day.name}`} title="Delete day" onClick={() => { if (window.confirm(`Delete ${day.name} and its exercise rows?`)) dispatch({ type: 'delete-day', weekId: week.id, dayId: day.id }); }}>×</button></div></header>

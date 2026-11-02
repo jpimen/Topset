@@ -1,12 +1,18 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createDebouncedSave } from './autosave';
-import { createEmptyDocument, createProgramHistory, createRow, parseReps, programReducer, validateLoad } from './document';
+import { createBlankRow, createEmptyDocument, createProgramHistory, createRow, parseReps, programReducer, validateLoad } from './document';
 
 beforeEach(() => {
   vi.useRealTimers();
 });
 
 describe('program builder input validation', () => {
+  it('creates an unassigned row with blank prescription fields', () => {
+    expect(createBlankRow('day', 0)).toMatchObject({
+      exercise_id: null, set_type: null, sets: null, reps: '', reps_min: null, reps_max: null, rpe: null,
+    });
+  });
+
   it('parses exact reps, ranges, and timed reps without changing input text', () => {
     expect(parseReps('5')).toEqual({ valid: true, min: 5, max: 5, timed: false });
     expect(parseReps('3-5')).toEqual({ valid: true, min: 3, max: 5, timed: false });

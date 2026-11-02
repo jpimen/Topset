@@ -18,7 +18,7 @@ export interface Exercise {
 export interface ProgramExercise {
   id: string;
   day_id: string;
-  exercise_id: string;
+  exercise_id: string | null;
   position: number;
   set_type: SetType | null;
   sets: number | null;
@@ -33,7 +33,7 @@ export interface ProgramExercise {
   percent_of: 'e1rm' | 'tm' | null;
   notes_coach: string | null;
   superset_group: string | null;
-  exercise?: Exercise;
+  exercise?: Exercise | null;
 }
 
 export interface ProgramDay {
