@@ -45,6 +45,14 @@ export interface ProgramDay {
   exercises: ProgramExercise[];
 }
 
+export interface ProgramBlock {
+  id: string;
+  program_id: string;
+  name: string;
+  position: number;
+  notes: string | null;
+}
+
 export interface ProgramWeek {
   id: string;
   program_id: string;
@@ -64,6 +72,7 @@ export interface ProgramDocument {
     unit: Unit;
     updated_at: string;
   };
+  blocks?: ProgramBlock[];
   weeks: ProgramWeek[];
 }
 
@@ -77,7 +86,8 @@ export type ProgramAction =
   | { type: 'replace'; document: ProgramDocument }
   | { type: 'rename-program'; name: string }
   | { type: 'set-unit'; unit: Unit }
-  | { type: 'add-week' }
+  | { type: 'add-block' }
+  | { type: 'add-week'; blockId?: string | null }
   | { type: 'delete-week'; weekId: string }
   | { type: 'rename-week'; weekId: string; name: string }
   | { type: 'add-day'; weekId: string }

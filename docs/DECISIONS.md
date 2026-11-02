@@ -15,6 +15,11 @@
 - Defer week-number and day-number uniqueness checks until the save transaction commits. The document save RPC can temporarily reuse a number while deleting or renumbering entries; immediate checks caused valid week/day edits to fail intermittently.
 - Blank program documents are valid. Blank exercise rows require the nullable `program_exercises.exercise_id` migration; the builder now points to the relevant migration when the server reports that schema mismatch.
 
+## 2026-11-03 — Program blocks
+
+- Treat a block as a named group of weeks. Adding a block creates its first week and selects the block; subsequent weeks are added to the selected block.
+- Persist blocks and week-to-block links through one coach-authorized RPC alongside the program document. Athlete program views continue to display the assigned weeks without exposing Coach-only block editing controls.
+
 ## 2026-11-03 — Bounded Athlete caching and shared screen reads
 
 - Keep the existing Athlete prescription fallback, validate a v2 identity/role/assignment envelope and expire offline fallback after 24 hours. Revalidate on entry, manual refresh, tab return and reconnect; invalidate on authoritative empty results, access/validation failures and account cleanup. Keep live and snapshot sources separate.
