@@ -19,11 +19,12 @@ export async function listPrograms(coachId: string) {
 
 export async function loadProgram(programId: string): Promise<ProgramDocument> {
   const db = client();
-  const [programResult, weeksResult] = await Promise.all([
+  const [programResult, blocksResult, weeksResult] = await Promise.all([
     db.from('programs').select('*').eq('id', programId).maybeSingle(),
+    db.from('blocks').select('id, program_id, name, position, notes').eq('program_id', programId).order('position'),
     db.from('weeks').select('*, days(*, program_exercises(*, exercises(*)))').eq('program_id', programId).order('week_number'),
   ]);
-  raise(programResult.error); raise(weeksResult.error);
+  raise(programResult.error); raise(blocksResult.error); raise(weeksResult.error);
   if (!programResult.data) throw new Error('Program not found or you do not have access to it.');
   const weeks = (weeksResult.data ?? []).map((week) => ({
     ...week,
@@ -35,14 +36,26 @@ export async function loadProgram(programId: string): Promise<ProgramDocument> {
       })).sort((a, b) => Number((a as Record<string, unknown>).position) - Number((b as Record<string, unknown>).position)),
     })).sort((a, b) => Number((a as Record<string, unknown>).day_number) - Number((b as Record<string, unknown>).day_number)),
   })) as ProgramWeek[];
-  return { program: programResult.data as ProgramDocument['program'], weeks };
+  const storedBlocks = blocksResult.data ?? [];
+  const hasUnassignedWeeks = weeks.some((week) => week.block_id === null);
+  if (!hasUnassignedWeeks) return { program: programResult.data as ProgramDocument['program'], blocks: storedBlocks, weeks };
+
+  // Legacy weeks without a block appear as a normal editable Block in the builder.
+  const legacyBlockId = crypto.randomUUID();
+  const blocks = [
+    { id: legacyBlockId, program_id: programId, name: 'Block', position: 0, notes: null },
+    ...storedBlocks.map((block) => ({ ...block, position: block.position + 1 })),
+  ];
+  const groupedWeeks = weeks.map((week) => week.block_id === null ? { ...week, block_id: legacyBlockId } : week);
+  return { program: programResult.data as ProgramDocument['program'], blocks, weeks: groupedWeeks };
 }
 
 export async function saveProgram(document: ProgramDocument, expectedUpdatedAt: string): Promise<string> {
   const payload = {
     program: { name: document.program.name, description: document.program.description, unit: document.program.unit },
+    blocks: document.blocks ?? [],
     weeks: document.weeks.map((week) => ({
-      id: week.id, week_number: week.week_number, name: week.name, notes: week.notes,
+      id: week.id, block_id: week.block_id, week_number: week.week_number, name: week.name, notes: week.notes,
         days: week.days.map((day) => ({
         id: day.id, day_number: day.day_number, name: day.name, notes: day.notes,
         exercises: day.exercises.map((row) => {
@@ -53,7 +66,7 @@ export async function saveProgram(document: ProgramDocument, expectedUpdatedAt: 
       })),
     })),
   };
-  const { data, error } = await client().rpc('save_coach_program_document', {
+  const { data, error } = await client().rpc('save_coach_program_with_blocks', {
     p_program_id: document.program.id,
     p_expected_updated_at: expectedUpdatedAt,
     p_document: payload,
@@ -76,10 +89,14 @@ export async function duplicateProgram(programId: string, coachId: string): Prom
   }).select('id, updated_at').single();
   raise(error);
   if (!data) throw new Error('Program could not be duplicated.');
+  const originalBlocks = original.blocks ?? [];
+  const blockIdMap = new Map(originalBlocks.map((block) => [block.id, crypto.randomUUID()]));
   const copy: ProgramDocument = {
     program: { ...original.program, id: data.id as string, coach_id: coachId, updated_at: data.updated_at as string },
+    blocks: originalBlocks.map((block, position) => ({ ...block, id: blockIdMap.get(block.id)!, program_id: data.id as string, position })),
     weeks: original.weeks.map((week) => ({
       ...week, id: crypto.randomUUID(), program_id: data.id as string,
+      block_id: week.block_id ? blockIdMap.get(week.block_id) ?? null : null,
       days: week.days.map((day) => ({
         ...day, id: crypto.randomUUID(),
         exercises: day.exercises.map((row, position) => ({ ...row, id: crypto.randomUUID(), position })),

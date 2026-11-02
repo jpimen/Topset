@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { EditableGridCell, focusProgramGridCell } from './EditableGridCell';
 import { useCoachId } from '../coach/useCoachId';
@@ -32,6 +32,24 @@ function saveFailureMessage(error: unknown): string {
     return 'This program changed elsewhere. Reload the latest version before saving again.';
   }
   return `Save failed: ${message}`;
+}
+
+function ProgramNameTab({ kind, label, value, fallback, selected, onSelect, onRename }: {
+  kind: 'block' | 'week'; label: string; value: string; fallback: string; selected: boolean;
+  onSelect: () => void; onRename: (name: string) => void;
+}) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(value);
+  useEffect(() => { if (!editing) setDraft(value); }, [editing, value]);
+  const commit = () => { const name = draft.trim() || fallback; onRename(name); setDraft(name); setEditing(false); };
+  return <span className={`program-name-tab ${kind}-name-tab${selected ? ' selected' : ''}`}>
+    {editing
+      ? <input autoFocus aria-label={`Rename ${label}`} value={draft} onChange={(event) => setDraft(event.target.value)} onBlur={commit} onKeyDown={(event) => {
+        if (event.key === 'Enter') { event.preventDefault(); event.currentTarget.blur(); }
+        if (event.key === 'Escape') { event.preventDefault(); setDraft(value); setEditing(false); }
+      }} />
+      : <><button type="button" className="program-name-tab-select" aria-pressed={selected} onClick={onSelect}>{value || fallback}</button>{selected && <button type="button" className="program-name-tab-edit" aria-label={`Rename ${label}`} title={`Rename ${label}`} onClick={() => { setDraft(value); setEditing(true); }}>✎</button>}</>}
+  </span>;
 }
 
 function ExerciseNameCell({ row, index, exercise, exercises, onChoose, onCreate }: { row: ProgramExercise; index: number; exercise?: Exercise; exercises: Exercise[]; onChoose: (value: Exercise) => void; onCreate: (name: string) => Promise<Exercise | undefined> }) {
@@ -127,7 +145,7 @@ export function ProgramBuilderPage() {
   const coachId = useCoachId();
   const { id: programId = '' } = useParams();
   const navigate = useNavigate();
-  const [history, dispatch] = useReducer(programReducer, null, () => createProgramHistory({ program: { id: '', coach_id: coachId, name: '', description: null, unit: 'kg', updated_at: '' }, weeks: [] }));
+  const [history, dispatch] = useReducer(programReducer, null, () => createProgramHistory({ program: { id: '', coach_id: coachId, name: '', description: null, unit: 'kg', updated_at: '' }, blocks: [], weeks: [] }));
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
@@ -137,7 +155,9 @@ export function ProgramBuilderPage() {
   const [savedAt, setSavedAt] = useState('');
   const [savedDocument, setSavedDocument] = useState<ProgramDocument | null>(null);
   const [selectedWeek, setSelectedWeek] = useState('');
+  const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
   const pendingSelectLastWeek = useRef(false);
+  const pendingSelectLastBlock = useRef(false);
   const expectedAt = useState({ current: '' })[0];
   const document = history.present;
   const hasUnsaved = ready && document !== savedDocument;
@@ -174,7 +194,8 @@ export function ProgramBuilderPage() {
       expectedAt.current = loaded.program.updated_at;
       setSavedAt(loaded.program.updated_at);
       setSavedDocument(loaded);
-      setSelectedWeek(loaded.weeks[0]?.id ?? '');
+      setSelectedBlockId(loaded.blocks?.[0]?.id ?? null);
+      setSelectedWeek(loaded.weeks.find((week) => week.block_id === (loaded.blocks?.[0]?.id ?? null))?.id ?? '');
       setExercises(library);
       setReady(true);
     }).catch(() => { if (active) setLoadError(true); }).finally(() => { if (active) setLoading(false); });
@@ -201,7 +222,9 @@ export function ProgramBuilderPage() {
     window.document.addEventListener('click', confirmInternalNavigation, true);
     return () => window.document.removeEventListener('click', confirmInternalNavigation, true);
   }, [document, hasUnsaved, saveAndNavigate]);
-  const activeWeek = document.weeks.find((week) => week.id === selectedWeek) ?? document.weeks[0];
+  const blocks = useMemo(() => document.blocks ?? [], [document.blocks]);
+  const visibleWeeks = useMemo(() => document.weeks.filter((week) => week.block_id === selectedBlockId), [document.weeks, selectedBlockId]);
+  const activeWeek = visibleWeeks.find((week) => week.id === selectedWeek) ?? visibleWeeks[0];
   const reloadConflict = async () => { setLoading(true); try { const remote = await loadProgram(programId); dispatch({ type: 'replace', document: remote }); expectedAt.current = remote.program.updated_at; setSavedAt(remote.program.updated_at); setSavedDocument(remote); setStatus('saved'); setReady(true); } catch { setStatus('error'); } finally { setLoading(false); } };
   const addCustomInline = async (name: string): Promise<Exercise | undefined> => {
     const found = exercises.find((exercise) => exercise.name.toLowerCase() === name.toLowerCase());
@@ -213,15 +236,25 @@ export function ProgramBuilderPage() {
       return created;
     } catch { setStatus('error'); return undefined; }
   };
-  const addWeek = () => { pendingSelectLastWeek.current = true; dispatch({ type: 'add-week' }); };
+  const addWeek = () => { pendingSelectLastWeek.current = true; dispatch({ type: 'add-week', blockId: selectedBlockId }); };
+  const addBlock = () => { pendingSelectLastBlock.current = true; dispatch({ type: 'add-block' }); };
   useEffect(() => {
-    if (pendingSelectLastWeek.current) {
+    if (pendingSelectLastBlock.current) {
+      pendingSelectLastBlock.current = false;
+      const block = blocks.at(-1);
+      setSelectedBlockId(block?.id ?? null);
+      setSelectedWeek(document.weeks.find((week) => week.block_id === block?.id)?.id ?? '');
+    } else if (pendingSelectLastWeek.current) {
       pendingSelectLastWeek.current = false;
-      setSelectedWeek(document.weeks.at(-1)?.id ?? '');
-    } else if (!document.weeks.some((week) => week.id === selectedWeek)) {
-      setSelectedWeek(document.weeks[0]?.id ?? '');
+      setSelectedWeek([...visibleWeeks].at(-1)?.id ?? document.weeks.at(-1)?.id ?? '');
+    } else if (selectedBlockId && !blocks.some((block) => block.id === selectedBlockId)) {
+      const firstBlock = blocks[0];
+      setSelectedBlockId(firstBlock?.id ?? null);
+      setSelectedWeek(document.weeks.find((week) => week.block_id === (firstBlock?.id ?? null))?.id ?? '');
+    } else if (!visibleWeeks.some((week) => week.id === selectedWeek)) {
+      setSelectedWeek(visibleWeeks[0]?.id ?? '');
     }
-  }, [document.weeks, selectedWeek]);
+  }, [blocks, document.weeks, selectedBlockId, selectedWeek, visibleWeeks]);
   if (loading) return <main className="coach-page builder-loading"><div className="skeleton-line" /><div className="skeleton-line short" /><div className="builder-skeleton" /></main>;
   if (loadError) return <main className="coach-page"><section className="coach-panel empty-state"><p className="eyebrow">PROGRAM UNAVAILABLE</p><h1>We could not open this program</h1><p>It may not exist, or it may belong to another coach.</p><Link className="button button-secondary" to="/coach/programs">Back to programs</Link></section></main>;
 
@@ -230,8 +263,8 @@ export function ProgramBuilderPage() {
     <header className="builder-topbar"><div className="builder-program-name"><p className="eyebrow">PROGRAM / EDITOR</p><input aria-label="Program name" value={document.program.name} onChange={(event) => dispatch({ type: 'rename-program', name: event.target.value })} /></div><div className="builder-top-actions"><div className={`save-indicator save-${status}`} role="status"><span />{status === 'saved' ? hasUnsaved ? 'Unsaved changes' : `Saved${savedAt ? ` · ${new Date(savedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` : ''}` : status === 'saving' ? 'Saving…' : status === 'conflict' ? 'Changed elsewhere' : 'Save failed'}</div>{status === 'conflict' && <button className="button button-secondary" onClick={() => void reloadConflict()}>Reload latest</button>}<button className="button button-primary" disabled={!hasUnsaved || status === 'saving' || status === 'conflict'} onClick={() => void saveCurrent().catch(() => undefined)}>{status === 'saving' ? 'Saving…' : status === 'error' ? 'Retry save' : 'Save changes'}</button></div></header>
     {status === 'conflict' && <div role="alert" className="inline-state error-state">This program changed in another session. Reload the latest version before editing again.</div>}
     {status === 'error' && <div role="alert" className="inline-state error-state">Your edits are still here, but could not be saved. {saveError || 'Retry the save.'}</div>}
-    <section className="week-navigation"><div className="week-tabs" role="tablist" aria-label="Program weeks">{document.weeks.map((week) => <button key={week.id} role="tab" aria-selected={activeWeek?.id === week.id} className={activeWeek?.id === week.id ? 'selected' : ''} onClick={() => setSelectedWeek(week.id)}>{week.name || `Week ${week.week_number}`}</button>)}</div><div className="week-actions"><button className="button button-secondary" onClick={addWeek}>＋ Add week</button>{activeWeek && <button className="button button-quiet danger-quiet" onClick={() => { if (window.confirm(`Delete ${activeWeek.name || `Week ${activeWeek.week_number}`} and all its days?`)) dispatch({ type: 'delete-week', weekId: activeWeek.id }); }}>Delete week</button>}</div></section>
-    {!activeWeek ? <section className="coach-panel empty-state"><span className="empty-state-mark">＋</span><h2>Add a week to get started</h2><button className="button button-primary" onClick={addWeek}>Add week</button></section> : <><div className="week-heading"><div><p className="eyebrow">TRAINING CYCLE / WEEK {String(activeWeek.week_number).padStart(2, '0')}</p><input aria-label="Week name" value={activeWeek.name} onChange={(event) => dispatch({ type: 'rename-week', weekId: activeWeek.id, name: event.target.value })} /></div><button className="button button-primary" onClick={() => dispatch({ type: 'add-day', weekId: activeWeek.id })}>＋ Add day</button></div>
+    <section className="week-navigation"><div className="block-navigation"><div className="block-tabs" role="group" aria-label="Program blocks">{blocks.map((block, index) => <ProgramNameTab key={block.id} kind="block" label={`block ${index + 1}`} value={block.name} fallback="Block" selected={selectedBlockId === block.id} onSelect={() => { setSelectedBlockId(block.id); setSelectedWeek(document.weeks.find((week) => week.block_id === block.id)?.id ?? ''); }} onRename={(name) => dispatch({ type: 'rename-block', blockId: block.id, name })} />)}</div><button className="button button-secondary" onClick={addBlock}>＋ Add block</button></div><div className="week-navigation-row"><div className="week-tabs" role="group" aria-label="Program weeks">{visibleWeeks.map((week) => <ProgramNameTab key={week.id} kind="week" label={week.name || 'Week'} value={week.name} fallback="Week" selected={activeWeek?.id === week.id} onSelect={() => setSelectedWeek(week.id)} onRename={(name) => dispatch({ type: 'rename-week', weekId: week.id, name })} />)}</div><div className="week-actions"><button className="button button-secondary" onClick={addWeek}>＋ Add week</button>{activeWeek && <button className="button button-quiet danger-quiet" onClick={() => { if (window.confirm(`Delete ${activeWeek.name || 'Week'} and all its days?`)) dispatch({ type: 'delete-week', weekId: activeWeek.id }); }}>Delete week</button>}</div></div></section>
+    {!activeWeek ? <section className="coach-panel empty-state"><span className="empty-state-mark">＋</span><h2>Add a week to get started</h2><button className="button button-primary" onClick={addWeek}>Add week</button></section> : <><div className="week-heading"><div><p className="eyebrow">TRAINING CYCLE / WEEK</p><h2 className="week-title">{activeWeek.name || 'Week'}</h2></div><button className="button button-primary" onClick={() => dispatch({ type: 'add-day', weekId: activeWeek.id })}>＋ Add day</button></div>
       {activeWeek.days.length ? <CoachWorkoutCheckInsProvider preferredProgramId={programId}><div className="day-stack">{activeWeek.days.map((day) => <div className="builder-day-checkin-row" key={day.id}><DayCard week={activeWeek} day={day} exercises={exercises} document={document} dispatch={dispatch} onCreateExercise={addCustomInline} /><CoachWorkoutCheckInsPanel dayId={day.id} dayName={day.name} unit={document.program.unit} exerciseNames={Object.fromEntries(day.exercises.map((row) => [row.id, exercises.find((exercise) => exercise.id === row.exercise_id)?.name ?? 'Exercise']))} /></div>)}</div></CoachWorkoutCheckInsProvider> : <section className="coach-panel empty-state"><span className="empty-state-mark">＋</span><h2>No training days in this week</h2><p>Add a day to begin the spreadsheet.</p><button className="button button-primary" onClick={() => dispatch({ type: 'add-day', weekId: activeWeek.id })}>Add first day</button></section>}
     </>}
     <footer className="builder-footer"><span>WORKING DOCUMENT · {document.program.unit.toUpperCase()}</span><span>Save changes to sync the live plan with athletes.</span><button className="button button-quiet" onClick={() => { if (window.confirm('Save your recent edits and leave the builder?')) void saveAndNavigate('/coach/programs'); }}>Exit builder</button></footer>
