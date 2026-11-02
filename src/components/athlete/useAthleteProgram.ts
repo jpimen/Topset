@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { loadActiveAthleteProgram, type AthleteProgramLoad } from '../../lib/athlete/programs';
+import { supabase } from '../../lib/supabase';
 
 export function useAthleteProgram(athleteId: string | undefined, hasUnsavedEdits = false) {
   const [entry, setEntry] = useState<{ athleteId: string; value: AthleteProgramLoad } | null>(null);
@@ -8,6 +9,7 @@ export function useAthleteProgram(athleteId: string | undefined, hasUnsavedEdits
   const [error, setError] = useState('');
   const [reloadKey, setReloadKey] = useState(0);
   const [refreshDeferred, setRefreshDeferred] = useState(false);
+  const [liveSyncWarning, setLiveSyncWarning] = useState('');
   const edits = useRef(hasUnsavedEdits);
   edits.current = hasUnsavedEdits;
   const refresh = useCallback(() => {
@@ -53,9 +55,42 @@ export function useAthleteProgram(athleteId: string | undefined, hasUnsavedEdits
     };
   }, [athleteId, refresh]);
 
+  const liveProgramId = loaded?.state?.assignment.sync_mode === 'live'
+    ? loaded.state.assignment.program_id
+    : undefined;
+  useEffect(() => {
+    const db = supabase;
+    if (!athleteId || !liveProgramId || !db) return;
+    let active = true;
+    let refreshTimer: number | undefined;
+    const channel = db.channel(`athlete-live-program:${athleteId}:${liveProgramId}`)
+      .on('postgres_changes', {
+        event: 'UPDATE', schema: 'public', table: 'programs', filter: `id=eq.${liveProgramId}`,
+      }, () => {
+        if (refreshTimer !== undefined) window.clearTimeout(refreshTimer);
+        refreshTimer = window.setTimeout(() => {
+          refreshTimer = undefined;
+          if (active) refresh();
+        }, 250);
+      })
+      .subscribe((status, error) => {
+        if (!active) return;
+        if (status === 'SUBSCRIBED') setLiveSyncWarning('');
+        else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+          console.error('Athlete live program updates could not connect.', error);
+          setLiveSyncWarning('Live updates are unavailable. Use Refresh program to load the latest saved changes.');
+        }
+      });
+    return () => {
+      active = false;
+      if (refreshTimer !== undefined) window.clearTimeout(refreshTimer);
+      void db.removeChannel(channel);
+    };
+  }, [athleteId, liveProgramId, refresh]);
+
   return {
     result: loaded?.state ?? null, loading: loading || Boolean(entry && entry.athleteId !== athleteId), error, refresh, refreshDeferred,
     offline: loaded?.source === 'offline', verifiedAt: loaded?.verifiedAt,
-    warning: loaded?.warning ?? '',
+    warning: loaded?.warning ?? '', liveSyncWarning,
   };
 }

@@ -5,6 +5,16 @@
 - Let Coaches save an unassigned prescription row so exercise, set type, sets, reps, RPE, load and notes can be entered independently. Store the exercise reference as nullable so blank rows and partial entries persist.
 - Keep incomplete rows out of Athlete live prescriptions. Snapshot generation already joins assigned exercise records, so unassigned rows are not included in snapshots. No RLS policy changes are needed.
 
+## 2026-11-03 — Live Athlete program updates
+
+- Publish Coach program row updates through `supabase_realtime`; existing row triggers touch the parent program after saved changes.
+- An Athlete with a live assignment listens only for that program's update, then re-reads the assignment and prescription through Supabase so RLS and server data remain authoritative. Snapshot assignments stay immutable; manual refresh and tab return remain fallbacks.
+
+## 2026-11-03 — Program save ordering
+
+- Defer week-number and day-number uniqueness checks until the save transaction commits. The document save RPC can temporarily reuse a number while deleting or renumbering entries; immediate checks caused valid week/day edits to fail intermittently.
+- Blank program documents are valid. Blank exercise rows require the nullable `program_exercises.exercise_id` migration; the builder now points to the relevant migration when the server reports that schema mismatch.
+
 ## 2026-11-03 — Bounded Athlete caching and shared screen reads
 
 - Keep the existing Athlete prescription fallback, validate a v2 identity/role/assignment envelope and expire offline fallback after 24 hours. Revalidate on entry, manual refresh, tab return and reconnect; invalidate on authoritative empty results, access/validation failures and account cleanup. Keep live and snapshot sources separate.
