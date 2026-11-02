@@ -19,6 +19,7 @@
 
 - Treat a block as a named group of weeks. Adding a block creates its first week and selects the block; subsequent weeks are added to the selected block.
 - New blocks and weeks start with the plain names “Block” and “Week”; Coaches can rename both in the builder. Numeric positions remain internal for ordering only.
+- Keep rename fields inline in the selected block/week tab so renaming does not shift the control to a separate part of the builder.
 - Persist blocks and week-to-block links through one coach-authorized RPC alongside the program document. Athlete program views continue to display the assigned weeks without exposing Coach-only block editing controls.
 
 ## 2026-11-03 — Bounded Athlete caching and shared screen reads
