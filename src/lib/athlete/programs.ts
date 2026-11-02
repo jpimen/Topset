@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { supabase } from '../supabase';
 import { loadProgram } from '../programs/repository';
+import type { ProgramDocument } from '../programs/types';
 import { athleteProgramSchema, type AthleteProgram } from './types';
 
 const cachedProgramSchema = z.object({
@@ -31,6 +32,19 @@ let cacheGeneration = 0;
 const requestVersions = new Map<string, number>();
 let cleanupFailed = false;
 const blockedCopies = new Set<string>();
+
+export function omitUnassignedRows(program: ProgramDocument): ProgramDocument {
+  return {
+    ...program,
+    weeks: program.weeks.map((week) => ({
+      ...week,
+      days: week.days.map((day) => ({
+        ...day,
+        exercises: day.exercises.filter((row) => Boolean(row.exercise_id && row.exercise)),
+      })),
+    })),
+  };
+}
 
 function client() {
   if (!supabase) throw new Error('Supabase environment is not configured.');
@@ -122,7 +136,7 @@ export async function loadActiveAthleteProgram(athleteId: string): Promise<Athle
     const assignment = cachedProgramSchema.shape.assignment.parse(data);
     const program = assignment.sync_mode === 'snapshot'
       ? athleteProgramSchema.parse(data.program_snapshot)
-      : athleteProgramSchema.parse(await loadProgram(assignment.program_id));
+      : athleteProgramSchema.parse(omitUnassignedRows(await loadProgram(assignment.program_id)));
     if (program.program.id !== assignment.program_id) throw new Error('The assigned program does not match its prescription.');
     const result: AthleteProgramLoad = { state: { assignment, program }, source: 'server', verifiedAt: Date.now(), warning: '' };
     if (current()) {

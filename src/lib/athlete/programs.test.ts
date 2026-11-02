@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { findNextWorkout } from './programs';
+import { findNextWorkout, omitUnassignedRows } from './programs';
 import { athleteProgramSchema, loggedSetInputSchema } from './types';
 
 const program = athleteProgramSchema.parse({
@@ -16,6 +16,26 @@ const program = athleteProgramSchema.parse({
 });
 
 describe('athlete program helpers', () => {
+  it('omits unassigned coach draft rows from athlete prescriptions', () => {
+    const exercise = { id: '70000000-0000-4000-8000-000000000001', owner_id: null, name: 'Squat', category: 'main' as const, movement: 'squat' as const, muscle_group: null, is_competition_lift: true };
+    const baseRow = {
+      id: '80000000-0000-4000-8000-000000000001', day_id: '60000000-0000-4000-8000-000000000001', position: 0,
+      set_type: null, sets: null, reps: '', reps_min: null, reps_max: null, rpe: null, load_mode: 'none' as const,
+      load_value: null, load_min: null, load_max: null, percent_of: null, notes_coach: null, superset_group: null,
+    };
+    const document = {
+      program: { id: '30000000-0000-4000-8000-000000000001', coach_id: '10000000-0000-4000-8000-000000000001', name: 'Plan', description: null, unit: 'kg' as const, updated_at: '' },
+      weeks: [{ id: '50000000-0000-4000-8000-000000000001', program_id: '30000000-0000-4000-8000-000000000001', block_id: null, week_number: 1, name: 'Week 1', notes: null, days: [{
+        id: '60000000-0000-4000-8000-000000000001', week_id: '50000000-0000-4000-8000-000000000001', day_number: 1, name: 'Day 1', notes: null,
+        exercises: [
+          { ...baseRow, exercise_id: null },
+          { ...baseRow, id: '80000000-0000-4000-8000-000000000002', exercise_id: exercise.id, exercise },
+        ],
+      }] }],
+    };
+    expect(omitUnassignedRows(document).weeks[0].days[0].exercises.map((row) => row.id)).toEqual(['80000000-0000-4000-8000-000000000002']);
+  });
+
   it('selects the earliest incomplete workout in week/day order', () => {
     expect(findNextWorkout(program, new Set())?.day.id).toBe('60000000-0000-4000-8000-000000000003');
     expect(findNextWorkout(program, new Set(['60000000-0000-4000-8000-000000000003']))?.day.id).toBe('60000000-0000-4000-8000-000000000001');

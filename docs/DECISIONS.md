@@ -1,5 +1,10 @@
 # Decisions
 
+## 2026-11-03 — Editable blank exercise rows
+
+- Let Coaches save an unassigned prescription row so exercise, set type, sets, reps, RPE, load and notes can be entered independently. Store the exercise reference as nullable so blank rows and partial entries persist.
+- Keep incomplete rows out of Athlete live prescriptions. Snapshot generation already joins assigned exercise records, so unassigned rows are not included in snapshots. No RLS policy changes are needed.
+
 ## 2026-11-03 — Bounded Athlete caching and shared screen reads
 
 - Keep the existing Athlete prescription fallback, validate a v2 identity/role/assignment envelope and expire offline fallback after 24 hours. Revalidate on entry, manual refresh, tab return and reconnect; invalidate on authoritative empty results, access/validation failures and account cleanup. Keep live and snapshot sources separate.
