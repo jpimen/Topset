@@ -669,6 +669,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .block-tabs { min-width: 0; display: flex; align-items: center; gap: 6px; overflow-x: auto; }
 .block-tabs button { min-height: 32px; padding: 0 12px; color: var(--secondary); background: var(--surface-control); border: 1px solid var(--border); border-radius: 7px; font: 10px var(--mono); white-space: nowrap; }
 .block-tabs button.selected { color: var(--gold-text); border-color: var(--border-button-hover); background: var(--surface-gold-muted); }
+.block-name-input { width: min(220px, 24vw); min-width: 100px; min-height: 32px; padding: 0 9px; color: var(--text); background: var(--surface-control); border: 1px solid var(--border-input); border-radius: 7px; font-size: 11px; }
 .week-tabs { display: flex; align-items: center; gap: 5px; overflow-x: auto; }
 .week-tabs button { min-height: 38px; padding: 0 14px; color: var(--secondary); background: transparent; border: 1px solid transparent; border-radius: 8px 8px 0 0; font-size: 12px; white-space: nowrap; }
 .week-tabs button.selected { color: var(--gold-text); border-color: var(--border-tab); border-bottom-color: var(--text-on-gold); background: var(--surface-selected); box-shadow: inset 0 -2px var(--gold); }

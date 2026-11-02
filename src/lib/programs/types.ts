@@ -87,6 +87,7 @@ export type ProgramAction =
   | { type: 'rename-program'; name: string }
   | { type: 'set-unit'; unit: Unit }
   | { type: 'add-block' }
+  | { type: 'rename-block'; blockId: string; name: string }
   | { type: 'add-week'; blockId?: string | null }
   | { type: 'delete-week'; weekId: string }
   | { type: 'rename-week'; weekId: string; name: string }

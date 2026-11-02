@@ -7,7 +7,7 @@ export function createEmptyDocument(coachId: string): ProgramDocument {
   return {
     program: { id: '', coach_id: coachId, name: 'Untitled program', description: null, unit: 'kg', updated_at: '' },
     blocks: [],
-    weeks: [{ id: id(), program_id: '', block_id: null, week_number: 1, name: 'Week 1', notes: null, days: [] }],
+    weeks: [{ id: id(), program_id: '', block_id: null, week_number: 1, name: 'Week', notes: null, days: [] }],
   };
 }
 
@@ -66,13 +66,16 @@ function applyAction(document: ProgramDocument, action: ProgramAction): ProgramD
     const blockId = id();
     const blockPosition = blocks.reduce((max, block) => Math.max(max, block.position), -1) + 1;
     const weekNumber = document.weeks.reduce((max, week) => Math.max(max, week.week_number), 0) + 1;
-    const block = { id: blockId, program_id: document.program.id, name: `Block ${blockPosition + 1}`, position: blockPosition, notes: null };
-    const week = { id: id(), program_id: document.program.id, block_id: blockId, week_number: weekNumber, name: `Week ${weekNumber}`, notes: null, days: [] };
+    const block = { id: blockId, program_id: document.program.id, name: 'Block', position: blockPosition, notes: null };
+    const week = { id: id(), program_id: document.program.id, block_id: blockId, week_number: weekNumber, name: 'Week', notes: null, days: [] };
     return { ...document, blocks: [...blocks, block], weeks: [...document.weeks, week] };
+  }
+  if (action.type === 'rename-block') {
+    return { ...document, blocks: (document.blocks ?? []).map((block) => block.id === action.blockId ? { ...block, name: action.name } : block) };
   }
   if (action.type === 'add-week') {
     const weekNumber = document.weeks.reduce((max, week) => Math.max(max, week.week_number), 0) + 1;
-    return { ...document, weeks: [...document.weeks, { id: id(), program_id: document.program.id, block_id: action.blockId ?? null, week_number: weekNumber, name: `Week ${weekNumber}`, notes: null, days: [] }] };
+    return { ...document, weeks: [...document.weeks, { id: id(), program_id: document.program.id, block_id: action.blockId ?? null, week_number: weekNumber, name: 'Week', notes: null, days: [] }] };
   }
   if (action.type === 'delete-week') return { ...document, weeks: document.weeks.filter((week) => week.id !== action.weekId).map((week, index) => ({ ...week, week_number: index + 1 })) };
   const weeks = document.weeks.map((week) => {
