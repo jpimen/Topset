@@ -36,7 +36,18 @@ export async function loadProgram(programId: string): Promise<ProgramDocument> {
       })).sort((a, b) => Number((a as Record<string, unknown>).position) - Number((b as Record<string, unknown>).position)),
     })).sort((a, b) => Number((a as Record<string, unknown>).day_number) - Number((b as Record<string, unknown>).day_number)),
   })) as ProgramWeek[];
-  return { program: programResult.data as ProgramDocument['program'], blocks: blocksResult.data ?? [], weeks };
+  const storedBlocks = blocksResult.data ?? [];
+  const hasUnassignedWeeks = weeks.some((week) => week.block_id === null);
+  if (!hasUnassignedWeeks) return { program: programResult.data as ProgramDocument['program'], blocks: storedBlocks, weeks };
+
+  // Legacy weeks without a block appear as a normal editable Block in the builder.
+  const legacyBlockId = crypto.randomUUID();
+  const blocks = [
+    { id: legacyBlockId, program_id: programId, name: 'Block', position: 0, notes: null },
+    ...storedBlocks.map((block) => ({ ...block, position: block.position + 1 })),
+  ];
+  const groupedWeeks = weeks.map((week) => week.block_id === null ? { ...week, block_id: legacyBlockId } : week);
+  return { program: programResult.data as ProgramDocument['program'], blocks, weeks: groupedWeeks };
 }
 
 export async function saveProgram(document: ProgramDocument, expectedUpdatedAt: string): Promise<string> {
