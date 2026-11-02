@@ -8,7 +8,9 @@ interface EditableGridCellProps {
   onCommit: (value: string) => void;
   onClear?: () => void;
   options?: readonly string[];
+  optionLabels?: Readonly<Record<string, string>>;
   inputOptions?: readonly string[];
+  disabled?: boolean;
   className?: string;
   placeholder?: string;
 }
@@ -18,7 +20,7 @@ export function focusProgramGridCell(row: number, column: number) {
     ?.focus();
 }
 
-export function EditableGridCell({ row, column, label, value, onCommit, onClear, options, inputOptions, className = '', placeholder = '—' }: EditableGridCellProps) {
+export function EditableGridCell({ row, column, label, value, onCommit, onClear, options, optionLabels, inputOptions, disabled = false, className = '', placeholder = '—' }: EditableGridCellProps) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(value);
   const inputRef = useRef<HTMLInputElement | HTMLSelectElement>(null);
@@ -85,17 +87,17 @@ export function EditableGridCell({ row, column, label, value, onCommit, onClear,
   return (
     <div role="gridcell" data-grid-cell={`${row}:${column}`} className={`builder-cell ${className}`}>
       {editing ? options ? (
-        <select ref={inputRef as React.RefObject<HTMLSelectElement>} aria-label={label} value={draft} onChange={(event) => setDraft(event.target.value)} onBlur={commit} onKeyDown={handleKeyDown}>
-          {options.map((option) => <option key={option} value={option}>{option}</option>)}
+        <select ref={inputRef as React.RefObject<HTMLSelectElement>} aria-label={label} value={draft} disabled={disabled} onChange={(event) => setDraft(event.target.value)} onBlur={commit} onKeyDown={handleKeyDown}>
+          {options.map((option) => <option key={option} value={option}>{optionLabels?.[option] ?? option}</option>)}
         </select>
       ) : (
         <>
-          <input ref={inputRef as React.RefObject<HTMLInputElement>} aria-label={label} list={inputOptions ? `grid-options-${row}-${column}` : undefined} value={draft} placeholder={placeholder} onChange={(event) => setDraft(event.target.value)} onBlur={commit} onKeyDown={handleKeyDown} />
+          <input ref={inputRef as React.RefObject<HTMLInputElement>} aria-label={label} list={inputOptions ? `grid-options-${row}-${column}` : undefined} value={draft} placeholder={placeholder} disabled={disabled} onChange={(event) => setDraft(event.target.value)} onBlur={commit} onKeyDown={handleKeyDown} />
           {inputOptions && <datalist id={`grid-options-${row}-${column}`}>{inputOptions.map((option) => <option key={option} value={option} />)}</datalist>}
         </>
       ) : (
-        <button type="button" aria-label={`${label}: ${value || 'empty'}`} onClick={() => { cancelled.current = false; lastCommitted.current = value; setEditing(true); }} onKeyDown={handleKeyDown}>
-          {value || <span className="builder-cell-placeholder">{placeholder}</span>}
+        <button type="button" disabled={disabled} aria-label={`${label}: ${value || 'empty'}`} onClick={() => { cancelled.current = false; lastCommitted.current = value; setEditing(true); }} onKeyDown={handleKeyDown}>
+          {value ? optionLabels?.[value] ?? value : <span className="builder-cell-placeholder">{placeholder}</span>}
         </button>
       )}
     </div>

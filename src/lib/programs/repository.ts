@@ -45,7 +45,8 @@ export async function saveProgram(document: ProgramDocument, expectedUpdatedAt: 
       id: week.id, week_number: week.week_number, name: week.name, notes: week.notes,
         days: week.days.map((day) => ({
         id: day.id, day_number: day.day_number, name: day.name, notes: day.notes,
-        exercises: day.exercises.map((row) => {
+        // Empty exercise placeholders are editor state, not persisted prescriptions.
+        exercises: day.exercises.filter((row) => row.exercise_id.length > 0).map((row) => {
           const serialized = { ...row };
           delete serialized.exercise;
           return serialized;
