@@ -17,6 +17,23 @@ const setTypeLabels: Record<string, string> = {
   '': '', top: 'Topset', backoff: 'Backoff', working: 'Working', warmup: 'Warmup', amrap: 'AMRAP',
 };
 
+function saveFailureMessage(error: unknown): string {
+  const message = error instanceof Error ? error.message : String(error);
+  if (/failed to fetch|networkerror|load failed|network request failed/i.test(message)) {
+    return 'Could not reach the server. Check that Supabase is running and try Save changes again.';
+  }
+  if (/exercise_id.*not-null|null value in column.*exercise_id/i.test(message)) {
+    return 'This database has not been updated to save blank exercise rows. Apply migration 202611030001_allow_blank_program_exercise_rows.sql, then retry.';
+  }
+  if (/weeks_program_id_week_number_key|days_week_id_day_number_key/i.test(message)) {
+    return 'This database has not been updated to save week or day changes. Apply migration 202611030003_defer_program_order_uniques.sql, then retry.';
+  }
+  if (/program_conflict/i.test(message)) {
+    return 'This program changed elsewhere. Reload the latest version before saving again.';
+  }
+  return `Save failed: ${message}`;
+}
+
 function ExerciseNameCell({ row, index, exercise, exercises, onChoose, onCreate }: { row: ProgramExercise; index: number; exercise?: Exercise; exercises: Exercise[]; onChoose: (value: Exercise) => void; onCreate: (name: string) => Promise<Exercise | undefined> }) {
   const [editing, setEditing] = useState(false);
   const [value, setValue] = useState(exercise?.name ?? '');
@@ -116,6 +133,7 @@ export function ProgramBuilderPage() {
   const [loadError, setLoadError] = useState(false);
   const [ready, setReady] = useState(false);
   const [status, setStatus] = useState<'saved' | 'saving' | 'error' | 'conflict'>('saved');
+  const [saveError, setSaveError] = useState('');
   const [savedAt, setSavedAt] = useState('');
   const [savedDocument, setSavedDocument] = useState<ProgramDocument | null>(null);
   const [selectedWeek, setSelectedWeek] = useState('');
@@ -124,6 +142,7 @@ export function ProgramBuilderPage() {
   const document = history.present;
   const hasUnsaved = ready && document !== savedDocument;
   const saveCurrent = useCallback(async () => {
+    setSaveError('');
     setStatus('saving');
     try {
       const timestamp = await saveProgram(document, expectedAt.current);
@@ -133,6 +152,8 @@ export function ProgramBuilderPage() {
       setStatus('saved');
     } catch (error) {
       setStatus(error instanceof Error && error.message === 'PROGRAM_CONFLICT' ? 'conflict' : 'error');
+      setSaveError(saveFailureMessage(error));
+      console.error('Coach program could not be saved.', error);
       throw error;
     }
   }, [document, expectedAt]);
@@ -208,7 +229,7 @@ export function ProgramBuilderPage() {
     <div className="builder-breadcrumb"><Link to="/coach/programs">← Programs</Link><span>/</span><span>Program builder</span></div>
     <header className="builder-topbar"><div className="builder-program-name"><p className="eyebrow">PROGRAM / EDITOR</p><input aria-label="Program name" value={document.program.name} onChange={(event) => dispatch({ type: 'rename-program', name: event.target.value })} /></div><div className="builder-top-actions"><div className={`save-indicator save-${status}`} role="status"><span />{status === 'saved' ? hasUnsaved ? 'Unsaved changes' : `Saved${savedAt ? ` · ${new Date(savedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` : ''}` : status === 'saving' ? 'Saving…' : status === 'conflict' ? 'Changed elsewhere' : 'Save failed'}</div>{status === 'conflict' && <button className="button button-secondary" onClick={() => void reloadConflict()}>Reload latest</button>}<button className="button button-primary" disabled={!hasUnsaved || status === 'saving' || status === 'conflict'} onClick={() => void saveCurrent().catch(() => undefined)}>{status === 'saving' ? 'Saving…' : status === 'error' ? 'Retry save' : 'Save changes'}</button></div></header>
     {status === 'conflict' && <div role="alert" className="inline-state error-state">This program changed in another session. Reload the latest version before editing again.</div>}
-    {status === 'error' && <div role="alert" className="inline-state error-state">Your edits are still here, but could not be saved. Check your connection and retry.</div>}
+    {status === 'error' && <div role="alert" className="inline-state error-state">Your edits are still here, but could not be saved. {saveError || 'Retry the save.'}</div>}
     <section className="week-navigation"><div className="week-tabs" role="tablist" aria-label="Program weeks">{document.weeks.map((week) => <button key={week.id} role="tab" aria-selected={activeWeek?.id === week.id} className={activeWeek?.id === week.id ? 'selected' : ''} onClick={() => setSelectedWeek(week.id)}>{week.name || `Week ${week.week_number}`}</button>)}</div><div className="week-actions"><button className="button button-secondary" onClick={addWeek}>＋ Add week</button>{activeWeek && <button className="button button-quiet danger-quiet" onClick={() => { if (window.confirm(`Delete ${activeWeek.name || `Week ${activeWeek.week_number}`} and all its days?`)) dispatch({ type: 'delete-week', weekId: activeWeek.id }); }}>Delete week</button>}</div></section>
     {!activeWeek ? <section className="coach-panel empty-state"><span className="empty-state-mark">＋</span><h2>Add a week to get started</h2><button className="button button-primary" onClick={addWeek}>Add week</button></section> : <><div className="week-heading"><div><p className="eyebrow">TRAINING CYCLE / WEEK {String(activeWeek.week_number).padStart(2, '0')}</p><input aria-label="Week name" value={activeWeek.name} onChange={(event) => dispatch({ type: 'rename-week', weekId: activeWeek.id, name: event.target.value })} /></div><button className="button button-primary" onClick={() => dispatch({ type: 'add-day', weekId: activeWeek.id })}>＋ Add day</button></div>
       {activeWeek.days.length ? <CoachWorkoutCheckInsProvider preferredProgramId={programId}><div className="day-stack">{activeWeek.days.map((day) => <div className="builder-day-checkin-row" key={day.id}><DayCard week={activeWeek} day={day} exercises={exercises} document={document} dispatch={dispatch} onCreateExercise={addCustomInline} /><CoachWorkoutCheckInsPanel dayId={day.id} dayName={day.name} unit={document.program.unit} exerciseNames={Object.fromEntries(day.exercises.map((row) => [row.id, exercises.find((exercise) => exercise.id === row.exercise_id)?.name ?? 'Exercise']))} /></div>)}</div></CoachWorkoutCheckInsProvider> : <section className="coach-panel empty-state"><span className="empty-state-mark">＋</span><h2>No training days in this week</h2><p>Add a day to begin the spreadsheet.</p><button className="button button-primary" onClick={() => dispatch({ type: 'add-day', weekId: activeWeek.id })}>Add first day</button></section>}
