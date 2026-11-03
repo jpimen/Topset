@@ -1,5 +1,11 @@
 # Decisions
 
+## 2026-11-03 — Plate calculator loading diagram
+
+- Show the calculated plate stack as a mirrored barbell diagram with the same per-side plates on both ends, keeping the existing plate math as the single source of truth.
+- Label plate weights, group duplicate plates, and display the full loading instruction accessibly. Cap only the drawing at eight plates per side and mark any additional plates with a count so large loads remain legible.
+- Explain when the requested target is below the bar weight and retain the achieved load and difference for unreachable targets.
+
 ## 2026-11-03 — IPF Technical Rulebook reference
 
 - Add one read-only rulebook page under both role-guarded workspace routes and include it in the existing Coach sidebar and Athlete mobile/desktop navigation.

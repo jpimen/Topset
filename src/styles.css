@@ -136,6 +136,26 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .calc-error { margin: 12px 0 0; color: var(--text-error-bright); font-size: 13px; }
 .calc-help { margin: 10px 0 0; color: var(--secondary); font-size: 12px; }
 .plate-chip { padding: 7px 10px; border: 1px solid var(--border-button-hover); border-radius: 8px; color: var(--gold-text); background: var(--surface-gold-chip); font-size: 12px; }
+.plate-loadout { min-width: 0; margin-top: 20px; padding: 14px 12px 12px; overflow: hidden; border: 1px solid var(--border); border-radius: 12px; background: var(--surface-plate-diagram); }
+.plate-loadout-title { margin: 0; color: var(--text); font: 700 12px/1.4 var(--display); }
+.plate-diagram { display: block; width: 100%; height: auto; max-height: 142px; margin: 8px auto 2px; }
+.plate-diagram-sleeve { fill: var(--surface-plate-sleeve); }
+.plate-diagram-collar { fill: var(--surface-plate-collar); }
+.plate-diagram-plate { stroke-width: 2; }
+.plate-diagram-plate-red { fill: var(--plate-red); stroke: var(--plate-red-border); }
+.plate-diagram-plate-green { fill: var(--plate-green); stroke: var(--plate-green-border); }
+.plate-diagram-plate-yellow { fill: var(--plate-yellow); stroke: var(--plate-yellow-border); }
+.plate-diagram-plate-blue { fill: var(--plate-blue); stroke: var(--plate-blue-border); }
+.plate-diagram-more { fill: var(--text); font: 700 12px var(--mono); }
+.plate-loadout-list { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 7px; }
+.plate-loadout-item { min-width: 52px; padding: 5px 7px; display: inline-flex; align-items: baseline; justify-content: center; gap: 4px; border: 1px solid var(--border); border-radius: 7px; color: var(--text); font: 600 10px var(--mono); }
+.plate-loadout-item strong { font-size: 12px; }
+.plate-loadout-item-red { background: var(--plate-red); border-color: var(--plate-red-border); }
+.plate-loadout-item-green { background: var(--plate-green); border-color: var(--plate-green-border); }
+.plate-loadout-item-yellow { color: var(--text-on-gold); background: var(--plate-yellow); border-color: var(--plate-yellow-border); }
+.plate-loadout-item-blue { background: var(--plate-blue); border-color: var(--plate-blue-border); }
+.plate-loadout-empty { color: var(--secondary); font-size: 12px; }
+.plate-loadout-caption { margin: 8px 0 0; color: var(--secondary); text-align: center; font-size: 10px; }
 .warmup-list .calc-result { font-size: 14px; margin: 11px 0 0; }
 .score-results .calc-result { justify-content: space-between; color: var(--secondary); font: 600 14px 'Plus Jakarta Sans', sans-serif; }
 .score-results .calc-result strong { color: var(--gold-text); font: 700 16px var(--mono); }
