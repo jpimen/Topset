@@ -1,5 +1,9 @@
 # TODO
 
+## IPF Rulebook reference
+
+- The 2026 Technical Rulebook refers to “Appendix 2, Lifters profile and passport” on printed page 45, but the form is not included in the PDF and is not listed in its contents. Link or summarize it only if IPF publishes an authoritative copy.
+
 ## Local development checks
 
 1. Resolve local Supabase CLI startup failure on this Windows machine: the `supabase.exe` is blocked by Application Control (`spawn UNKNOWN` from `npx`), even though Docker's Supabase containers are running. `npm run test:db` runs pgTAP through the Docker database container.
