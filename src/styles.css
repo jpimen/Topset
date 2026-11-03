@@ -131,11 +131,45 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .calc-field input, .calc-field select { width: 100%; height: 44px; padding: 0 12px; color: var(--text); background: var(--surface-control-raised); border: 1px solid var(--border-control); border-radius: 10px; font: 500 14px 'Plus Jakarta Sans', sans-serif; letter-spacing: 0; text-transform: none; }
 .calc-field select option { background: var(--surface-control-raised); }
 .unit-toggle { min-width: 180px; }
+.plate-collar-field { min-width: 0; margin: 0; padding: 0; border: 0; }
+.plate-collar-field legend { padding: 0; }
+.plate-collar-toggle { min-width: 0; height: 44px; display: flex; overflow: hidden; border: 1px solid var(--border-control); border-radius: 10px; background: var(--surface-control-raised); }
+.plate-collar-toggle button { min-width: 0; flex: 1; padding: 0 8px; border: 0; color: var(--secondary); background: transparent; font: 700 11px 'Plus Jakarta Sans', sans-serif; white-space: nowrap; }
+.plate-collar-toggle button + button { border-left: 1px solid var(--border-control); }
+.plate-collar-toggle button[aria-pressed='true'] { color: var(--gold-text); background: var(--surface-gold-chip); }
+.plate-collar-toggle button:focus-visible { position: relative; z-index: 1; outline: 2px solid var(--gold-text); outline-offset: -3px; }
 .calc-result { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 20px 0 0; color: var(--gold-text); font: 700 18px var(--mono); }
 .calc-result small { color: var(--secondary); font: 11px 'Plus Jakarta Sans', sans-serif; }
 .calc-error { margin: 12px 0 0; color: var(--text-error-bright); font-size: 13px; }
 .calc-help { margin: 10px 0 0; color: var(--secondary); font-size: 12px; }
 .plate-chip { padding: 7px 10px; border: 1px solid var(--border-button-hover); border-radius: 8px; color: var(--gold-text); background: var(--surface-gold-chip); font-size: 12px; }
+.plate-loadout { min-width: 0; margin-top: 20px; padding: 14px 12px 12px; overflow: hidden; border: 1px solid var(--border); border-radius: 12px; background: var(--surface-plate-diagram); }
+.plate-loadout-title { margin: 0; color: var(--text); font: 700 12px/1.4 var(--display); }
+.plate-diagram { display: block; width: 100%; height: auto; max-height: 142px; margin: 8px auto 2px; }
+.plate-diagram-shaft, .plate-diagram-sleeve, .plate-diagram-shoulder { fill: var(--plate-diagram-sleeve); }
+.plate-diagram-collar, .plate-diagram-collar-lever { fill: var(--plate-diagram-collar); }
+.plate-diagram-collar-base { fill: var(--plate-diagram-collar-base); }
+.plate-diagram-collar-pressure { fill: var(--plate-diagram-collar-pressure); }
+.plate-diagram-collar-screw { fill: var(--plate-diagram-collar-screw); }
+.plate-diagram-plate { stroke: var(--plate-diagram-outline); stroke-width: 1; }
+.plate-diagram-plate-red { fill: var(--plate-diagram-red); }
+.plate-diagram-plate-green { fill: var(--plate-diagram-green); }
+.plate-diagram-plate-yellow { fill: var(--plate-yellow); }
+.plate-diagram-plate-white { fill: var(--plate-white); }
+.plate-diagram-plate-black { fill: var(--plate-black); }
+.plate-diagram-plate-blue { fill: var(--plate-blue); }
+.plate-diagram-more { fill: var(--text); font: 700 12px var(--mono); }
+.plate-loadout-list { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 7px; }
+.plate-loadout-item { min-width: 52px; padding: 5px 7px; display: inline-flex; align-items: baseline; justify-content: center; gap: 4px; border: 1px solid var(--border); border-radius: 7px; color: var(--text); font: 600 10px var(--mono); }
+.plate-loadout-item strong { font-size: 12px; }
+.plate-loadout-item-red { background: var(--plate-red); border-color: var(--plate-red-border); }
+.plate-loadout-item-green { background: var(--plate-green); border-color: var(--plate-green-border); }
+.plate-loadout-item-yellow { color: var(--text-on-gold); background: var(--plate-yellow); border-color: var(--plate-yellow-border); }
+.plate-loadout-item-white { color: var(--text-on-gold); background: var(--plate-white); border-color: var(--plate-white-border); }
+.plate-loadout-item-black { background: var(--plate-black); border-color: var(--plate-black-border); }
+.plate-loadout-item-blue { background: var(--plate-blue); border-color: var(--plate-blue-border); }
+.plate-loadout-empty { color: var(--secondary); font-size: 12px; }
+.plate-loadout-caption { margin: 8px 0 0; color: var(--secondary); text-align: center; font-size: 10px; }
 .warmup-list .calc-result { font-size: 14px; margin: 11px 0 0; }
 .score-results .calc-result { justify-content: space-between; color: var(--secondary); font: 600 14px 'Plus Jakarta Sans', sans-serif; }
 .score-results .calc-result strong { color: var(--gold-text); font: 700 16px var(--mono); }

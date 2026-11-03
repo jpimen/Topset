@@ -1,5 +1,26 @@
 # Decisions
 
+## 2026-11-04 — Show one plate stack in the calculator diagram
+
+- Draw one side of the barbell loading only. The heading continues to tell users to load the displayed stack on each side, while the diagram remains uncluttered.
+- Show one grey collar beside the displayed stack when collars are enabled; keep collar weight applied to both sides in the total load calculation.
+
+## 2026-11-03 — Plate calculator collar setting
+
+- Let the user choose whether collars are loaded. Default to no collar, pass zero collar weight into plate math, and include the standard 2.5 kg-per-side collars only when selected.
+- Show grey collars in the barbell diagram only when the setting is enabled. Convert the standard collar weight to the active display unit.
+
+## 2026-11-03 — Competition plate colors
+
+- Match plate colors to standard kilogram sizes: 25 kg red, 20 kg blue, 15 kg yellow, 10 kg green, 5 kg white and 2.5 kg black. Smaller fractional plates use black as well.
+- Choose colors from kilogram-equivalent weights so pound displays retain the nearest matching plate color. Keep collars grey on both themes.
+
+## 2026-11-03 — Plate calculator loading diagram
+
+- Show the calculated plate stack as a mirrored barbell diagram with the same per-side plates on both ends, keeping the existing plate math as the single source of truth.
+- Label plate weights, group duplicate plates, and display the full loading instruction accessibly. Cap only the drawing at eight plates per side and mark any additional plates with a count so large loads remain legible.
+- Explain when the requested target is below the bar weight and retain the achieved load and difference for unreachable targets.
+
 ## 2026-11-03 — IPF Technical Rulebook reference
 
 - Add one read-only rulebook page under both role-guarded workspace routes and include it in the existing Coach sidebar and Athlete mobile/desktop navigation.
@@ -166,3 +187,8 @@
 - Profile role is created from signup metadata by a database trigger, and a database trigger rejects changes to a profile's role or identity. Frontend route guards are usability checks; RLS remains the data boundary.
 - Added minimal coach-athlete link, program, and assignment tables now because program access policies depend on those relationships. Link creation/approval and program snapshot versioning remain for later milestones.
 - Kept role landing pages as placeholders to present the approved auth flow without starting the coach builder or athlete workout UI.
+
+## 2026-11-04 — One-sided plate loading visual
+
+- Match the calculator diagram to the supplied compact bar, plate and collar reference. Draw one side of the bar with the loaded stack and collar when enabled; retain per-side instructions and calculate total load for both sides.
+- Use diagram-scoped muted colors so this visual can match the reference without changing the plate badges elsewhere.

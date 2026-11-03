@@ -179,6 +179,27 @@ html[data-theme='dark'] {
   --google-green: #34A853;
   --google-yellow: #FBBC05;
   --google-red: #EA4335;
+  --plate-red: #A62F2A;
+  --plate-red-border: #D55B50;
+  --plate-green: #4A8A57;
+  --plate-green-border: #80B98A;
+  --plate-yellow: #C69A32;
+  --plate-yellow-border: #E5C66B;
+  --plate-white: #F2F2EE;
+  --plate-white-border: #B8BBC2;
+  --plate-black: #202124;
+  --plate-black-border: #737780;
+  --plate-blue: #477FA6;
+  --plate-blue-border: #7EADD0;
+  --surface-plate-diagram: #252737;
+  --plate-diagram-outline: #282A31;
+  --plate-diagram-red: #84261F;
+  --plate-diagram-green: #548653;
+  --plate-diagram-sleeve: #737570;
+  --plate-diagram-collar: #969A94;
+  --plate-diagram-collar-base: #171922;
+  --plate-diagram-collar-pressure: #737570;
+  --plate-diagram-collar-screw: #969A94;
 }
 
 html[data-theme='light'] {
@@ -197,6 +218,15 @@ html[data-theme='light'] {
   --success: #2E7D45;
   --info: #3D6A91;
   --warning: #8A5000;
+  --surface-plate-diagram: #E6E8EF;
+  --plate-diagram-outline: #353840;
+  --plate-diagram-red: #84261F;
+  --plate-diagram-green: #548653;
+  --plate-diagram-sleeve: #737570;
+  --plate-diagram-collar: #969A94;
+  --plate-diagram-collar-base: #353840;
+  --plate-diagram-collar-pressure: #737570;
+  --plate-diagram-collar-screw: #969A94;
   --focus: 0 0 0 3px #80620B, 0 0 0 5px #80620B24;
   --border-card: #94896F;
   --border-control: #94896F;
