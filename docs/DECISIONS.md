@@ -1,5 +1,10 @@
 # Decisions
 
+## 2026-11-03 — Plate calculator collar setting
+
+- Let the user choose whether collars are loaded. Default to no collar, pass zero collar weight into plate math, and include the standard 2.5 kg-per-side collars only when selected.
+- Show grey collars in the barbell diagram only when the setting is enabled. Convert the standard collar weight to the active display unit.
+
 ## 2026-11-03 — Competition plate colors
 
 - Match plate colors to standard kilogram sizes: 25 kg red, 20 kg blue, 15 kg yellow, 10 kg green, 5 kg white and 2.5 kg black. Smaller fractional plates use black as well.

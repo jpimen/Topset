@@ -131,6 +131,13 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .calc-field input, .calc-field select { width: 100%; height: 44px; padding: 0 12px; color: var(--text); background: var(--surface-control-raised); border: 1px solid var(--border-control); border-radius: 10px; font: 500 14px 'Plus Jakarta Sans', sans-serif; letter-spacing: 0; text-transform: none; }
 .calc-field select option { background: var(--surface-control-raised); }
 .unit-toggle { min-width: 180px; }
+.plate-collar-field { min-width: 0; margin: 0; padding: 0; border: 0; }
+.plate-collar-field legend { padding: 0; }
+.plate-collar-toggle { min-width: 0; height: 44px; display: flex; overflow: hidden; border: 1px solid var(--border-control); border-radius: 10px; background: var(--surface-control-raised); }
+.plate-collar-toggle button { min-width: 0; flex: 1; padding: 0 8px; border: 0; color: var(--secondary); background: transparent; font: 700 11px 'Plus Jakarta Sans', sans-serif; white-space: nowrap; }
+.plate-collar-toggle button + button { border-left: 1px solid var(--border-control); }
+.plate-collar-toggle button[aria-pressed='true'] { color: var(--gold-text); background: var(--surface-gold-chip); }
+.plate-collar-toggle button:focus-visible { position: relative; z-index: 1; outline: 2px solid var(--gold-text); outline-offset: -3px; }
 .calc-result { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 20px 0 0; color: var(--gold-text); font: 700 18px var(--mono); }
 .calc-result small { color: var(--secondary); font: 11px 'Plus Jakarta Sans', sans-serif; }
 .calc-error { margin: 12px 0 0; color: var(--text-error-bright); font-size: 13px; }
