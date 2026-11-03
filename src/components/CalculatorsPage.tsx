@@ -19,7 +19,15 @@ function PlateLoadingDiagram({ plates, unit }: { plates: number[]; unit: Unit })
   const hiddenPlateCount = plates.length - visiblePlates.length;
   const plateHeight = (plate: number) => plate >= 20 ? 158 : plate >= 10 ? 138 : plate >= 5 ? 116 : 94;
   const plateWidth = (plate: number) => plate >= 20 ? 24 : plate >= 10 ? 20 : plate >= 5 ? 16 : 12;
-  const plateColor = (plate: number) => plate >= 20 ? 'red' : plate >= 10 ? 'green' : plate >= 5 ? 'yellow' : 'blue';
+  const plateColor = (plate: number) => {
+    const kilograms = toKg(plate, unit);
+    if (kilograms >= 22.5) return 'red';
+    if (kilograms >= 17.5) return 'blue';
+    if (kilograms >= 12.5) return 'yellow';
+    if (kilograms >= 7.5) return 'green';
+    if (kilograms >= 3.75) return 'white';
+    return 'black';
+  };
   const stacks = [
     { side: 'left', plates: visiblePlates },
     { side: 'right', plates: visiblePlates },

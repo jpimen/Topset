@@ -1,5 +1,10 @@
 # Decisions
 
+## 2026-11-03 — Competition plate colors
+
+- Match plate colors to standard kilogram sizes: 25 kg red, 20 kg blue, 15 kg yellow, 10 kg green, 5 kg white and 2.5 kg black. Smaller fractional plates use black as well.
+- Choose colors from kilogram-equivalent weights so pound displays retain the nearest matching plate color. Keep collars grey on both themes.
+
 ## 2026-11-03 — Plate calculator loading diagram
 
 - Show the calculated plate stack as a mirrored barbell diagram with the same per-side plates on both ends, keeping the existing plate math as the single source of truth.

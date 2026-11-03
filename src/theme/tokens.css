@@ -185,6 +185,10 @@ html[data-theme='dark'] {
   --plate-green-border: #80B98A;
   --plate-yellow: #C69A32;
   --plate-yellow-border: #E5C66B;
+  --plate-white: #F2F2EE;
+  --plate-white-border: #B8BBC2;
+  --plate-black: #202124;
+  --plate-black-border: #737780;
   --plate-blue: #477FA6;
   --plate-blue-border: #7EADD0;
   --surface-plate-diagram: #252737;
