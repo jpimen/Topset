@@ -28,10 +28,7 @@ function PlateLoadingDiagram({ plates, unit, withCollar }: { plates: number[]; u
     if (kilograms >= 3.75) return 'white';
     return 'black';
   };
-  const stacks = [
-    { side: 'left', plates: visiblePlates },
-    { side: 'right', plates: visiblePlates },
-  ] as const;
+  const stacks = [visiblePlates] as const;
   const plateCounts = plates.reduce((counts, plate) => counts.set(plate, (counts.get(plate) ?? 0) + 1), new Map<number, number>());
   const listedPlates = [...plateCounts].map(([plate, count]) => ({ plate, count }));
   const stackWidth = visiblePlates.reduce((sum, plate) => sum + plateWidth(plate), 0);
@@ -42,19 +39,18 @@ function PlateLoadingDiagram({ plates, unit, withCollar }: { plates: number[]; u
       <rect className="plate-diagram-sleeve" x="18" y="94" width="564" height="12" rx="4" />
       {withCollar && <>
         <rect className="plate-diagram-collar" x={280 - stackWidth} y="72" width="8" height="56" rx="2" />
-        <rect className="plate-diagram-collar" x={312 + stackWidth} y="72" width="8" height="56" rx="2" />
       </>}
-      {stacks.map(({ side, plates: sidePlates }) => {
+      {stacks.map((sidePlates, stackIndex) => {
         let offset = 0;
-        return <g key={side}>
+        return <g key={stackIndex}>
           {sidePlates.map((plate, index) => {
             const width = plateWidth(plate);
             const height = plateHeight(plate);
             offset += width;
-            const x = side === 'right' ? 312 + offset - width : 288 - offset;
-            return <rect key={`${side}-${plate}-${index}`} className={`plate-diagram-plate plate-diagram-plate-${plateColor(plate)}`} x={x} y={(200 - height) / 2} width={width - 2} height={height} rx="3" />;
+            const x = 288 - offset;
+            return <rect key={`${stackIndex}-${plate}-${index}`} className={`plate-diagram-plate plate-diagram-plate-${plateColor(plate)}`} x={x} y={(200 - height) / 2} width={width - 2} height={height} rx="3" />;
           })}
-          {hiddenPlateCount > 0 && <text className="plate-diagram-more" x={side === 'left' ? 288 - offset - 5 : 312 + offset + 5} y="106" textAnchor={side === 'left' ? 'end' : 'start'}>+{hiddenPlateCount}</text>}
+          {hiddenPlateCount > 0 && <text className="plate-diagram-more" x={288 - offset - 5} y="106" textAnchor="end">+{hiddenPlateCount}</text>}
         </g>;
       })}
     </svg>

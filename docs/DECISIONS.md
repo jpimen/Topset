@@ -1,5 +1,10 @@
 # Decisions
 
+## 2026-11-04 — Show one plate stack in the calculator diagram
+
+- Draw one side of the barbell loading only. The heading continues to tell users to load the displayed stack on each side, while the diagram remains uncluttered.
+- Show one grey collar beside the displayed stack when collars are enabled; keep collar weight applied to both sides in the total load calculation.
+
 ## 2026-11-03 — Plate calculator collar setting
 
 - Let the user choose whether collars are loaded. Default to no collar, pass zero collar weight into plate math, and include the standard 2.5 kg-per-side collars only when selected.
