@@ -1,5 +1,11 @@
 # Decisions
 
+## 2026-11-03 — IPF Technical Rulebook reference
+
+- Add one read-only rulebook page under both role-guarded workspace routes and include it in the existing Coach sidebar and Athlete mobile/desktop navigation.
+- Keep the English Technical Rulebook effective 1 March 2026 as the governing source. Maintain original short summaries, section identifiers and printed-page links in `src/lib/ipfRulebook.ts` so an edition update can replace one focused data file.
+- Keep the IPF Changes Explanations and Approved List visibly labeled as separate resources. The PDF contents cover Chapters 1–10; its Coach Responsibilities section refers to an Appendix 2 form on printed page 45, but the form itself is not included.
+
 ## 2026-11-03 — Editable blank exercise rows
 
 - Let Coaches save an unassigned prescription row so exercise, set type, sets, reps, RPE, load and notes can be entered independently. Store the exercise reference as nullable so blank rows and partial entries persist.
