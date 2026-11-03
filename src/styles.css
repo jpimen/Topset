@@ -303,10 +303,29 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .rulebook-heading .eyebrow { margin: 0; }
 .rulebook-heading h1 { margin: 0; color: var(--text); font: 700 clamp(34px, 5vw, 52px)/1.05 var(--display); letter-spacing: -1.8px; }
 .rulebook-edition { margin: 0; color: var(--secondary); font-size: 13px; line-height: 1.6; }
+.rulebook-heading-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 9px; }
 .rulebook-pdf-link { min-height: 44px; display: inline-flex; align-items: center; gap: 9px; margin-top: 4px; text-decoration: none; }
 .rulebook-notice { padding: 16px 18px; border: 1px solid var(--border-accent); border-left: 3px solid var(--gold); border-radius: 11px; background: var(--surface-card-soft); }
 .rulebook-notice strong { color: var(--gold-text); font-size: 12px; }
 .rulebook-notice p { margin: 6px 0 0; color: var(--secondary); font-size: 12px; line-height: 1.65; }
+.rulebook-records { margin-top: 25px; padding: 19px; border: 1px solid var(--border-card); border-radius: 13px; background: var(--surface-card-soft); }
+.rulebook-records-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; }
+.rulebook-records-heading h2 { margin: 5px 0 0; color: var(--text); font: 700 clamp(20px, 3vw, 27px)/1.2 var(--display); }
+.rulebook-records-heading p:last-child { max-width: 700px; margin: 7px 0 0; color: var(--secondary); font-size: 11px; line-height: 1.6; }
+.rulebook-records-heading .button { flex: none; }
+.rulebook-record-tabs { display: flex; gap: 7px; margin: 16px 0; padding: 2px 1px 9px; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-color: var(--scrollbar-thumb) var(--card); }
+.rulebook-record-tabs button { min-height: 36px; padding: 0 12px; flex: none; border: 1px solid var(--border); border-radius: 999px; color: var(--secondary); background: var(--card); font-size: 10px; font-weight: 700; }
+.rulebook-record-tabs button[aria-pressed="true"] { color: var(--gold-text); border-color: var(--border-accent); background: var(--surface-gold-muted); }
+.rulebook-record-tabs button:focus-visible, .rulebook-records a:focus-visible, .rulebook-records button:focus-visible { outline: 2px solid var(--gold-light); outline-offset: 2px; }
+.rulebook-record-source { overflow: hidden; border: 1px solid var(--border-card); border-radius: 11px; background: var(--card); }
+.rulebook-record-source-heading { padding: 15px 16px; display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+.rulebook-record-source-heading h3 { margin: 0; color: var(--text); font: 700 16px/1.35 var(--display); }
+.rulebook-record-source-heading p { max-width: 760px; margin: 6px 0 0; color: var(--secondary); font-size: 11px; line-height: 1.55; }
+.rulebook-record-source-heading .rulebook-record-update { color: var(--muted); font: 10px/1.5 var(--mono); }
+.rulebook-record-source-heading > a { flex: none; color: var(--gold-text); font-size: 11px; font-weight: 700; text-decoration: none; }
+.rulebook-record-frame { display: block; width: 100%; height: min(78vh, 780px); min-height: 480px; border: 0; border-top: 1px solid var(--border-divider); background: var(--card); }
+.rulebook-record-disclaimer { margin: 12px 0 0; color: var(--secondary); font-size: 10px; line-height: 1.7; }
+.rulebook-record-disclaimer a { color: var(--gold-text); }
 .rulebook-browser { margin-top: 34px; }
 .rulebook-browser-heading { display: flex; align-items: end; justify-content: space-between; gap: 18px; }
 .rulebook-browser-heading h2, .rulebook-sources h2 { margin: 5px 0 0; color: var(--text); font: 700 clamp(20px, 3vw, 27px)/1.2 var(--display); }
@@ -894,6 +913,10 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .rulebook-page { padding: 25px 15px 42px; }
   .rulebook-browser-heading { align-items: stretch; flex-direction: column; }
   .rulebook-search { width: 100%; }
+  .rulebook-records { padding: 14px; }
+  .rulebook-records-heading, .rulebook-record-source-heading { flex-direction: column; }
+  .rulebook-record-source-heading > a { align-self: flex-start; }
+  .rulebook-record-frame { height: 68vh; min-height: 420px; }
   .rulebook-chapter { padding: 15px; }
   .rulebook-entry-heading { align-items: flex-start; }
   .workspace-athlete .theme-toggle button { min-height: 44px; }
