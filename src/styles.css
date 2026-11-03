@@ -170,7 +170,20 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .plate-loadout-item-blue { background: var(--plate-blue); border-color: var(--plate-blue-border); }
 .plate-loadout-empty { color: var(--secondary); font-size: 12px; }
 .plate-loadout-caption { margin: 8px 0 0; color: var(--secondary); text-align: center; font-size: 10px; }
-.warmup-list .calc-result { font-size: 14px; margin: 11px 0 0; }
+.warmup-inputs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.warmup-list { margin-top: 20px; }
+.warmup-table-wrap { width: 100%; overflow-x: auto; border: 1px solid var(--border); border-radius: 12px; background: var(--surface-control-raised); }
+.warmup-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; }
+.warmup-table th, .warmup-table td { padding: 11px 12px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+.warmup-table thead th { color: var(--secondary); font: 700 9px var(--mono); letter-spacing: 1px; text-transform: uppercase; }
+.warmup-table tbody tr:last-child th, .warmup-table tbody tr:last-child td { border-bottom: 0; }
+.warmup-table tbody th { width: 54px; }
+.warmup-step-number { display: inline-grid; width: 26px; height: 26px; place-items: center; border-radius: 8px; color: var(--gold-text); background: var(--surface-gold-chip); font: 700 12px var(--mono); }
+.warmup-table td { color: var(--text); font: 600 13px 'Plus Jakarta Sans', sans-serif; }
+.warmup-table .warmup-load { color: var(--gold-text); font: 700 15px var(--mono); }
+.warmup-table .warmup-load span { font-size: 11px; }
+.warmup-method-note { padding: 10px 12px; border-left: 2px solid var(--gold); background: var(--surface-control-raised); }
+.warmup-rounding-note { text-align: right; font-size: 10px; }
 .score-results .calc-result { justify-content: space-between; color: var(--secondary); font: 600 14px 'Plus Jakarta Sans', sans-serif; }
 .score-results .calc-result strong { color: var(--gold-text); font: 700 16px var(--mono); }
 .calc-disclaimer { margin: 24px 0 0; padding: 16px 18px; border-left: 3px solid var(--gold); color: var(--secondary); background: var(--card); font-size: 13px; }

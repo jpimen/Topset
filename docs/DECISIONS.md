@@ -1,5 +1,11 @@
 # Decisions
 
+## 2026-11-04 — Warm-up calculator methods and rounding
+
+- Add a configurable barbell and smallest total-load increment to the calculator. Defaults are 20 kg / 45 lb and 1.25 kg / 2.5 lb; preserve these conventional paired defaults when switching units, and convert custom values.
+- Round all generated warm-up loads to the nearest configured increment. The increment is the total change to the bar load, matching the requested example.
+- Standard ramp uses the empty bar for 8 reps, then 50% x5, 70% x3 and 90% x1. Even jumps use four equal increments from the bar to the top set with 8/5/3/1 reps; since the fourth jump reaches the top-set load, tell the lifter to use that single as the top set instead of repeating it.
+
 ## 2026-11-04 — Show one plate stack in the calculator diagram
 
 - Draw one side of the barbell loading only. The heading continues to tell users to load the displayed stack on each side, while the diagram remains uncluttered.
