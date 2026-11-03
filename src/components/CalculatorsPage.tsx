@@ -17,8 +17,14 @@ function PlateLoadingDiagram({ plates, unit, withCollar }: { plates: number[]; u
   const visiblePlateLimit = 8;
   const visiblePlates = plates.slice(0, visiblePlateLimit);
   const hiddenPlateCount = plates.length - visiblePlates.length;
-  const plateHeight = (plate: number) => plate >= 20 ? 158 : plate >= 10 ? 138 : plate >= 5 ? 116 : 94;
-  const plateWidth = (plate: number) => plate >= 20 ? 24 : plate >= 10 ? 20 : plate >= 5 ? 16 : 12;
+  const plateHeight = (plate: number) => {
+    const kilograms = toKg(plate, unit);
+    return kilograms >= 7.5 ? 176 : kilograms >= 3.75 ? 142 : kilograms >= 1.75 ? 112 : 88;
+  };
+  const plateWidth = (plate: number) => {
+    const kilograms = toKg(plate, unit);
+    return kilograms >= 22.5 ? 24 : kilograms >= 17.5 ? 21 : kilograms >= 12.5 ? 18 : kilograms >= 7.5 ? 13 : kilograms >= 3.75 ? 11 : 9;
+  };
   const plateColor = (plate: number) => {
     const kilograms = toKg(plate, unit);
     if (kilograms >= 22.5) return 'red';
@@ -28,31 +34,33 @@ function PlateLoadingDiagram({ plates, unit, withCollar }: { plates: number[]; u
     if (kilograms >= 3.75) return 'white';
     return 'black';
   };
-  const stacks = [visiblePlates] as const;
   const plateCounts = plates.reduce((counts, plate) => counts.set(plate, (counts.get(plate) ?? 0) + 1), new Map<number, number>());
   const listedPlates = [...plateCounts].map(([plate, count]) => ({ plate, count }));
-  const stackWidth = visiblePlates.reduce((sum, plate) => sum + plateWidth(plate), 0);
+  const naturalStackWidth = visiblePlates.reduce((sum, plate) => sum + plateWidth(plate), 0);
+  const plateScale = naturalStackWidth > 104 ? 104 / naturalStackWidth : 1;
+  const stackWidth = naturalStackWidth * plateScale;
+  const stackStart = 68;
 
   return <div className="plate-loadout">
     <p className="plate-loadout-title">Put these plates on each side</p>
-    <svg className="plate-diagram" viewBox="0 0 600 200" role="img" aria-label={`Barbell loading diagram. ${listedPlates.length ? listedPlates.map(({ plate, count }) => `${count} ${plate} ${unit} ${count === 1 ? 'plate' : 'plates'}`).join(', ') + ' on each side.' : 'No plates on either side.'} ${withCollar ? 'Collars included.' : 'No collars.'}`}>
-      <rect className="plate-diagram-sleeve" x="18" y="94" width="564" height="12" rx="4" />
-      {withCollar && <>
-        <rect className="plate-diagram-collar" x={280 - stackWidth} y="72" width="8" height="56" rx="2" />
-      </>}
-      {stacks.map((sidePlates, stackIndex) => {
-        let offset = 0;
-        return <g key={stackIndex}>
-          {sidePlates.map((plate, index) => {
-            const width = plateWidth(plate);
-            const height = plateHeight(plate);
-            offset += width;
-            const x = 288 - offset;
-            return <rect key={`${stackIndex}-${plate}-${index}`} className={`plate-diagram-plate plate-diagram-plate-${plateColor(plate)}`} x={x} y={(200 - height) / 2} width={width - 2} height={height} rx="3" />;
-          })}
-          {hiddenPlateCount > 0 && <text className="plate-diagram-more" x={288 - offset - 5} y="106" textAnchor="end">+{hiddenPlateCount}</text>}
-        </g>;
+    <svg className="plate-diagram" viewBox="0 0 296 192" role="img" aria-label={`One-sided barbell loading diagram. ${listedPlates.length ? listedPlates.map(({ plate, count }) => `${count} ${plate} ${unit} ${count === 1 ? 'plate' : 'plates'}`).join(', ') + ' per side; repeat this stack on the other side.' : 'No plates per side.'} ${withCollar ? 'Collars included on both sides.' : 'No collars.'}`}>
+      <rect className="plate-diagram-shaft" x="0" y="91" width="56" height="10" />
+      <rect className="plate-diagram-shoulder" x="56" y="81" width="12" height="30" />
+      <rect className="plate-diagram-sleeve" x="68" y="87" width="174" height="18" rx="4" />
+      {visiblePlates.map((plate, index) => {
+        const width = plateWidth(plate) * plateScale;
+        const height = plateHeight(plate);
+        const x = stackStart + visiblePlates.slice(0, index).reduce((sum, previous) => sum + plateWidth(previous) * plateScale, 0);
+        return <rect key={`${plate}-${index}`} className={`plate-diagram-plate plate-diagram-plate-${plateColor(plate)}`} x={x} y={(192 - height) / 2} width={Math.max(width - 0.8, 6)} height={height} rx="1" />;
       })}
+      {hiddenPlateCount > 0 && <text className="plate-diagram-more" x={Math.min(stackStart + stackWidth + 28, 262)} y="140" textAnchor="start">+{hiddenPlateCount}</text>}
+      {withCollar && <g className="plate-diagram-collar-detail">
+        <rect className="plate-diagram-collar-base" x={stackStart + stackWidth + 6} y="60" width="10" height="66" rx="2" />
+        <rect className="plate-diagram-collar-pressure" x={stackStart + stackWidth + 9} y="75" width="14" height="34" rx="3" />
+        <rect className="plate-diagram-collar" x={stackStart + stackWidth + 22} y="68" width="13" height="44" rx="1" />
+        <rect className="plate-diagram-collar-screw" x={stackStart + stackWidth + 24} y="62" width="7" height="8" rx="1" />
+        <rect className="plate-diagram-collar-lever" x={stackStart + stackWidth + 34} y="65" width="21" height="4" rx="1" />
+      </g>}
     </svg>
     <div className="plate-loadout-list" aria-hidden="true">
       {listedPlates.length ? listedPlates.map(({ plate, count }) => <span key={plate} className={`plate-loadout-item plate-loadout-item-${plateColor(plate)}`}><strong>{plate}</strong><span>{unit}{count > 1 ? ` × ${count}` : ''}</span></span>) : <span className="plate-loadout-empty">Bar only</span>}

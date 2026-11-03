@@ -187,3 +187,8 @@
 - Profile role is created from signup metadata by a database trigger, and a database trigger rejects changes to a profile's role or identity. Frontend route guards are usability checks; RLS remains the data boundary.
 - Added minimal coach-athlete link, program, and assignment tables now because program access policies depend on those relationships. Link creation/approval and program snapshot versioning remain for later milestones.
 - Kept role landing pages as placeholders to present the approved auth flow without starting the coach builder or athlete workout UI.
+
+## 2026-11-04 — One-sided plate loading visual
+
+- Match the calculator diagram to the supplied compact bar, plate and collar reference. Draw one side of the bar with the loaded stack and collar when enabled; retain per-side instructions and calculate total load for both sides.
+- Use diagram-scoped muted colors so this visual can match the reference without changing the plate badges elsewhere.

@@ -192,8 +192,14 @@ html[data-theme='dark'] {
   --plate-blue: #477FA6;
   --plate-blue-border: #7EADD0;
   --surface-plate-diagram: #252737;
-  --surface-plate-sleeve: #858990;
-  --surface-plate-collar: #B8BBC2;
+  --plate-diagram-outline: #282A31;
+  --plate-diagram-red: #84261F;
+  --plate-diagram-green: #548653;
+  --plate-diagram-sleeve: #737570;
+  --plate-diagram-collar: #969A94;
+  --plate-diagram-collar-base: #171922;
+  --plate-diagram-collar-pressure: #737570;
+  --plate-diagram-collar-screw: #969A94;
 }
 
 html[data-theme='light'] {
@@ -213,8 +219,14 @@ html[data-theme='light'] {
   --info: #3D6A91;
   --warning: #8A5000;
   --surface-plate-diagram: #E6E8EF;
-  --surface-plate-sleeve: #777C86;
-  --surface-plate-collar: #5F646D;
+  --plate-diagram-outline: #353840;
+  --plate-diagram-red: #84261F;
+  --plate-diagram-green: #548653;
+  --plate-diagram-sleeve: #737570;
+  --plate-diagram-collar: #969A94;
+  --plate-diagram-collar-base: #353840;
+  --plate-diagram-collar-pressure: #737570;
+  --plate-diagram-collar-screw: #969A94;
   --focus: 0 0 0 3px #80620B, 0 0 0 5px #80620B24;
   --border-card: #94896F;
   --border-control: #94896F;
