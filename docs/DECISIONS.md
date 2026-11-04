@@ -1,5 +1,14 @@
 # Decisions
 
+## 2026-11-04 — Independent Coach and Athlete capabilities
+
+- Keep `profiles.role` as the immutable signup persona for compatibility, and add normalized `profile_capabilities` rows as the authorization source. Backfill current accounts from their role during the additive migration.
+- Initialize one capability during profile creation. Do not grant capabilities through profile metadata after signup or through client table writes. A Coach gains Athlete capability only when their authenticated invite request is accepted by the server RPC; the pending link itself grants no assignment access.
+- Keep Coach and Athlete routes separate and gate each workspace by the matching capability. Persist the selected workspace per account in browser storage, falling back to the signup persona when that preference is missing or no longer allowed.
+- Add a Coach-side **Train with a Coach** entry point that reuses the existing invite request card. A Coach-only account cannot reach Athlete routes before it has Athlete capability, so placing the entry point only in Athlete Profile would make the capability grant unreachable.
+- Preserve assignment/link RLS as the authority for programs and logs, including one active coach, one active assignment, start dates, snapshot immutability, and revocation.
+- Alternatives rejected: changing `profiles.role` on request (loses Coach access), storing a second mutable role array in user metadata (client writable and not authoritative), or broadening program/log policies.
+
 ## 2026-11-04 — Warm-up calculator methods and rounding
 
 - Add a configurable barbell and smallest total-load increment to the calculator. Defaults are 20 kg / 45 lb and 1.25 kg / 2.5 lb; preserve these conventional paired defaults when switching units, and convert custom values.

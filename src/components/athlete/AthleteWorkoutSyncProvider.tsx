@@ -4,6 +4,7 @@ import { deleteWorkoutDraft, readWorkoutDrafts, syncWorkoutDraft } from '../../l
 
 export function AthleteWorkoutSyncProvider({ children }: { children: ReactNode }) {
   const { profile } = useAuth();
+  const canUseAthleteWorkspace = profile?.capabilities.includes('athlete') ?? false;
   const [pendingCount, setPendingCount] = useState(0);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -11,7 +12,7 @@ export function AthleteWorkoutSyncProvider({ children }: { children: ReactNode }
   const [retryKey, setRetryKey] = useState(0);
 
   useEffect(() => {
-    const athleteId = profile?.role === 'athlete' ? profile.id : undefined;
+    const athleteId = canUseAthleteWorkspace ? profile?.id : undefined;
     if (!athleteId) return;
     let active = true;
     let syncing = false;
@@ -87,7 +88,7 @@ export function AthleteWorkoutSyncProvider({ children }: { children: ReactNode }
       window.removeEventListener('storage', storage);
       window.removeEventListener('topset:workout-drafts-changed', changed);
     };
-  }, [profile?.id, profile?.role, retryKey]);
+  }, [profile?.id, canUseAthleteWorkspace, retryKey]);
 
   return <>
     {(error || pendingCount > 0) && <div className="alert-banner alert-info athlete-global-sync" role="status"><span className="alert-mark">i</span><div>

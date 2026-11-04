@@ -1,6 +1,6 @@
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(109);
+select plan(138);
 
 insert into auth.users (id, aud, role, email, encrypted_password, email_confirmed_at, raw_user_meta_data)
 values
@@ -294,6 +294,56 @@ set local role authenticated;
 select set_config('request.jwt.claim.sub', '20000000-0000-4000-8000-000000000003', true);
 select is((select count(*)::integer from public.profiles where id = auth.uid() and role = 'athlete'), 1, 'signup with invite creates athlete profile');
 select is((select count(*)::integer from public.coach_athlete_links where athlete_id = auth.uid() and coach_id = '10000000-0000-4000-8000-000000000002' and status = 'pending'), 1, 'signup invite creates pending coach request');
+
+select set_config('request.jwt.claim.sub', '10000000-0000-4000-8000-000000000001', true);
+select is((select count(*)::integer from public.profile_capabilities where profile_id = auth.uid() and capability = 'coach'), 1, 'existing Coach has its backfilled Coach capability');
+select is((select count(*)::integer from public.profile_capabilities where profile_id = auth.uid() and capability = 'athlete'), 0, 'existing Coach does not gain Athlete capability before requesting');
+select is((select count(*)::integer from public.profiles p where not exists (
+  select 1 from public.profile_capabilities c where c.profile_id = p.id and c.capability = p.role
+)), 0, 'every existing and newly created profile retains its signup capability');
+select is((select count(*)::integer from public.profile_capabilities where profile_id <> auth.uid()), 0, 'clients cannot read another account capability rows');
+select throws_ok($$insert into public.profile_capabilities (profile_id, capability) values (auth.uid(), 'athlete')$$, '42501', 'permission denied for table profile_capabilities', 'client cannot grant itself Athlete capability');
+select public.make_coach_invite_code() as coach_one_invite_code \gset
+select throws_ok(format('select public.request_coach_link(%L)', :'coach_one_invite_code'), '22023', 'cannot_link_to_self', 'Coach cannot request a link to their own invite');
+select lives_ok(format('select public.request_coach_link(%L)', :'coach_two_invite_code'), 'Coach can request another Coach through the athlete invite flow');
+select is((select count(*)::integer from public.profiles where id = auth.uid() and role = 'coach'), 1, 'requesting as Athlete does not change the immutable signup role');
+select is((select count(*)::integer from public.profile_capabilities where profile_id = auth.uid() and capability = 'athlete'), 1, 'valid Coach invite request grants Athlete capability server-side');
+select is((select count(*)::integer from public.program_assignments where athlete_id = auth.uid()), 0, 'pending Coach link grants no assignment access');
+
+select set_config('request.jwt.claim.sub', '10000000-0000-4000-8000-000000000002', true);
+select lives_ok(format('select public.respond_to_coach_link(%L, true)', (select id from public.coach_athlete_links where coach_id = auth.uid() and athlete_id = '10000000-0000-4000-8000-000000000001' and status = 'pending')), 'second Coach can approve the dual-role account request');
+select lives_ok($$select * from public.assign_program_to_athletes(
+  '30000000-0000-4000-8000-000000000002', array['10000000-0000-4000-8000-000000000001'::uuid], current_date, 'live'
+)$$, 'second Coach can assign a program to the approved dual-role account');
+
+select set_config('request.jwt.claim.sub', '10000000-0000-4000-8000-000000000001', true);
+select is((select count(*)::integer from public.program_assignments where athlete_id = auth.uid() and status = 'active'), 1, 'dual-role account reads its own active assignment');
+select is((select count(*)::integer from public.programs where id = '30000000-0000-4000-8000-000000000002'), 1, 'dual-role account reads its assigned Coach program as Athlete');
+select is((select count(*)::integer from public.programs where id = '30000000-0000-4000-8000-000000000001'), 1, 'dual-role account retains access to its own Coach program');
+select lives_ok($$select public.save_athlete_workout_session(
+  '80000000-0000-4000-8000-000000000004',
+  (select id from public.program_assignments where athlete_id = auth.uid() and status = 'active'),
+  '60000000-0000-4000-8000-000000000002', current_date, true,
+  '[{"program_exercise_id":"70000000-0000-4000-8000-000000000002","set_number":1,"load_lifted":145,"rpe_lifted":8}]'::jsonb
+)$$, 'dual-role account logs its own assigned workout');
+select throws_ok($$select public.end_program_assignment((select id from public.program_assignments where athlete_id = auth.uid() and status = 'active'))$$, 'P0002', 'assignment_not_found', 'dual-role Coach cannot end its own Athlete assignment using Coach authority');
+select lives_ok($$insert into public.athlete_workout_checkins (athlete_id, assignment_id, day_id, bodyweight, bodyweight_unit, sleep_quality)
+  values (auth.uid(), (select id from public.program_assignments where athlete_id = auth.uid() and status = 'active'), '60000000-0000-4000-8000-000000000002', 90, 'kg', 4)$$, 'dual-role account saves its own assigned workout check-in');
+select is((select count(*)::integer from public.athlete_workout_checkins where athlete_id = auth.uid()), 1, 'dual-role account reads its own workout check-in');
+select lives_ok($$insert into public.athlete_daily_checkins (athlete_id, checkin_date, bodyweight, bodyweight_unit)
+  values (auth.uid(), current_date, 90, 'kg')$$, 'dual-role account can save its own private daily check-in');
+
+select set_config('request.jwt.claim.sub', '10000000-0000-4000-8000-000000000002', true);
+select is((select count(*)::integer from public.programs where id = '30000000-0000-4000-8000-000000000001'), 0, 'other Coach cannot read dual-role account Coach-owned program');
+select is((select count(*)::integer from public.logged_sets where session_id = '80000000-0000-4000-8000-000000000004'), 1, 'assigning Coach can read only the dual-role Athlete workout under its active link');
+select is((select count(*)::integer from public.athlete_workout_checkins where athlete_id = '10000000-0000-4000-8000-000000000001'), 1, 'assigning Coach can read linked workout check-ins');
+select is((select count(*)::integer from public.athlete_daily_checkins where athlete_id = '10000000-0000-4000-8000-000000000001'), 0, 'assigning Coach cannot read dual-role account private daily check-ins');
+select lives_ok(format('select public.remove_coach_athlete_link(%L)', (select id from public.coach_athlete_links where coach_id = auth.uid() and athlete_id = '10000000-0000-4000-8000-000000000001' and status = 'active')), 'Coach can remove the dual-role account link');
+select set_config('request.jwt.claim.sub', '10000000-0000-4000-8000-000000000001', true);
+select is((select count(*)::integer from public.program_assignments where athlete_id = auth.uid()), 0, 'removing dual-role link revokes Athlete assignment access');
+select is((select count(*)::integer from public.workout_sessions where id = '80000000-0000-4000-8000-000000000004'), 0, 'removing dual-role link revokes Athlete workout history access');
+select is((select count(*)::integer from public.athlete_workout_checkins where athlete_id = auth.uid()), 0, 'removing dual-role link revokes Athlete workout check-in access');
+select is((select count(*)::integer from public.programs where id = '30000000-0000-4000-8000-000000000001'), 1, 'link removal preserves dual-role account Coach program access');
 
 select * from finish();
 rollback;

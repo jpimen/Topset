@@ -1,12 +1,13 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth, type Role } from './AuthProvider';
+import { canAccessWorkspace, getPreferredWorkspace } from './workspacePreference';
 
 export function HomeRedirect() {
   const { session, profile, loading, profileError } = useAuth();
   if (loading) return <LoadingScreen />;
   if (!session) return <Navigate to="/login" replace />;
   if (profileError || !profile) return <ProfileError />;
-  return <Navigate to={`/${profile.role}`} replace />;
+  return <Navigate to={`/${getPreferredWorkspace(profile.id, profile.capabilities, profile.role)}`} replace />;
 }
 
 export function RequireRole({ role }: { role: Role }) {
@@ -15,7 +16,7 @@ export function RequireRole({ role }: { role: Role }) {
   if (loading) return <LoadingScreen />;
   if (!session) return <Navigate to="/login" state={{ from: location }} replace />;
   if (profileError || !profile) return <ProfileError />;
-  if (profile.role !== role) return <Navigate to={`/${profile.role}`} replace />;
+  if (!canAccessWorkspace(profile.capabilities, role)) return <Navigate to={`/${getPreferredWorkspace(profile.id, profile.capabilities, profile.role)}`} replace />;
   return <Outlet />;
 }
 
