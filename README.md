@@ -1,6 +1,6 @@
 # Topset
 
-Topset is a powerlifting program builder for coaches and athletes. Current milestones include Coach and Athlete account capabilities, a pure TypeScript calculation engine, a coach program builder, secure coach-athlete linking and assignment, and the athlete's assigned Program overview with private per-day check-ins. A Coach can also request training from another Coach on the same account and switch between the two workspaces after the request is approved.
+Topset is a powerlifting program builder for coaches and athletes. Current milestones include role-based accounts, a pure TypeScript calculation engine, a coach program builder, secure coach-athlete linking and assignment, and the athlete's assigned Program overview with private per-day check-ins.
 
 ## Requirements
 
@@ -25,8 +25,6 @@ Topset is a powerlifting program builder for coaches and athletes. Current miles
 
 4. Open the local URL printed by Vite (normally `http://localhost:5173`). Use **Create account** to choose Coach or Athlete, then complete the relevant signup fields.
 
-Existing Coach and Athlete signups keep their current starting workspace. To train under another Coach with a Coach account, see [Coach as Athlete](docs/coach-as-athlete.md).
-
 If email confirmations are enabled in Supabase, confirm the email before signing in. Google sign-in is shown for existing accounts after enabling the Google provider and setting its callback URL in Supabase Auth. New Google account onboarding is deferred because it needs a secure role-choice callback.
 
 ## Appearance themes
@@ -49,7 +47,7 @@ notepad .env
 npm run dev
 ```
 
-`npx supabase db reset` applies the migrations in `supabase/migrations`. Migration `202611040001_independent_account_capabilities.sql` creates the normalized capability table, backfills existing accounts from their immutable `profiles.role`, and updates authorization to use capabilities. Copy the `API_URL` and `ANON_KEY` values from the status output into the matching variables in `.env`, save the file, and then start Vite. The local database starts empty, so open the app and create a coach account before trying to sign in. If you already have a `.env`, update it instead of copying over it.
+`npx supabase db reset` applies the migrations in `supabase/migrations`. Copy the `API_URL` and `ANON_KEY` values from the status output into the matching variables in `.env`, save the file, and then start Vite. The local database starts empty, so open the app and create a coach account before trying to sign in. If you already have a `.env`, update it instead of copying over it.
 
 Use the `API_URL` and `ANON_KEY` values shown by `npx supabase status` for `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` in `.env`. For example, the local API URL is usually `http://127.0.0.1:54321`. Never put the service role or secret key in the web app's `.env`.
 
@@ -83,7 +81,7 @@ npm run build
 npm run test:db
 ```
 
-The database test script runs the pgTAP SQL through `psql` in the local Supabase Docker database container. Start the local stack with `npx supabase start` first. The SQL tests cover profile visibility, Coach and Athlete capabilities, dual-workspace linking and access, coach-owned builder data, assigned live and snapshot access, link approval and removal, invite validation, assignment security, atomic saves, timestamp conflicts, immutable account roles, and workout log access and replay.
+The database test script runs the pgTAP SQL through `psql` in the local Supabase Docker database container. Start the local stack with `npx supabase start` first. The SQL tests cover profile visibility, coach-owned builder data, assigned live and snapshot access, link approval and removal, invite validation, assignment security, atomic saves, timestamp conflicts, immutable account roles, and workout log access and replay.
 
 Run the app checks with:
 

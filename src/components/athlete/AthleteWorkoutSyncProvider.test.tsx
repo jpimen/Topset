@@ -4,7 +4,7 @@ import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 const mocks = vi.hoisted(() => ({ sync: vi.fn() }));
 const athleteId = '20000000-0000-4000-8000-000000000001';
-vi.mock('../../auth/AuthProvider', () => ({ useAuth: () => ({ profile: { id: '20000000-0000-4000-8000-000000000001', role: 'athlete', capabilities: ['athlete'] } }) }));
+vi.mock('../../auth/AuthProvider', () => ({ useAuth: () => ({ profile: { id: '20000000-0000-4000-8000-000000000001', role: 'athlete' } }) }));
 vi.mock('../../lib/athlete/logs', async (original) => ({ ...await original<typeof import('../../lib/athlete/logs')>(), syncWorkoutDraft: mocks.sync }));
 import { readWorkoutDrafts, storeWorkoutDraft } from '../../lib/athlete/logs';
 import { AthleteWorkoutSyncProvider } from './AthleteWorkoutSyncProvider';

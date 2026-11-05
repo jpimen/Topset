@@ -1,4 +1,4 @@
-import { BrowserRouter, NavLink, Navigate, Outlet, Route, Routes, useNavigate } from 'react-router-dom';
+import { BrowserRouter, NavLink, Navigate, Outlet, Route, Routes } from 'react-router-dom';
 import { useState } from 'react';
 import { AuthProvider, useAuth } from './auth/AuthProvider';
 import { HomeRedirect, RequireRole } from './auth/RouteGuards';
@@ -13,20 +13,17 @@ import { AthletesPage } from './components/coach/AthletesPage';
 import { CoachDashboard } from './components/coach/CoachDashboard';
 import { CoachSettingsPage } from './components/coach/CoachSettingsPage';
 import { CoachTrainingVideosPage } from './components/coach/CoachTrainingVideosPage';
-import { CoachTrainingPage } from './components/coach/CoachTrainingPage';
 import { ExerciseLibraryPage } from './components/coach/ExerciseLibraryPage';
 import { ProgramsPage } from './components/coach/ProgramsPage';
 import { ProgramBuilderPage } from './components/programs/ProgramBuilderPage';
 import { getWorkspaceNavigation } from './lib/workspaceNavigation';
 import { ThemeToggle } from './components/ThemeToggle';
 import { ThemeProvider } from './theme/ThemeProvider';
-import { setPreferredWorkspace } from './auth/workspacePreference';
 import { supabase, supabaseConfigurationError } from './lib/supabase';
 import './styles.css';
 
 function WorkspaceLayout({ role }: { role: 'coach' | 'athlete' }) {
   const { profile, storageWarning } = useAuth();
-  const navigate = useNavigate();
   const [signOutError, setSignOutError] = useState('');
   const [signingOut, setSigningOut] = useState(false);
   const signOut = async () => {
@@ -42,13 +39,6 @@ function WorkspaceLayout({ role }: { role: 'coach' | 'athlete' }) {
     } finally { setSigningOut(false); }
   };
   const navigation = getWorkspaceNavigation(role);
-  const canSwitchWorkspace = profile?.capabilities.includes('coach') && profile.capabilities.includes('athlete');
-  const otherWorkspace = role === 'coach' ? 'athlete' : 'coach';
-  const switchWorkspace = () => {
-    if (!profile || !canSwitchWorkspace) return;
-    setPreferredWorkspace(profile.id, otherWorkspace);
-    navigate(otherWorkspace === 'coach' ? '/coach' : '/athlete/program');
-  };
   const content = <div className="workspace-content">
     {(storageWarning || signOutError) && <p role="alert" className="inline-error">{storageWarning || signOutError}</p>}
     <Outlet />
@@ -59,9 +49,7 @@ function WorkspaceLayout({ role }: { role: 'coach' | 'athlete' }) {
     <div key={`${profile?.id}:${role}`} className={`workspace-shell workspace-${role}`}>
       <header className="workspace-header">
         <NavLink className="brand-lockup" to="/"><span className="brand-mark">T</span><span>topset<span className="brand-period">.</span></span></NavLink>
-        <div className="workspace-user"><span className="workspace-mode-badge" aria-label={`${role === 'coach' ? 'Coach' : 'Athlete'} workspace`}>{role === 'coach' ? 'Coach' : 'Athlete'}</span><span className="user-avatar" aria-hidden="true">{profile?.name.slice(0, 1).toUpperCase() ?? 'T'}</span><span className="workspace-user-name">{profile?.name}</span>
-          {canSwitchWorkspace && <button className="button button-secondary workspace-switch" type="button" onClick={switchWorkspace} aria-label={`Switch to ${otherWorkspace} workspace`}>{otherWorkspace === 'coach' ? 'Coach' : 'Athlete'}</button>}
-          <button disabled={signingOut} onClick={() => void signOut()}>{signingOut ? 'Signing out...' : 'Sign out'}</button></div>
+        <div className="workspace-user"><span className="user-avatar">{profile?.name.slice(0, 1).toUpperCase() ?? 'T'}</span><span>{profile?.name}</span><button disabled={signingOut} onClick={() => void signOut()}>{signingOut ? 'Signing out...' : 'Sign out'}</button></div>
       </header>
       <div className="workspace-body">
         <aside className="workspace-sidebar">
@@ -83,7 +71,7 @@ function AppRoutes() {
       <Route path="/login" element={<AuthPage mode="login" />} />
       <Route path="/signup" element={<AuthPage mode="signup" />} />
       <Route path="/auth/callback" element={<HomeRedirect />} />
-      <Route element={<RequireRole role="coach" />}><Route path="/coach" element={<WorkspaceLayout role="coach" />}><Route index element={<CoachDashboard />} /><Route path="programs" element={<ProgramsPage />} /><Route path="programs/:id" element={<ProgramBuilderPage />} /><Route path="programs/:programId/days/:dayId/videos" element={<CoachTrainingVideosPage />} /><Route path="athletes" element={<AthletesPage />} /><Route path="train" element={<CoachTrainingPage />} /><Route path="exercises" element={<ExerciseLibraryPage />} /><Route path="calculators" element={<CalculatorsPage />} /><Route path="rulebook" element={<IPFRulebookPage />} /><Route path="settings" element={<CoachSettingsPage />} /><Route path="*" element={<Navigate to="/coach" replace />} /></Route></Route>
+      <Route element={<RequireRole role="coach" />}><Route path="/coach" element={<WorkspaceLayout role="coach" />}><Route index element={<CoachDashboard />} /><Route path="programs" element={<ProgramsPage />} /><Route path="programs/:id" element={<ProgramBuilderPage />} /><Route path="programs/:programId/days/:dayId/videos" element={<CoachTrainingVideosPage />} /><Route path="athletes" element={<AthletesPage />} /><Route path="exercises" element={<ExerciseLibraryPage />} /><Route path="calculators" element={<CalculatorsPage />} /><Route path="rulebook" element={<IPFRulebookPage />} /><Route path="settings" element={<CoachSettingsPage />} /><Route path="*" element={<Navigate to="/coach" replace />} /></Route></Route>
       <Route element={<RequireRole role="athlete" />}><Route path="/athlete" element={<WorkspaceLayout role="athlete" />}><Route index element={<Navigate to="/athlete/program" replace />} /><Route path="program" element={<AthleteProgramPage />} /><Route path="post-video" element={<AthletePostVideoPage />} /><Route path="progress" element={<AthleteProgressPage />} /><Route path="profile" element={<AthleteProfilePage />} /><Route path="settings" element={<AthleteSettingsPage />} /><Route path="calculators" element={<CalculatorsPage />} /><Route path="rulebook" element={<IPFRulebookPage />} /><Route path="*" element={<Navigate to="/athlete/program" replace />} /></Route></Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

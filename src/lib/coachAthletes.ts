@@ -88,7 +88,6 @@ export function relationshipErrorMessage(error: unknown): string {
   const message = error instanceof Error ? error.message : '';
   if (message.includes('invite_code_invalid')) return 'That invite code is not valid. Check it with your coach and try again.';
   if (message.includes('already_linked_to_coach')) return 'You already have an active coach.';
-  if (message.includes('cannot_link_to_self')) return 'Choose a different Coach. You cannot use your own invite link.';
   if (message.includes('link_request_already_pending')) return 'You already have a pending coach request. Wait for that coach to respond.';
   if (message.includes('athlete_already_linked')) return 'This athlete is already connected to another coach.';
   if (message.includes('program_not_owned') || message.includes('athlete_not_linked')) return 'That program or athlete is no longer available for this assignment.';

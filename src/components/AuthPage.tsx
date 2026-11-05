@@ -6,7 +6,6 @@ import { supabase } from '../lib/supabase';
 import { isCoachInviteCodeValid } from '../lib/coachAthletes';
 import { normalizeCoachInviteInput } from '../lib/coachInvite';
 import { ThemeToggle } from './ThemeToggle';
-import { getPreferredWorkspace } from '../auth/workspacePreference';
 
 type Mode = 'login' | 'signup';
 type IconName = 'barbell' | 'coach' | 'athlete' | 'mail' | 'lock' | 'eye' | 'check' | 'arrow' | 'shield' | 'info' | 'spark';
@@ -74,7 +73,7 @@ export function AuthPage({ mode }: { mode: Mode }) {
   const isCredentialsStep = mode === 'signup' && selectedRole !== null;
 
   if (loading) return <main className="state-screen auth-state-screen"><span className="spinner" />Checking your account…</main>;
-  if (session) return <Navigate to={profile ? `/${getPreferredWorkspace(profile.id, profile.capabilities, profile.role)}` : '/'} replace />;
+  if (session) return <Navigate to={profile ? `/${profile.role}` : '/'} replace />;
 
   function chooseRole(role: Role) {
     setRoleChoice(role);

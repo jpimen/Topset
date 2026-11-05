@@ -11,7 +11,6 @@ export function getWorkspaceNavigation(role: WorkspaceRole): WorkspaceNavigation
       { label: 'Dashboard', to: '/coach' },
       { label: 'Programs', to: '/coach/programs' },
       { label: 'Athletes', to: '/coach/athletes' },
-      { label: 'Train with a Coach', to: '/coach/train' },
       { label: 'Exercises', to: '/coach/exercises' },
       { label: 'Calculators', to: '/coach/calculators' },
       { label: 'IPF Rulebook', to: '/coach/rulebook' },

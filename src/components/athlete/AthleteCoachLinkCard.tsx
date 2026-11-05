@@ -3,7 +3,7 @@ import { useAuth } from '../../auth/AuthProvider';
 import { getAthleteCoachLink, relationshipErrorMessage, requestCoachLink, type AthleteCoachLink } from '../../lib/coachAthletes';
 
 export function AthleteCoachLinkCard() {
-  const { profile, refreshProfile } = useAuth();
+  const { profile } = useAuth();
   const [link, setLink] = useState<AthleteCoachLink | null>(null);
   const [code, setCode] = useState('');
   const [loading, setLoading] = useState(true);
@@ -32,7 +32,6 @@ export function AthleteCoachLinkCard() {
     setNotice('');
     try {
       await requestCoachLink(code);
-      await refreshProfile();
       setCode('');
       setNotice('Request sent. Your coach must approve it before you are linked.');
       await refresh();

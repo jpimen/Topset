@@ -3,15 +3,12 @@ import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import type { Session } from '@supabase/supabase-js';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
-const mocks = vi.hoisted(() => ({ read: vi.fn(), capabilities: vi.fn(), listener: vi.fn(), clear: vi.fn(() => '') }));
+const mocks = vi.hoisted(() => ({ read: vi.fn(), listener: vi.fn(), clear: vi.fn(() => '') }));
 vi.mock('../lib/athlete/programs', () => ({ clearAthleteProgramCaches: mocks.clear }));
 vi.mock('../lib/supabase', () => ({
   isSupabaseConfigured: true,
   supabase: {
-    from: (table: string) => ({
-      select: () => ({ eq: () => table === 'profiles' ? { maybeSingle: mocks.read } : Promise.resolve(mocks.capabilities()),
-      }),
-    }),
+    from: () => ({ select: () => ({ eq: () => ({ maybeSingle: mocks.read }) }) }),
     auth: {
       getSession: async () => ({ data: { session: null } }),
       onAuthStateChange: (callback: unknown) => { mocks.listener(callback); return { data: { subscription: { unsubscribe: vi.fn() } } }; },
@@ -35,7 +32,6 @@ const change = async (id: string | null) => {
 beforeEach(async () => {
   (globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
   vi.clearAllMocks();
-  mocks.capabilities.mockReturnValue({ data: [{ capability: 'athlete' }], error: null });
   host = document.createElement('div');
   root = createRoot(host);
   await act(async () => root.render(<AuthProvider><Probe /></AuthProvider>));

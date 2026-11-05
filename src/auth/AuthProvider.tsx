@@ -17,7 +17,6 @@ export type Role = 'coach' | 'athlete';
 export interface UserProfile {
   id: string;
   role: Role;
-  capabilities: Role[];
   name: string;
   team_name: string | null;
   weight_class: string | null;
@@ -47,15 +46,7 @@ async function readProfile(userId: string): Promise<UserProfile | null> {
     .eq('id', userId)
     .maybeSingle();
   if (error) throw error;
-  if (!data) return null;
-  const { data: capabilityRows, error: capabilityError } = await supabase
-    .from('profile_capabilities')
-    .select('capability')
-    .eq('profile_id', userId);
-  if (capabilityError) throw capabilityError;
-  const capabilities = (capabilityRows ?? []).map((row) => row.capability).filter((value): value is Role => value === 'coach' || value === 'athlete');
-  if (!capabilities.includes(data.role as Role)) throw new Error('Account capability is missing its signup role.');
-  return { ...data, capabilities } as UserProfile;
+  return data as UserProfile | null;
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -77,7 +68,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setProfileError(null);
       const next = await readProfile(userId);
       if (!mounted.current || revision.current !== request || identity.current !== userId) return;
-      if (next?.capabilities.includes('athlete') !== verifiedProfile.current?.capabilities.includes('athlete')) setStorageWarning(clearAthleteProgramCaches());
+      if (next?.role !== verifiedProfile.current?.role) setStorageWarning(clearAthleteProgramCaches());
       verifiedProfile.current = next;
       setProfile(next);
     } catch (cause) {
@@ -129,7 +120,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setProfileError(null);
         const nextProfile = await readProfile(nextSession.user.id);
         if (mounted.current && request === revision.current && identity.current === nextId) {
-          if (restoredIdentity) setStorageWarning(clearAthleteProgramCaches(nextProfile?.capabilities.includes('athlete') ? nextProfile.id : undefined));
+          if (restoredIdentity) setStorageWarning(clearAthleteProgramCaches(nextProfile?.role === 'athlete' ? nextProfile.id : undefined));
           verifiedProfile.current = nextProfile;
           setProfile(nextProfile);
         }
