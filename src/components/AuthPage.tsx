@@ -261,9 +261,7 @@ export function AuthPage({ mode }: { mode: Mode }) {
           <Divider />
           <Button variant="secondary" disabled={!configured || busy} onClick={() => void signInWithGoogle()} icon={<GoogleMark />}>Continue with Google</Button>
           <p className="switch-mode">New to Topset? <Link to="/signup">Create account</Link></p>
-          <p className="secure-note"><Icon name="shield" /> Secure sign-in powered by Supabase</p>
         </section>
-        <BrandPanel />
       </main>
     );
   }
@@ -398,29 +396,6 @@ function AlertBanner({ tone, message }: { tone: 'error' | 'success' | 'info'; me
 }
 
 function Divider() { return <div className="auth-divider"><span>OR</span></div>; }
-
-function BrandPanel() {
-  return <aside className="brand-panel" aria-label="Topset platform preview">
-    <div className="brand-grid" aria-hidden="true" />
-    <div className="brand-panel-content">
-      <div className="telemetry-pill"><span className="eyebrow-dot" /> TOPSET PLATFORM <span className="pill-separator">/</span> STRENGTH TRAINING</div>
-      <h2>Build programs.<br /><span>Peak on</span><br /><span>meet day.</span></h2>
-      <p className="brand-description">A focused workspace for coaches and lifters planning their next block.</p>
-      <SampleProgram />
-    </div>
-    <div className="brand-panel-footer"><span><Icon name="spark" /> TRAIN WITH INTENTION</span><span>COACH · ATHLETE · TRAINING</span></div>
-  </aside>;
-}
-
-function SampleProgram() {
-  return <section className="sample-program" aria-label="Sample training program preview">
-    <div className="sample-card-heading"><div><span className="eyebrow">SAMPLE PROGRAM</span><h3>Week 4 · Accumulation</h3></div><span className="rpe-chip">TARGET RPE 8</span></div>
-    <div className="sample-lift"><span className="lift-code">SQ</span><div><strong>Barbell back squat</strong><span>Top set · 4 × 4</span></div><b>160 <small>KG</small></b></div>
-    <div className="sample-lift"><span className="lift-code">BP</span><div><strong>Competition bench</strong><span>Paused · 4 × 5</span></div><b>105 <small>KG</small></b></div>
-    <div className="sample-lift"><span className="lift-code">DL</span><div><strong>Conventional deadlift</strong><span>Back-off · 3 × 5</span></div><b>185 <small>KG</small></b></div>
-    <p className="sample-disclaimer">Illustrative training data · sample only</p>
-  </section>;
-}
 
 function ProgressSteps({ step }: { step: 1 | 2 }) {
   return <div className="progress-steps" aria-label={`Step ${step} of 2`}><span className="progress-label"><b>0{step}</b> {step === 1 ? 'ROLE SELECTION' : 'ACCOUNT DETAILS'}</span><div className="progress-bars"><span className={step >= 1 ? 'active' : ''} /><span className={step >= 2 ? 'active' : ''} /></div></div>;
