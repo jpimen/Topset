@@ -48,7 +48,7 @@ function WorkspaceLayout({ role }: { role: 'coach' | 'athlete' }) {
   return (
     <div key={`${profile?.id}:${role}`} className={`workspace-shell workspace-${role}`}>
       <header className="workspace-header">
-        <NavLink className="brand-lockup" to="/"><span className="brand-mark">T</span><span>topset<span className="brand-period">.</span></span></NavLink>
+        <NavLink className="brand-lockup" to="/" aria-label="Topset home"><span className="brand-mark" aria-hidden="true">T</span><span className="brand-word">TOPSET<span className="brand-period">.</span></span></NavLink>
         <div className="workspace-user"><span className="user-avatar">{profile?.name.slice(0, 1).toUpperCase() ?? 'T'}</span><span>{profile?.name}</span><button disabled={signingOut} onClick={() => void signOut()}>{signingOut ? 'Signing out...' : 'Sign out'}</button></div>
       </header>
       <div className="workspace-body">
