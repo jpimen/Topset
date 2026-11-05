@@ -9,7 +9,7 @@ describe('workspace navigation', () => {
 
   it('preserves the existing role destinations', () => {
     expect(getWorkspaceNavigation('coach').map(({ label }) => label)).toEqual([
-      'Dashboard', 'Programs', 'Athletes', 'Exercises', 'Calculators', 'IPF Rulebook', 'Settings',
+      'Dashboard', 'Programs', 'Athletes', 'Exercises', 'Calculators', 'IPF Rulebook', 'Profile', 'Settings',
     ]);
     expect(getWorkspaceNavigation('athlete').map(({ label }) => label)).toEqual([
       'Program', 'Progress', 'Calculators', 'IPF Rulebook', 'Profile', 'Settings',

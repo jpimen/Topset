@@ -524,6 +524,37 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .athlete-profile-form textarea:focus-visible { outline: 2px solid var(--gold-light); outline-offset: 2px; }
 .athlete-profile-save-row { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding-top: 4px; }
 .athlete-profile-save-row .field-help { margin: 0; }
+.coach-profile-feedback { margin: 0 0 14px; }
+.coach-profile-state { min-height: 120px; padding: 24px; display: flex; align-items: center; gap: 14px; color: var(--secondary); }
+.coach-profile-state .button { margin-left: auto; }
+.coach-profile-card { padding: 20px; display: flex; align-items: center; gap: 16px; }
+.coach-profile-photo { width: 72px; height: 72px; flex: none; display: grid; place-items: center; color: var(--gold-text); background: var(--surface-selected); border: 1px solid var(--border-photo); border-radius: 16px; object-fit: cover; font: 700 28px var(--display); }
+.coach-profile-identity { min-width: 0; flex: 1; }
+.coach-profile-identity h2 { margin: 5px 0 3px; color: var(--text); font: 700 20px var(--display); overflow-wrap: anywhere; }
+.coach-profile-identity > p:last-child { margin: 0; color: var(--secondary); font-size: 12px; overflow-wrap: anywhere; }
+.coach-profile-photo-upload { min-height: 40px; position: relative; overflow: hidden; cursor: pointer; }
+.coach-profile-photo-upload input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+.coach-profile-photo-upload:focus-within { outline: 2px solid var(--gold-light); outline-offset: 2px; }
+.coach-profile-details { margin-top: 16px; padding: clamp(18px, 3vw, 28px); }
+.coach-profile-details .panel-heading { margin-bottom: 16px; }
+.coach-profile-details .panel-heading h2 { margin: 5px 0 0; font: 700 22px var(--display); }
+.coach-profile-readonly { max-width: 920px; margin: 0 0 16px; padding: 12px 14px; display: grid; gap: 5px; border: 1px solid var(--border); border-radius: 9px; background: var(--surface-control-raised); }
+.coach-profile-readonly > span, .coach-profile-values dt { color: var(--secondary); font: 700 9px var(--mono); letter-spacing: 1px; text-transform: uppercase; }
+.coach-profile-readonly strong { color: var(--text); font-size: 13px; font-weight: 600; overflow-wrap: anywhere; }
+.coach-profile-readonly small { color: var(--muted); font-size: 10px; }
+.coach-profile-values { max-width: 920px; margin: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 24px; }
+.coach-profile-values > div { min-width: 0; padding: 14px 0; border-bottom: 1px solid var(--border); }
+.coach-profile-values dt { margin-bottom: 6px; }
+.coach-profile-values dd { margin: 0; color: var(--text); font-size: 13px; line-height: 1.6; white-space: pre-wrap; overflow-wrap: anywhere; }
+.coach-profile-form { max-width: 920px; display: grid; gap: 12px; }
+.coach-profile-form .form-field { margin: 0; }
+.coach-profile-form-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.coach-profile-form textarea { min-height: 84px; padding: 11px 12px; resize: vertical; border: 1px solid var(--border-control); border-radius: 9px; color: var(--text); background: var(--surface-field); font: 500 13px/1.5 'Plus Jakarta Sans', sans-serif; text-transform: none; letter-spacing: 0; }
+.coach-profile-form textarea:focus-visible { outline: 2px solid var(--gold-light); outline-offset: 2px; }
+.coach-profile-form-footer { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding-top: 4px; }
+.coach-profile-form-footer > span { margin: 0; }
+.coach-profile-form-footer > div { display: flex; align-items: center; gap: 10px; }
+.coach-profile-form-footer .button { min-width: 118px; }
 .athlete-global-sync { margin: 18px clamp(15px, 4vw, 48px) 0; }
 @media (max-width: 700px) {
   .theme-toggle-settings .appearance-setting-row { align-items: flex-start; flex-direction: column; }
@@ -550,6 +581,12 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .athlete-profile-form-row { grid-template-columns: minmax(0, 1fr); }
   .athlete-profile-save-row { align-items: stretch; flex-direction: column; }
   .athlete-profile-save-row .button { width: 100%; }
+  .coach-profile-card { flex-wrap: wrap; }
+  .coach-profile-photo-upload { margin-left: auto; }
+  .coach-profile-form-row { grid-template-columns: minmax(0, 1fr); }
+  .coach-profile-form-footer { align-items: stretch; flex-direction: column; }
+  .coach-profile-form-footer > div { width: 100%; }
+  .coach-profile-form-footer .button { min-height: 44px; flex: 1; }
   .athlete-post-video-card { padding: 16px; }
   .athlete-post-video-actions { align-items: stretch; flex-direction: column-reverse; }
   .athlete-post-video-actions .button { width: 100%; }
@@ -960,6 +997,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .athlete-profile-card > .athlete-photo-upload { grid-column: 1 / -1; }
   .athlete-profile-save-row { align-items: stretch; flex-direction: column; gap: 14px; }
   .athlete-profile-save-row .button { min-height: 44px; }
+  .coach-profile-values { grid-template-columns: minmax(0, 1fr); }
+  .coach-profile-photo-upload { min-height: 44px; margin-left: 0; }
 
   .coach-panel { min-width: 0; }
   .metric-cards { grid-template-columns: minmax(0, 1fr); gap: 10px; }
