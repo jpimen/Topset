@@ -1,6 +1,6 @@
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(109);
+select plan(120);
 
 insert into auth.users (id, aud, role, email, encrypted_password, email_confirmed_at, raw_user_meta_data)
 values
@@ -40,10 +40,20 @@ values
 insert into public.athlete_maxes (athlete_id, lift, e1rm, tested_on) values
   ('20000000-0000-4000-8000-000000000001', 'squat', 180, current_date),
   ('20000000-0000-4000-8000-000000000002', 'squat', 170, current_date);
+insert into storage.objects (bucket_id, name, owner_id, metadata)
+values ('athlete-profile-photos', '10000000-0000-4000-8000-000000000002/existing-coach-photo.jpg', '10000000-0000-4000-8000-000000000002', '{"mimetype":"image/jpeg"}');
 
 set local role authenticated;
 select set_config('request.jwt.claim.sub', '10000000-0000-4000-8000-000000000001', true);
 select is((select count(*)::integer from public.profiles where id = auth.uid()), 1, 'coach reads own profile');
+select lives_ok($$update public.profiles set team_name = 'Coach One Gym' where id = auth.uid()$$, 'coach can update own profile details');
+select is((select team_name from public.profiles where id = auth.uid()), 'Coach One Gym', 'coach reads updated own profile details');
+update public.profiles set team_name = 'Unauthorized Gym' where id = '10000000-0000-4000-8000-000000000002';
+select lives_ok($$insert into storage.objects (bucket_id, name, owner_id, metadata) values ('athlete-profile-photos', auth.uid()::text || '/coach-profile.jpg', auth.uid()::text, '{"mimetype":"image/jpeg"}')$$, 'coach can upload a profile photo to own UUID folder');
+select is((select count(*)::integer from storage.objects where bucket_id = 'athlete-profile-photos' and name = auth.uid()::text || '/coach-profile.jpg'), 1, 'coach can read own profile photo');
+select throws_ok($$insert into storage.objects (bucket_id, name, owner_id, metadata) values ('athlete-profile-photos', '10000000-0000-4000-8000-000000000002/forged.jpg', auth.uid()::text, '{"mimetype":"image/jpeg"}')$$, '42501', 'new row violates row-level security policy for table "objects"', 'coach cannot upload a photo into another user folder');
+select lives_ok($$delete from storage.objects where bucket_id = 'athlete-profile-photos' and name = auth.uid()::text || '/coach-profile.jpg'$$, 'coach can delete own profile photo');
+select is((select count(*)::integer from storage.objects where bucket_id = 'athlete-profile-photos' and name = auth.uid()::text || '/coach-profile.jpg'), 0, 'coach own profile photo deletion takes effect');
 select is((select count(*)::integer from public.profiles where role = 'athlete'), 1, 'coach reads only linked athlete profile');
 select is((select count(*)::integer from public.programs), 1, 'coach reads own program');
 select is((select count(*)::integer from public.programs where id = '30000000-0000-4000-8000-000000000002'), 0, 'coach cannot read another coach program');
@@ -56,6 +66,9 @@ select is((select count(*)::integer from public.program_exercises), 1, 'coach re
 select is((select count(*)::integer from public.program_exercises where id = '70000000-0000-4000-8000-000000000002'), 0, 'coach cannot read another coach rows');
 update public.programs set name = 'Tampered B' where id = '30000000-0000-4000-8000-000000000002';
 select set_config('request.jwt.claim.sub', '10000000-0000-4000-8000-000000000002', true);
+select is((select team_name from public.profiles where id = auth.uid()), null, 'coach cannot update another coach profile');
+select is((select count(*)::integer from storage.objects where bucket_id = 'athlete-profile-photos' and name = '10000000-0000-4000-8000-000000000001/coach-profile.jpg'), 0, 'unrelated coach cannot read another coach profile photo');
+select is((select count(*)::integer from storage.objects where bucket_id = 'athlete-profile-photos' and name = auth.uid()::text || '/existing-coach-photo.jpg'), 1, 'coach can read own existing profile photo');
 select is((select count(*)::integer from public.programs where id = '30000000-0000-4000-8000-000000000002' and name = 'Coach Two Program'), 1, 'coach cannot edit another coach program');
 select set_config('request.jwt.claim.sub', '10000000-0000-4000-8000-000000000001', true);
 update public.program_exercises set reps = '99' where id = '70000000-0000-4000-8000-000000000002';
@@ -185,6 +198,7 @@ select set_config('request.jwt.claim.sub', '10000000-0000-4000-8000-000000000001
 select is((select count(*)::integer from public.workout_sessions where id = '80000000-0000-4000-8000-000000000001'), 1, 'linked coach can read athlete workout sessions');
 select is((select count(*)::integer from public.logged_sets where session_id = '80000000-0000-4000-8000-000000000001'), 1, 'linked coach can read athlete logged sets');
 select set_config('request.jwt.claim.sub', '20000000-0000-4000-8000-000000000001', true);
+select is((select count(*)::integer from storage.objects where bucket_id = 'athlete-profile-photos' and name = '10000000-0000-4000-8000-000000000002/existing-coach-photo.jpg'), 0, 'athlete cannot read an unrelated coach profile photo');
 select is((select count(*)::integer from public.profiles where role = 'athlete'), 1, 'athlete cannot read another athlete profile');
 update public.programs set name = 'Tampered' where id = '30000000-0000-4000-8000-000000000001';
 select set_config('request.jwt.claim.sub', '10000000-0000-4000-8000-000000000001', true);

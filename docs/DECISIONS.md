@@ -1,5 +1,22 @@
 # Decisions
 
+## 2026-11-06 — Coach profile page
+
+- Add a Coach-only Profile destination that reads the signed-in profile row and Auth email, with read-only and explicit edit states. Keep Athlete-only metrics out of the Coach form; allow the Coach to edit their name, team/gym, category or discipline, bio, achievements, and profile photo.
+- Keep profile updates owner-scoped through the existing `profiles` RLS policy and immutable identity trigger. Add separate storage policies for Coaches to upload, read, and delete only objects in their own UUID folder in the existing private photo bucket; retain the Athlete and linked-Coach policies unchanged.
+- Stage a replacement photo until Save so Cancel discards it; update the profile path only after upload succeeds and remove the previous object only after the database update succeeds.
+
+## 2026-11-06 — Coach profile implementation prompt
+
+- Add a reusable prompt for a Coach-only Profile sidebar page with a complete view and an explicit Edit profile flow. The prompt requires the implementation to verify current profile fields and RLS/storage policies before editing, because Coach and Athlete profiles share a row while existing photo policies are Athlete-oriented.
+- This request produces an implementation prompt only; it does not change application routes or behavior.
+
+## 2026-11-04 — Warm-up calculator methods and rounding
+
+- Add a configurable barbell and smallest total-load increment to the calculator. Defaults are 20 kg / 45 lb and 1.25 kg / 2.5 lb; preserve these conventional paired defaults when switching units, and convert custom values.
+- Round all generated warm-up loads to the nearest configured increment. The increment is the total change to the bar load, matching the requested example.
+- Standard ramp uses the empty bar for 8 reps, then 50% x5, 70% x3 and 90% x1. Even jumps use four equal increments from the bar to the top set with 8/5/3/1 reps; since the fourth jump reaches the top-set load, tell the lifter to use that single as the top set instead of repeating it.
+
 ## 2026-11-04 — Show one plate stack in the calculator diagram
 
 - Draw one side of the barbell loading only. The heading continues to tell users to load the displayed stack on each side, while the diagram remains uncluttered.

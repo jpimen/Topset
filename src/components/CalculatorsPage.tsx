@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { DEFAULT_COLLAR_KG_PER_SIDE, LB_PER_KG, calculatePlates, calculateScores, estimateE1rm, generateWarmups, loadFromE1rm, type E1rmFormula, type Sex, type Unit } from '../lib/engine';
+import { DEFAULT_COLLAR_KG_PER_SIDE, LB_PER_KG, calculatePlates, calculateScores, estimateE1rm, generateWarmupPlan, loadFromE1rm, type E1rmFormula, type Sex, type Unit, type WarmupMethod } from '../lib/engine';
 
 function NumberField({ label, value, onChange, min = 0, step = 'any' }: { label: string; value: string; onChange: (value: string) => void; min?: number; step?: string }) {
   return <label className="calc-field"><span>{label}</span><input aria-label={label} type="number" min={min} step={step} value={value} onChange={(event) => onChange(event.target.value)} /></label>;
@@ -10,6 +10,7 @@ function useCalculation<T>(calculate: () => T): { value?: T; error?: string } {
 }
 function toKg(value: number, unit: Unit): number { return unit === 'kg' ? value : value / LB_PER_KG; }
 function fromKg(value: number, unit: Unit): number { return unit === 'kg' ? value : value * LB_PER_KG; }
+function formatLoad(value: number): string { return value.toLocaleString('en-US', { maximumFractionDigits: 3 }); }
 function ResultLine({ children }: { children: React.ReactNode }) { return <p className="calc-result">{children}</p>; }
 function ErrorLine({ error }: { error?: string }) { return error ? <p className="calc-error" role="status">{error}</p> : null; }
 
@@ -76,24 +77,45 @@ export function CalculatorsPage() {
   const [target, setTarget] = useState('142.5'); const [bar, setBar] = useState('20');
   const [withCollar, setWithCollar] = useState(false);
   const [topSet, setTopSet] = useState('140');
+  const [warmupBar, setWarmupBar] = useState('20'); const [smallestChange, setSmallestChange] = useState('1.25'); const [warmupMethod, setWarmupMethod] = useState<WarmupMethod>('standard');
   const [total, setTotal] = useState('600'); const [bodyweight, setBodyweight] = useState('83'); const [sex, setSex] = useState<Sex>('male');
   function changeUnit(next: Unit) {
     if (next === unit) return;
     const convert = (value: string) => value.trim() ? String(Number((next === 'lb' ? Number(value) * LB_PER_KG : Number(value) / LB_PER_KG).toFixed(1))) : value;
-    setWeight(convert(weight)); setE1rm(convert(e1rm)); setTarget(convert(target)); setBar(convert(bar)); setTopSet(convert(topSet)); setTotal(convert(total)); setBodyweight(convert(bodyweight)); setUnit(next);
+    const previousBarDefault = unit === 'kg' ? '20' : '45';
+    const previousIncrementDefault = unit === 'kg' ? '1.25' : '2.5';
+    setWeight(convert(weight)); setE1rm(convert(e1rm)); setTarget(convert(target)); setBar(convert(bar)); setTopSet(convert(topSet));
+    setWarmupBar(warmupBar === previousBarDefault ? (next === 'kg' ? '20' : '45') : convert(warmupBar));
+    setSmallestChange(smallestChange === previousIncrementDefault ? (next === 'kg' ? '1.25' : '2.5') : convert(smallestChange));
+    setTotal(convert(total)); setBodyweight(convert(bodyweight)); setUnit(next);
   }
   const e1 = useCalculation(() => estimateE1rm(toKg(Number(weight), unit), Number(reps), formula));
   const rpeResult = useCalculation(() => loadFromE1rm(toKg(Number(e1rm), unit), Number(rpeReps), Number(rpe), unit));
   const plateResult = useCalculation(() => calculatePlates({ target: Number(target), bar: Number(bar), unit, collarPerSide: withCollar ? fromKg(DEFAULT_COLLAR_KG_PER_SIDE, unit) : 0 }));
-  const warmups = useCalculation(() => generateWarmups(Number(topSet), unit));
+  const warmups = useCalculation(() => generateWarmupPlan(Number(topSet), unit, { method: warmupMethod, barWeight: Number(warmupBar), increment: Number(smallestChange) }));
   const scores = useCalculation(() => calculateScores(toKg(Number(total), unit), toKg(Number(bodyweight), unit), sex));
   return <main className="calculators-page">
-    <header className="calc-header"><a href={`/${location.pathname.split('/')[1]}`} className="calc-brand">topset<span>.</span></a><div><p className="eyebrow">TRAINING TOOLS</p><h1>Calculators</h1><p>Quick estimates for the platform and the weight room.</p></div><label className="calc-field unit-toggle"><span>Display unit</span><select value={unit} onChange={(event) => changeUnit(event.target.value as Unit)}><option value="kg">Kilograms (kg)</option><option value="lb">Pounds (lb)</option></select></label></header>
+    <header className="calc-header"><a href={`/${location.pathname.split('/')[1]}`} className="calc-brand" aria-label="Topset home"><span className="calc-brand-mark" aria-hidden="true">T</span><span className="calc-brand-word">TOPSET<span>.</span></span></a><div><p className="eyebrow">TRAINING TOOLS</p><h1>Calculators</h1><p>Quick estimates for the platform and the weight room.</p></div><label className="calc-field unit-toggle"><span>Display unit</span><select value={unit} onChange={(event) => changeUnit(event.target.value as Unit)}><option value="kg">Kilograms (kg)</option><option value="lb">Pounds (lb)</option></select></label></header>
     <div className="calc-grid">
       <Card title="Estimated one-rep max"><div className="calc-inputs"><NumberField label={`Lift weight (${unit})`} value={weight} onChange={setWeight} min={0.01}/><NumberField label="Repetitions" value={reps} onChange={setReps} min={1} step="1"/><label className="calc-field"><span>Formula</span><select value={formula} onChange={(event) => setFormula(event.target.value as E1rmFormula)}><option value="epley">Epley</option><option value="brzycki">Brzycki</option></select></label></div><ErrorLine error={e1.error}/>{e1.value && <ResultLine>{fromKg(e1.value.e1rmKg, unit).toFixed(1)} {unit} {e1.value.lowConfidence && <small>Low confidence above 10 reps</small>}</ResultLine>}</Card>
       <Card title="RPE load"><div className="calc-inputs"><NumberField label={`e1RM (${unit})`} value={e1rm} onChange={setE1rm} min={0.01}/><NumberField label="Repetitions" value={rpeReps} onChange={setRpeReps} min={1} step="1"/><NumberField label="RPE (5–10)" value={rpe} onChange={setRpe} min={5} step="0.5"/></div><ErrorLine error={rpeResult.error}/>{rpeResult.value && <ResultLine>{(rpeResult.value.percent * 100).toFixed(1)}% 1RM · {rpeResult.value.load.toFixed(1)} {unit}</ResultLine>}</Card>
       <Card title="Plate calculator"><div className="calc-inputs"><NumberField label={`Target load (${unit})`} value={target} onChange={setTarget} min={0}/><NumberField label={`Bar (${unit})`} value={bar} onChange={setBar} min={0.01}/><fieldset className="calc-field plate-collar-field"><legend>Collars</legend><div className="plate-collar-toggle" role="group" aria-label="Collar setting"><button type="button" aria-pressed={!withCollar} onClick={() => setWithCollar(false)}>No collar</button><button type="button" aria-pressed={withCollar} onClick={() => setWithCollar(true)}>With collar</button></div></fieldset></div><ErrorLine error={plateResult.error}/>{plateResult.value && <><PlateLoadingDiagram plates={plateResult.value.platesPerSide} unit={unit} withCollar={withCollar}/><p className="calc-help">Achieved: {plateResult.value.achievedLoad.toFixed(2)} {unit}{!plateResult.value.reachable && ` · Difference: ${plateResult.value.difference.toFixed(2)} ${unit}`}</p>{plateResult.value.difference < 0 && <p className="calc-help">Target is below the bar weight; remove the bar before loading.</p>}</>}</Card>
-      <Card title="Warm-up sets"><NumberField label={`Top set (${unit})`} value={topSet} onChange={setTopSet} min={0.01}/><ErrorLine error={warmups.error}/>{warmups.value && <div className="warmup-list">{warmups.value.length ? warmups.value.map((set, index) => <ResultLine key={index}>{set.load.toFixed(1)} {unit} × {set.reps} reps</ResultLine>) : <p className="calc-help">Top set is too light for the default bar-based warm-up steps.</p>}</div>}</Card>
+      <Card title="Warm-up sets">
+        <div className="calc-inputs warmup-inputs">
+          <NumberField label={`Top set (${unit})`} value={topSet} onChange={setTopSet} min={0.01}/>
+          <NumberField label={`Barbell (${unit})`} value={warmupBar} onChange={setWarmupBar} min={0.01}/>
+          <NumberField label={`Smallest change (${unit})`} value={smallestChange} onChange={setSmallestChange} min={0.01}/>
+          <label className="calc-field"><span>Warm-up method</span><select value={warmupMethod} onChange={(event) => setWarmupMethod(event.target.value as WarmupMethod)}><option value="standard">Standard 4-step percentage ramp</option><option value="even-jumps">Even jumps method</option></select></label>
+        </div>
+        <ErrorLine error={warmups.error}/>
+        {warmups.value && <div className="warmup-list">
+          {warmups.value.length ? <>
+            <div className="warmup-table-wrap"><table className="warmup-table"><caption className="visually-hidden">Warm-up sets calculated from the selected top set and loading increment</caption><thead><tr><th scope="col">Step</th><th scope="col">Target load</th><th scope="col">Reps</th><th scope="col">% of top set</th></tr></thead><tbody>{warmups.value.map((set, index) => <tr key={`${set.load}-${set.reps}`}><th scope="row"><span className="warmup-step-number">{index + 1}</span></th><td className="warmup-load">{formatLoad(set.load)} <span>{unit}</span></td><td>{set.reps}</td><td>{(set.load / Number(topSet) * 100).toFixed(1)}%</td></tr>)}</tbody></table></div>
+            {warmupMethod === 'even-jumps' && warmups.value.some((set) => Math.abs(set.load - Number(topSet)) < 0.000001) && <p className="calc-help warmup-method-note">Step 4 reaches your top-set load. Use that single as your top set instead of repeating it.</p>}
+            <p className="calc-help warmup-rounding-note">Loads are rounded to the nearest {formatLoad(Number(smallestChange))} {unit} increment.</p>
+          </> : <p className="calc-help">No warm-up loads fall below the top set with these settings.</p>}
+        </div>}
+      </Card>
       <Card title="Strength scores"><div className="calc-inputs"><NumberField label={`Total (${unit})`} value={total} onChange={setTotal} min={0.01}/><NumberField label={`Bodyweight (${unit})`} value={bodyweight} onChange={setBodyweight} min={0.01}/><label className="calc-field"><span>Coefficient set</span><select value={sex} onChange={(event) => setSex(event.target.value as Sex)}><option value="male">Men</option><option value="female">Women</option></select></label></div><ErrorLine error={scores.error}/>{scores.value && <div className="score-results"><ResultLine>DOTS <strong>{scores.value.dots.toFixed(2)}</strong></ResultLine><ResultLine>Wilks <strong>{scores.value.wilks.toFixed(2)}</strong></ResultLine><ResultLine>IPF GL <strong>{scores.value.ipfGl.toFixed(2)}</strong></ResultLine></div>}</Card>
     </div><p className="calc-disclaimer">Estimates only. Calculators are guidance, not guarantees.</p>
   </main>;

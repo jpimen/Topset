@@ -26,24 +26,42 @@ Vercel may protect Preview URLs. If asked, sign in with an account that has acce
 
 ### If sign-in says “We could not load your account profile”
 
-The new frontend is loading, but its request to the configured Supabase project failed. This version reads profile fields added by migration `202610310004`.
+The app authenticated you, but one of its database reads failed. The current frontend reads the profile row and then the user's capability rows from `profile_capabilities`. A common cause after deploying the Coach/Athlete workspace update is that the frontend was deployed before migration `202611040001_independent_account_capabilities.sql` was applied to the Supabase project configured for that deployment. A wrong Supabase URL, incomplete migration history, or a database permission error can produce the same message. The UI intentionally does not show raw database errors.
 
-1. In Vercel, open **Settings → Environment Variables** and inspect the **Preview** value for `VITE_SUPABASE_URL`. The project ref is the part before `.supabase.co` in that URL. Do not share the anon key.
-2. Open that exact Supabase project and check whether the Topset migrations are applied.
-3. If it is a staging project with the earlier Topset schema already installed, apply `supabase/migrations/202610310004_athlete_profile_details_and_photos.sql` there.
-4. If it is a new empty staging project, apply all the application's migrations in timestamp order. Migration `202610310004` depends on tables created by earlier migrations.
-5. Return to Vercel and redeploy the Preview, then sign in again.
+Follow these steps for the exact environment that showed the error (Preview and Production may point to different Supabase projects):
 
-Do not apply the migration to production just to clear this error. First confirm the Preview environment points to the intended staging project.
+1. In Vercel, open **Settings → Environment Variables** for the affected environment and inspect `VITE_SUPABASE_URL`. Identify the Supabase project ref from the URL. Never paste or share `VITE_SUPABASE_ANON_KEY`, and never put a service-role key in a `VITE_` variable.
+2. Open that exact project in Supabase. In **SQL Editor**, check whether the capability table exists:
+
+   ```sql
+   select to_regclass('public.profile_capabilities') as capability_table;
+   ```
+
+   If the result is `null`, the capability migration is missing. If it returns `profile_capabilities`, continue with step 4.
+3. From the repository root on a trusted machine, link the CLI to the exact intended project, inspect the migration state, then apply missing migrations:
+
+   ```powershell
+   npx supabase login
+   npx supabase link --project-ref YOUR_PROJECT_REF
+   npx supabase migration list
+   npx supabase db push --dry-run
+   npx supabase db push
+   ```
+
+   Review the dry-run output before applying. For a new empty project, this applies the full migration chain in timestamp order. For an existing project, it applies migrations missing from that project's history. Do not run this against Production until you have confirmed the linked project and reviewed the pending migrations. Do not manually add capability rows or edit `profiles.role` to work around a missing migration.
+4. If the table exists, open the browser's developer tools, select **Network**, retry sign-in, and inspect the failed request to `/rest/v1/profile_capabilities` or `/rest/v1/profiles`. A `404` usually means the frontend points to a project missing the table/schema; a `401` or `403` points to authentication, grants, or RLS configuration. Confirm the frontend's Supabase URL is the project you inspected, and check that the deployed frontend and database use this repository's matching migration version. If the exact cause is not clear, use the request's HTTP status and Supabase **Logs → API/Postgres** to identify the database error; do not share request headers or tokens.
+5. After correcting the database or environment variables, redeploy the affected Vercel environment so it uses the intended variables and current frontend build. Retry sign-in. If the page was left open during deployment, reload it first.
+
+Do not point Preview at Production data or apply migrations to Production just to clear this message. Verify the target project and migration plan first.
 
 ### If sign-in says “Your account profile is not available yet”
 
-This means the profile query returned no row for the signed-in Supabase user. Supabase Auth accounts and profile rows belong to a specific Supabase project; a user from Production is not automatically present in Staging. Topset normally creates the profile row with a database trigger when the user signs up.
+This means the profile query returned no row for the signed-in Supabase user. It differs from “We could not load your account profile,” which means a database request failed. Supabase Auth accounts and profile rows belong to a specific Supabase project; a user from Production is not automatically present in Staging. Topset normally creates the profile row with a database trigger when the user signs up.
 
 1. Confirm the Preview `VITE_SUPABASE_URL` points to the staging project where you intend to test.
 2. In that Supabase project, open **Authentication → Users** and check that your test user exists.
 3. Open **Table Editor → profiles** and check whether a row exists for that user's ID.
-4. If the user exists but the profile row does not, verify that the initial migration `202610260001_initial_roles_and_access.sql` (which installs the profile-creation trigger) and the remaining migrations were applied successfully.
+4. If the user exists but the profile row does not, verify that the initial migration `202610260001_initial_roles_and_access.sql` (which installs the profile-creation trigger) and the remaining migrations were applied successfully, including `202611040001_independent_account_capabilities.sql` for the current app.
 5. After the migrations are installed, create a fresh test account from the Preview app using **Create account**. Use a staging-only email address. The signup trigger should create its profile row.
 6. Return to the Preview and sign in with that staging test account.
 

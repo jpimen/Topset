@@ -52,4 +52,3 @@
 
 - Sync the user's Light/Dark theme preference to their profile when cross-device settings are implemented.
 
-
