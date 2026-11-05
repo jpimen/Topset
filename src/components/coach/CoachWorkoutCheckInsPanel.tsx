@@ -27,6 +27,12 @@ export function useCoachWorkoutLogSets(dayId: string, programExerciseId: string)
   return session?.logged_sets.filter((item) => item.program_exercise_id === programExerciseId) ?? [];
 }
 
+export function useCoachWorkoutSessions() {
+  const context = useContext(CheckInContext);
+  if (!context) throw new Error('Workout totals must be inside CoachWorkoutCheckInsProvider.');
+  return context.sessions;
+}
+
 export function CoachWorkoutCheckInsProvider({ preferredProgramId, children }: { preferredProgramId?: string; children: ReactNode }) {
   const coachId = useCoachId();
   const [assignments, setAssignments] = useState<ProgramAssignment[]>([]);

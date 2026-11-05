@@ -209,3 +209,9 @@
 
 - Match the calculator diagram to the supplied compact bar, plate and collar reference. Draw one side of the bar with the loaded stack and collar when enabled; retain per-side instructions and calculate total load for both sides.
 - Use diagram-scoped muted colors so this visual can match the reference without changing the plate badges elsewhere.
+
+## 2026-11-06 - Per-set athlete logging and program totals
+
+- Give athletes one load, RPE, and notes input for each prescribed set so three prescribed sets produce three independently editable workout logs.
+- Calculate coach-facing lifted totals as logged load multiplied by prescribed reps, and summarize squat, bench, and deadlift volume for the selected athlete across the visible week.
+- Label totals as load times prescribed reps because performed rep counts are not currently stored per logged set.
