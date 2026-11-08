@@ -16,6 +16,7 @@ function repsSummary(rows: ProgramExercise[]) {
 const setTypeLabels: Record<string, string> = {
   '': '', top: 'Topset', backoff: 'Backoff', working: 'Working', warmup: 'Warmup', amrap: 'AMRAP',
 };
+const defaultSetTypeOptions = ['top', 'backoff', 'working', 'warmup', 'amrap'];
 
 function SetTypeCell({ row, value, options, onManageOptions, onCommit, onClear }: {
   row: number; value: string; options: string[]; onManageOptions: () => void;
@@ -52,22 +53,21 @@ interface SetTypeOptionDraft { original: string | null; value: string; }
 function SetTypeOptionsDialog({ options, onClose, onSave }: {
   options: string[]; onClose: () => void; onSave: (draft: SetTypeOptionDraft[]) => void;
 }) {
-  const [draft, setDraft] = useState<SetTypeOptionDraft[]>(() => options.map((value) => ({ original: value, value })));
+  const [draft, setDraft] = useState<SetTypeOptionDraft[]>(() => options.map((value) => ({ original: value, value: setTypeLabels[value] ?? value })));
   const [error, setError] = useState('');
   const save = () => {
     const normalized = draft.map((item) => ({ ...item, value: item.value.trim() }));
     if (normalized.some((item) => !item.value)) { setError('Enter a name or remove the blank option.'); return; }
     if (normalized.some((item) => item.value.length > 40)) { setError('Option names must be 40 characters or fewer.'); return; }
-    const reserved = new Set(Object.values(setTypeLabels).filter(Boolean).map((value) => value.toLowerCase()));
-    if (normalized.some((item) => reserved.has(item.value.toLowerCase())) || new Set(normalized.map((item) => item.value.toLowerCase())).size !== normalized.length) { setError('Each option needs a unique name that differs from the built-in types.'); return; }
+    if (new Set(normalized.map((item) => item.value.toLowerCase())).size !== normalized.length) { setError('Each option needs a unique name.'); return; }
     setError('');
-    onSave(normalized);
+    onSave(normalized.map((item) => ({ ...item, value: item.original && setTypeLabels[item.original] === item.value ? item.original : item.value })));
   };
   return <div className="dialog-backdrop set-type-dialog-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
     <section className="exercise-dialog set-type-options-dialog" role="dialog" aria-modal="true" aria-labelledby="set-type-options-title">
       <div className="panel-heading"><div><p className="eyebrow">PROGRAM BUILDER</p><h2 id="set-type-options-title">Manage set types</h2></div><button type="button" className="icon-button" aria-label="Close" onClick={onClose}>×</button></div>
-      <p className="set-type-dialog-help">Add options or rename custom types. Renaming updates matching rows in this program.</p>
-      <div className="set-type-option-list">{draft.map((item, index) => <div className="set-type-option-editor" key={item.original ?? `new-${index}`}>
+      <p className="set-type-dialog-help">Edit the built-in types or add your own. Renaming updates matching rows in this program.</p>
+      <div className="set-type-option-list"><p className="eyebrow set-type-option-heading">SET TYPE OPTIONS</p>{draft.map((item, index) => <div className="set-type-option-editor" key={item.original ?? `new-${index}`}>
         <input aria-label={`Custom set type ${index + 1}`} maxLength={40} autoFocus={item.original === null && index === draft.length - 1} value={item.value} placeholder="e.g. Pause set" onChange={(event) => setDraft((current) => current.map((option, optionIndex) => optionIndex === index ? { ...option, value: event.target.value } : option))} />
         <button type="button" className="button button-quiet danger-quiet" aria-label={`Remove ${item.value || 'blank option'}`} onClick={() => setDraft((current) => current.filter((_, optionIndex) => optionIndex !== index))}>Remove</button>
       </div>)}</div>
@@ -233,7 +233,7 @@ export function ProgramBuilderPage() {
   const navigate = useNavigate();
   const [history, dispatch] = useReducer(programReducer, null, () => createProgramHistory({ program: { id: '', coach_id: coachId, name: '', description: null, unit: 'kg', updated_at: '' }, blocks: [], weeks: [] }));
   const [exercises, setExercises] = useState<Exercise[]>([]);
-  const [customSetTypes, setCustomSetTypes] = useState<string[]>([]);
+  const [customSetTypes, setCustomSetTypes] = useState<string[]>(defaultSetTypeOptions);
   const [manageSetTypes, setManageSetTypes] = useState(false);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
@@ -248,13 +248,15 @@ export function ProgramBuilderPage() {
   const pendingSelectLastBlock = useRef(false);
   const expectedAt = useState({ current: '' })[0];
   const document = history.present;
-  const setTypeOptions = useMemo(() => ['top', 'backoff', 'working', 'warmup', 'amrap', ...customSetTypes], [customSetTypes]);
+  const setTypeOptions = customSetTypes;
   useEffect(() => {
     try {
       const stored = window.localStorage.getItem(`topset:set-type-options:${coachId}`);
       const parsed: unknown = stored ? JSON.parse(stored) : [];
-      setCustomSetTypes(Array.isArray(parsed) ? parsed.filter((value): value is string => typeof value === 'string' && value.trim().length > 0 && !Object.hasOwn(setTypeLabels, value)) : []);
-    } catch { setCustomSetTypes([]); }
+      const savedOptions = Array.isArray(parsed) ? [...defaultSetTypeOptions, ...parsed] : parsed && typeof parsed === 'object' && 'options' in parsed && Array.isArray(parsed.options) ? parsed.options : defaultSetTypeOptions;
+      const unique = savedOptions.filter((value): value is string => typeof value === 'string' && value.trim().length > 0).filter((value, index, values) => values.findIndex((candidate) => candidate.toLowerCase() === value.toLowerCase()) === index);
+      setCustomSetTypes(unique);
+    } catch { setCustomSetTypes(defaultSetTypeOptions); }
   }, [coachId]);
   const saveSetTypeOptions = (draft: SetTypeOptionDraft[]) => {
     const next = draft.map((item) => item.value);
@@ -262,7 +264,7 @@ export function ProgramBuilderPage() {
       if (item.original && item.original !== item.value) dispatch({ type: 'rename-set-type', from: item.original, to: item.value });
     }
     setCustomSetTypes(next);
-    try { window.localStorage.setItem(`topset:set-type-options:${coachId}`, JSON.stringify(next)); } catch { /* Current edits remain available for this session. */ }
+    try { window.localStorage.setItem(`topset:set-type-options:${coachId}`, JSON.stringify({ version: 2, options: next })); } catch { /* Current edits remain available for this session. */ }
     setManageSetTypes(false);
   };
   const hasUnsaved = ready && document !== savedDocument;

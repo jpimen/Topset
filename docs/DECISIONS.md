@@ -2,8 +2,8 @@
 
 ## 2026-11-09 — Coach-defined program set types
 
-- Add custom set type labels from the bottom of the Coach builder's set-type menu. Keep the built-in types and save custom choices per coach in browser storage, matching the current device-local preference model.
-- Open a manage-options dialog from that menu so coaches can add, rename, or remove custom choices; renaming also updates matching rows in the current program as one undoable document change.
+- Start the Coach builder's set-type menu with Topset, Backoff, Working, Warmup, and AMRAP, and allow coaches to manage built-in and custom options in a popup. Save the full list per coach in browser storage, matching the current device-local preference model.
+- Renaming an option updates matching rows in the current program as one undoable document change.
 - Store prescription set types as text so custom labels survive program saves, snapshots, and athlete validation. Limit labels to 40 characters in both the UI and database.
 - Keep custom types as display labels; training calculations do not branch on set type. Custom options remain device-local until account-synced coach preferences are introduced.
 
