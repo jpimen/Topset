@@ -40,7 +40,7 @@ export function omitUnassignedRows(program: ProgramDocument): ProgramDocument {
       ...week,
       days: week.days.map((day) => ({
         ...day,
-        exercises: day.exercises.filter((row) => Boolean(row.exercise_id && row.exercise)),
+        exercises: day.exercises.filter((row) => Boolean((row.exercise_id || row.exercise_name) && row.exercise)),
       })),
     })),
   };
