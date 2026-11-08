@@ -64,7 +64,7 @@ export function AthleteProgramPage() {
                   <thead><tr><th scope="col">Exercise</th><th scope="col">Set type</th><th scope="col">Sets</th><th scope="col">Reps</th><th scope="col">RPE</th><th scope="col">Load</th><th scope="col">Coach notes</th><th scope="col">Set</th><th scope="col">Load lifted ({result.program.program.unit})</th><th scope="col">RPE lifted</th><th scope="col">Athlete notes</th></tr></thead>
                   <tbody>{profile?.id ? <AthleteWorkoutLogRows athleteId={profile.id} assignmentId={result.assignment.id} day={day} unit={result.program.program.unit} onEditStateChange={onEditStateChange} /> : day.exercises.map((row) => <tr key={row.id}>
                     <th scope="row" className="athlete-program-exercise">{row.exercise.name}</th>
-                    <td><span className={`athlete-program-set-type${row.set_type ? ` set-type-${row.set_type}` : ''}`}>{row.set_type ?? '—'}</span></td>
+                    <td><span className={`athlete-program-set-type${row.set_type ? ` set-type-${row.set_type.toLowerCase().replace(/[^a-z0-9_-]/g, '-')}` : ''}`}>{row.set_type ?? '—'}</span></td>
                     <td>{row.sets ?? '—'}</td>
                     <td>{row.reps || '—'}</td>
                     <td>{row.rpe ?? '—'}</td>
