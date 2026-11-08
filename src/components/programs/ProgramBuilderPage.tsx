@@ -17,6 +17,47 @@ const setTypeLabels: Record<string, string> = {
   '': '', top: 'Topset', backoff: 'Backoff', working: 'Working', warmup: 'Warmup', amrap: 'AMRAP',
 };
 
+function SetTypeCell({ row, value, options, onAddOption, onCommit, onClear }: {
+  row: number; value: string; options: string[]; onAddOption: (option: string) => void;
+  onCommit: (value: string) => void; onClear: () => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const root = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!open) return;
+    const close = (event: PointerEvent) => { if (!root.current?.contains(event.target as Node)) setOpen(false); };
+    window.document.addEventListener('pointerdown', close);
+    return () => window.document.removeEventListener('pointerdown', close);
+  }, [open]);
+  const choose = (option: string) => { onCommit(option); setOpen(false); };
+  const addOption = () => {
+    const option = window.prompt('Name this set type');
+    const normalized = option?.trim();
+    if (!normalized) return;
+    if (normalized.length > 40) { window.alert('Set type names must be 40 characters or fewer.'); return; }
+    if (options.some((item) => item.toLowerCase() === normalized.toLowerCase())) {
+      window.alert('That set type already exists.');
+      return;
+    }
+    onAddOption(normalized);
+    choose(normalized);
+  };
+  return <div ref={root} role="gridcell" data-grid-cell={`${row}:1`} className={`builder-cell set-type-cell type-${value.toLowerCase().replace(/[^a-z0-9_-]/g, '-') || 'empty'} set-type-menu-cell`}>
+    <button type="button" aria-label={`Set type: ${(setTypeLabels[value] ?? value) || 'empty'}`} aria-haspopup="menu" aria-expanded={open} onClick={() => setOpen(!open)} onKeyDown={(event) => {
+      if (event.key === 'Enter' || event.key === 'F2' || event.key === 'ArrowDown') { event.preventDefault(); setOpen(true); }
+      else if (event.key === 'Delete' || event.key === 'Backspace') { event.preventDefault(); onClear(); }
+      else if (event.key === 'ArrowLeft') { event.preventDefault(); focusProgramGridCell(row, 0); }
+      else if (event.key === 'ArrowRight') { event.preventDefault(); focusProgramGridCell(row, 2); }
+    }}>{(setTypeLabels[value] ?? value) || <span className="builder-cell-placeholder">—</span>}<span aria-hidden="true">⌄</span></button>
+    {open && <div className="set-type-menu" role="menu" aria-label="Set type options">
+      <button type="button" role="menuitem" onClick={() => choose('')}>—</button>
+      {options.map((option) => <button type="button" role="menuitem" key={option} aria-current={value === option ? 'true' : undefined} onClick={() => choose(option)}>{setTypeLabels[option] ?? option}</button>)}
+      <div className="set-type-menu-divider" />
+      <button type="button" role="menuitem" className="set-type-add-option" onClick={addOption}>＋ Add option</button>
+    </div>}
+  </div>;
+}
+
 function saveFailureMessage(error: unknown): string {
   const message = error instanceof Error ? error.message : String(error);
   if (/failed to fetch|networkerror|load failed|network request failed/i.test(message)) {
@@ -81,7 +122,7 @@ function ExerciseNameCell({ row, index, exercise, exercises, onChoose, onCreate 
   return <div role="gridcell" data-grid-cell={`${index}:0`} className="builder-cell exercise-name-cell">{editing || !exercise ? <><input autoFocus={editing} aria-label="Exercise" list={`exercise-options-${row.id}`} value={value} onChange={(event) => setValue(event.target.value)} onBlur={() => { void selectValue(); }} onKeyDown={handleInputKeyDown} /><datalist id={`exercise-options-${row.id}`}>{exercises.map((item) => <option key={item.id} value={item.name} />)}</datalist></> : <button type="button" aria-label={`Exercise: ${exercise.name}`} onClick={startEditing} onKeyDown={handleButtonKeyDown}>{exercise.name}</button>}</div>;
 }
 
-function ProgramRow({ row, rowIndex, dayId, exercises, programUnit, onPatch, onDelete, onDuplicate, onCreateExercise }: { row: ProgramExercise; rowIndex: number; dayId: string; exercises: Exercise[]; programUnit: 'kg' | 'lb'; onPatch: (patch: Partial<ProgramExercise>) => void; onDelete: () => void; onDuplicate: () => void; onCreateExercise: (name: string) => Promise<Exercise | undefined> }) {
+function ProgramRow({ row, rowIndex, dayId, exercises, programUnit, setTypeOptions, onAddSetType, onPatch, onDelete, onDuplicate, onCreateExercise }: { row: ProgramExercise; rowIndex: number; dayId: string; exercises: Exercise[]; programUnit: 'kg' | 'lb'; setTypeOptions: string[]; onAddSetType: (value: string) => void; onPatch: (patch: Partial<ProgramExercise>) => void; onDelete: () => void; onDuplicate: () => void; onCreateExercise: (name: string) => Promise<Exercise | undefined> }) {
   const loggedSets = useCoachWorkoutLogSets(dayId, row.id);
   const chosenExercise = exercises.find((item) => item.id === row.exercise_id) ?? row.exercise ?? undefined;
   const mode = row.load_mode;
@@ -103,7 +144,7 @@ function ProgramRow({ row, rowIndex, dayId, exercises, programUnit, onPatch, onD
   };
   return <div role="row" className="builder-grid-row with-athlete-columns">
     <ExerciseNameCell row={row} index={rowIndex} exercise={chosenExercise} exercises={exercises} onChoose={(item) => onPatch({ exercise_id: item.id, exercise: item })} onCreate={onCreateExercise} />
-    <EditableGridCell row={rowIndex} column={1} label="Set type" value={row.set_type ?? ''} options={['', 'top', 'backoff', 'working', 'warmup', 'amrap']} optionLabels={setTypeLabels} className={`set-type-cell type-${row.set_type ?? 'empty'}`} onCommit={(value) => onPatch({ set_type: value ? value as SetType : null })} onClear={() => onPatch({ set_type: null })} />
+    <SetTypeCell row={rowIndex} value={row.set_type ?? ''} options={setTypeOptions} onAddOption={onAddSetType} onCommit={(value) => onPatch({ set_type: value ? value as SetType : null })} onClear={() => onPatch({ set_type: null })} />
     <EditableGridCell row={rowIndex} column={2} label="Sets" value={row.sets === null ? '' : String(row.sets)} onCommit={(value) => { if (!value) onPatch({ sets: null }); else { const parsed = Number(value); if (Number.isInteger(parsed) && parsed > 0 && parsed <= 100) onPatch({ sets: parsed }); } }} onClear={() => onPatch({ sets: null })} />
     <EditableGridCell row={rowIndex} column={3} label="Reps" value={row.reps} onCommit={commitReps} onClear={() => commitReps('')} className={row.reps && !parseReps(row.reps).valid ? 'cell-invalid' : ''} />
     <EditableGridCell row={rowIndex} column={4} label="RPE" value={row.rpe === null ? '' : row.rpe.toFixed(1).replace('.0', '')} inputOptions={Array.from({ length: 11 }, (_, index) => (5 + index * 0.5).toFixed(1).replace('.0', ''))} placeholder="5–10" className={row.rpe !== null ? `rpe-cell rpe-${Math.floor(row.rpe)}` : ''} onCommit={(value) => { const parsed = value ? Number(value) : null; if (parsed === null || (parsed >= 5 && parsed <= 10 && parsed * 2 === Math.trunc(parsed * 2))) onPatch({ rpe: parsed }); }} onClear={() => onPatch({ rpe: null })} />
@@ -139,7 +180,7 @@ function WeekLiftTotals({ week, exercises, unit }: { week: ProgramWeek; exercise
   </section>;
 }
 
-function DayCard({ week, day, exercises, document, dispatch, onCreateExercise }: { week: ProgramWeek; day: ProgramWeek['days'][number]; exercises: Exercise[]; document: ProgramDocument; dispatch: React.Dispatch<Parameters<typeof programReducer>[1]>; onCreateExercise: (name: string) => Promise<Exercise | undefined> }) {
+function DayCard({ week, day, exercises, document, dispatch, setTypeOptions, onAddSetType, onCreateExercise }: { week: ProgramWeek; day: ProgramWeek['days'][number]; exercises: Exercise[]; document: ProgramDocument; dispatch: React.Dispatch<Parameters<typeof programReducer>[1]>; setTypeOptions: string[]; onAddSetType: (value: string) => void; onCreateExercise: (name: string) => Promise<Exercise | undefined> }) {
   const [collapsed, setCollapsed] = useState(false);
   const allRowCount = week.days.reduce((sum, current) => sum + current.exercises.length, 0);
   const rowStart = 1 + week.days.slice(0, week.days.findIndex((current) => current.id === day.id)).reduce((sum, current) => sum + current.exercises.length, 0);
@@ -159,7 +200,7 @@ function DayCard({ week, day, exercises, document, dispatch, onCreateExercise }:
   return <article className="day-card"><header className="day-card-header"><button className="collapse-day" onClick={() => setCollapsed(!collapsed)} aria-expanded={!collapsed} aria-label={`${collapsed ? 'Expand' : 'Collapse'} ${day.name}`}>{collapsed ? '▸' : '▾'}</button><label className="day-name-field"><span className="eyebrow">SESSION {String(day.day_number).padStart(2, '0')}</span><input aria-label="Day name" value={day.name} onChange={(event) => dispatch({ type: 'rename-day', weekId: week.id, dayId: day.id, name: event.target.value })} /></label><span className="day-summary">{repsSummary(day.exercises)}</span><div className="day-header-actions"><Link className="button button-quiet" to={`/coach/programs/${document.program.id}/days/${day.id}/videos`}>Videos</Link><button className="button button-quiet" onClick={() => addRow()}>＋ Add row</button><button className="button button-quiet" onClick={() => { const movement = window.prompt('Main lift (squat, bench, or deadlift)', 'squat')?.toLowerCase(); const exercise = exercises.find((item) => item.is_competition_lift && item.movement === movement); if (!exercise) return; addRow(exercise, { set_type: 'top', sets: 1, reps: '1', reps_min: 1, reps_max: 1, rpe: 7, load_mode: 'rpe' }); addRow(exercise, { set_type: 'backoff', sets: 3, reps: '3', reps_min: 3, reps_max: 3, rpe: 6, load_mode: 'rpe' }); }}>Quick add</button><button className="icon-button danger-icon" aria-label={`Delete ${day.name}`} title="Delete day" onClick={() => { if (window.confirm(`Delete ${day.name} and its exercise rows?`)) dispatch({ type: 'delete-day', weekId: week.id, dayId: day.id }); }}>×</button></div></header>
     {!collapsed && <div className="day-card-body"><div role="grid" aria-label={`${week.name} ${day.name} program grid`} className="program-grid">
       <div role="row" className="builder-grid-header with-athlete-columns"><div role="columnheader">Exercise</div><div role="columnheader">Set type</div><div role="columnheader">Sets</div><div role="columnheader">Reps</div><div role="columnheader">RPE</div><div role="columnheader">Load</div><div role="columnheader">Coach notes</div><div role="columnheader" className="athlete-col">Load lifted</div><div role="columnheader" className="athlete-col">RPE lifted</div><div role="columnheader" className="athlete-col">Athlete notes</div><div role="columnheader" className="athlete-col">Total lifted</div></div>
-      {day.exercises.map((row, index) => <ProgramRow key={row.id} row={row} rowIndex={keyboardRowIndex(index)} dayId={day.id} exercises={exercises} programUnit={document.program.unit} onPatch={(patch) => dispatch({ type: 'update-row', weekId: week.id, dayId: day.id, rowId: row.id, patch })} onDelete={() => dispatch({ type: 'delete-row', weekId: week.id, dayId: day.id, rowId: row.id })} onDuplicate={() => dispatch({ type: 'add-row', weekId: week.id, dayId: day.id, row: { ...row, id: crypto.randomUUID(), position: day.exercises.length } })} onCreateExercise={onCreateExercise} />)}
+      {day.exercises.map((row, index) => <ProgramRow key={row.id} row={row} rowIndex={keyboardRowIndex(index)} dayId={day.id} exercises={exercises} programUnit={document.program.unit} setTypeOptions={setTypeOptions} onAddSetType={onAddSetType} onPatch={(patch) => dispatch({ type: 'update-row', weekId: week.id, dayId: day.id, rowId: row.id, patch })} onDelete={() => dispatch({ type: 'delete-row', weekId: week.id, dayId: day.id, rowId: row.id })} onDuplicate={() => dispatch({ type: 'add-row', weekId: week.id, dayId: day.id, row: { ...row, id: crypto.randomUUID(), position: day.exercises.length } })} onCreateExercise={onCreateExercise} />)}
       {!day.exercises.length && <div className="grid-empty"><span className="empty-state-mark">＋</span><strong>Add your first exercise</strong><span>Start typing in the exercise column after adding a row.</span><button className="button button-secondary" onClick={() => addRow()}>Add first row</button></div>}
       {Boolean(day.exercises.length) && <button className="add-row-line" onClick={() => addRow()}>＋ Add row</button>}
       {allRowCount === 0 && !day.exercises.length && <span className="visually-hidden">No exercises</span>}
@@ -173,6 +214,7 @@ export function ProgramBuilderPage() {
   const navigate = useNavigate();
   const [history, dispatch] = useReducer(programReducer, null, () => createProgramHistory({ program: { id: '', coach_id: coachId, name: '', description: null, unit: 'kg', updated_at: '' }, blocks: [], weeks: [] }));
   const [exercises, setExercises] = useState<Exercise[]>([]);
+  const [customSetTypes, setCustomSetTypes] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
   const [ready, setReady] = useState(false);
@@ -186,6 +228,20 @@ export function ProgramBuilderPage() {
   const pendingSelectLastBlock = useRef(false);
   const expectedAt = useState({ current: '' })[0];
   const document = history.present;
+  const setTypeOptions = useMemo(() => ['top', 'backoff', 'working', 'warmup', 'amrap', ...customSetTypes], [customSetTypes]);
+  useEffect(() => {
+    try {
+      const stored = window.localStorage.getItem(`topset:set-type-options:${coachId}`);
+      const parsed: unknown = stored ? JSON.parse(stored) : [];
+      setCustomSetTypes(Array.isArray(parsed) ? parsed.filter((value): value is string => typeof value === 'string' && value.trim().length > 0 && !Object.hasOwn(setTypeLabels, value)) : []);
+    } catch { setCustomSetTypes([]); }
+  }, [coachId]);
+  const addSetType = (value: string) => setCustomSetTypes((current) => {
+    if (current.some((option) => option.toLowerCase() === value.toLowerCase())) return current;
+    const next = [...current, value];
+    try { window.localStorage.setItem(`topset:set-type-options:${coachId}`, JSON.stringify(next)); } catch { /* The current builder can still use this option for this session. */ }
+    return next;
+  });
   const hasUnsaved = ready && document !== savedDocument;
   const saveCurrent = useCallback(async () => {
     setSaveError('');
@@ -291,7 +347,7 @@ export function ProgramBuilderPage() {
     {status === 'error' && <div role="alert" className="inline-state error-state">Your edits are still here, but could not be saved. {saveError || 'Retry the save.'}</div>}
     <section className="week-navigation"><div className="block-navigation"><div className="block-tabs" role="group" aria-label="Program blocks">{blocks.map((block, index) => <ProgramNameTab key={block.id} kind="block" label={`block ${index + 1}`} value={block.name} fallback="Block" selected={selectedBlockId === block.id} onSelect={() => { setSelectedBlockId(block.id); setSelectedWeek(document.weeks.find((week) => week.block_id === block.id)?.id ?? ''); }} onRename={(name) => dispatch({ type: 'rename-block', blockId: block.id, name })} />)}</div><button className="button button-secondary" onClick={addBlock}>＋ Add block</button></div><div className="week-navigation-row"><div className="week-tabs" role="group" aria-label="Program weeks">{visibleWeeks.map((week) => <ProgramNameTab key={week.id} kind="week" label={week.name || 'Week'} value={week.name} fallback="Week" selected={activeWeek?.id === week.id} onSelect={() => setSelectedWeek(week.id)} onRename={(name) => dispatch({ type: 'rename-week', weekId: week.id, name })} />)}</div><div className="week-actions"><button className="button button-secondary" onClick={addWeek}>＋ Add week</button>{activeWeek && <button className="button button-quiet danger-quiet" onClick={() => { if (window.confirm(`Delete ${activeWeek.name || 'Week'} and all its days?`)) dispatch({ type: 'delete-week', weekId: activeWeek.id }); }}>Delete week</button>}</div></div></section>
     {!activeWeek ? <section className="coach-panel empty-state"><span className="empty-state-mark">＋</span><h2>Add a week to get started</h2><button className="button button-primary" onClick={addWeek}>Add week</button></section> : <><div className="week-heading"><div><p className="eyebrow">TRAINING CYCLE / WEEK</p><h2 className="week-title">{activeWeek.name || 'Week'}</h2></div><button className="button button-primary" onClick={() => dispatch({ type: 'add-day', weekId: activeWeek.id })}>＋ Add day</button></div>
-      {activeWeek.days.length ? <CoachWorkoutCheckInsProvider preferredProgramId={programId}><div className="day-stack">{activeWeek.days.map((day) => <div className="builder-day-checkin-row" key={day.id}><DayCard week={activeWeek} day={day} exercises={exercises} document={document} dispatch={dispatch} onCreateExercise={addCustomInline} /><CoachWorkoutCheckInsPanel dayId={day.id} dayName={day.name} unit={document.program.unit} exerciseNames={Object.fromEntries(day.exercises.map((row) => [row.id, exercises.find((exercise) => exercise.id === row.exercise_id)?.name ?? 'Exercise']))} /></div>)}</div><WeekLiftTotals week={activeWeek} exercises={exercises} unit={document.program.unit} /></CoachWorkoutCheckInsProvider> : <section className="coach-panel empty-state"><span className="empty-state-mark">＋</span><h2>No training days in this week</h2><p>Add a day to begin the spreadsheet.</p><button className="button button-primary" onClick={() => dispatch({ type: 'add-day', weekId: activeWeek.id })}>Add first day</button></section>}
+      {activeWeek.days.length ? <CoachWorkoutCheckInsProvider preferredProgramId={programId}><div className="day-stack">{activeWeek.days.map((day) => <div className="builder-day-checkin-row" key={day.id}><DayCard week={activeWeek} day={day} exercises={exercises} document={document} dispatch={dispatch} setTypeOptions={setTypeOptions} onAddSetType={addSetType} onCreateExercise={addCustomInline} /><CoachWorkoutCheckInsPanel dayId={day.id} dayName={day.name} unit={document.program.unit} exerciseNames={Object.fromEntries(day.exercises.map((row) => [row.id, exercises.find((exercise) => exercise.id === row.exercise_id)?.name ?? 'Exercise']))} /></div>)}</div><WeekLiftTotals week={activeWeek} exercises={exercises} unit={document.program.unit} /></CoachWorkoutCheckInsProvider> : <section className="coach-panel empty-state"><span className="empty-state-mark">＋</span><h2>No training days in this week</h2><p>Add a day to begin the spreadsheet.</p><button className="button button-primary" onClick={() => dispatch({ type: 'add-day', weekId: activeWeek.id })}>Add first day</button></section>}
     </>}
     <footer className="builder-footer"><span>WORKING DOCUMENT · {document.program.unit.toUpperCase()}</span><span>Save changes to sync the live plan with athletes.</span><button className="button button-quiet" onClick={() => { if (window.confirm('Save your recent edits and leave the builder?')) void saveAndNavigate('/coach/programs'); }}>Exit builder</button></footer>
   </main>;

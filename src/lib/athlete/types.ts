@@ -15,7 +15,7 @@ const prescriptionRowSchema = z.object({
   day_id: z.string().uuid(),
   exercise_id: z.string().uuid(),
   position: z.number().int(),
-  set_type: z.enum(['top', 'backoff', 'working', 'warmup', 'amrap']).nullable(),
+  set_type: z.string().nullable(),
   sets: z.number().int().nullable(),
   reps: z.string(),
   rpe: z.number().nullable(),

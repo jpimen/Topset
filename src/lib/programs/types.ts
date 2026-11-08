@@ -1,6 +1,6 @@
 import type { Unit } from '../engine';
 
-export type SetType = 'top' | 'backoff' | 'working' | 'warmup' | 'amrap';
+export type SetType = string;
 export type LoadMode = 'absolute' | 'percent' | 'rpe' | 'none';
 export type ExerciseCategory = 'main' | 'variation' | 'accessory';
 export type Movement = 'squat' | 'bench' | 'deadlift' | 'other';

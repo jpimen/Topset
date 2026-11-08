@@ -1,5 +1,11 @@
 # Decisions
 
+## 2026-11-09 — Coach-defined program set types
+
+- Add custom set type labels from the bottom of the Coach builder's set-type menu. Keep the built-in types and save custom choices per coach in browser storage, matching the current device-local preference model.
+- Store prescription set types as text so custom labels survive program saves, snapshots, and athlete validation. Limit labels to 40 characters in both the UI and database.
+- Keep custom types as display labels; training calculations do not branch on set type. Custom options remain device-local until account-synced coach preferences are introduced.
+
 ## 2026-11-06 — Coach profile page
 
 - Add a Coach-only Profile destination that reads the signed-in profile row and Auth email, with read-only and explicit edit states. Keep Athlete-only metrics out of the Coach form; allow the Coach to edit their name, team/gym, category or discipline, bio, achievements, and profile photo.

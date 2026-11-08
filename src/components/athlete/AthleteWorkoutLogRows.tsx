@@ -130,7 +130,7 @@ export function AthleteWorkoutLogRows({ athleteId, assignmentId, day, unit, onEd
       return sets.map((set, index) => <tr key={`${exercise.id}-${set.set_number}`}>
         {index === 0 && <>
           <th scope="rowgroup" rowSpan={sets.length} className="athlete-program-exercise">{exercise.exercise.name}</th>
-          <td rowSpan={sets.length}><span className={`athlete-program-set-type${exercise.set_type ? ` set-type-${exercise.set_type}` : ''}`}>{exercise.set_type ?? '—'}</span></td>
+          <td rowSpan={sets.length}><span className={`athlete-program-set-type${exercise.set_type ? ` set-type-${exercise.set_type.toLowerCase().replace(/[^a-z0-9_-]/g, '-')}` : ''}`}>{exercise.set_type ?? '—'}</span></td>
           <td rowSpan={sets.length}>{exercise.sets ?? '—'}</td>
           <td rowSpan={sets.length}>{exercise.reps || '—'}</td>
           <td rowSpan={sets.length}>{exercise.rpe ?? '—'}</td>
