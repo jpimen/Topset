@@ -61,6 +61,7 @@ export function createProgramHistory(document: ProgramDocument): ProgramHistory 
 function applyAction(document: ProgramDocument, action: ProgramAction): ProgramDocument {
   if (action.type === 'rename-program') return { ...document, program: { ...document.program, name: action.name } };
   if (action.type === 'set-unit') return { ...document, program: { ...document.program, unit: action.unit } };
+  if (action.type === 'rename-set-type') return { ...document, weeks: document.weeks.map((week) => ({ ...week, days: week.days.map((day) => ({ ...day, exercises: day.exercises.map((row) => row.set_type === action.from ? { ...row, set_type: action.to } : row) })) })) };
   if (action.type === 'add-block') {
     const blocks = document.blocks ?? [];
     const blockId = id();

@@ -838,6 +838,15 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .set-type-menu > button:hover, .set-type-menu > button:focus-visible, .set-type-menu > button[aria-current="true"] { background: var(--surface-control); outline: 0; }
 .set-type-menu-divider { height: 1px; margin: 4px 2px; background: var(--border-grid-divider); }
 .set-type-menu > .set-type-add-option { color: var(--gold-text); font-weight: 700; }
+.set-type-dialog-backdrop { z-index: 60; }
+.set-type-options-dialog { width: min(100%, 520px); max-height: min(80vh, 680px); overflow: auto; }
+.set-type-dialog-help { margin: -8px 0 16px; color: var(--secondary); font-size: 12px; line-height: 1.5; }
+.set-type-option-list { display: grid; gap: 8px; max-height: 42vh; overflow-y: auto; }
+.set-type-option-editor { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; align-items: center; }
+.set-type-option-editor input { min-width: 0; height: 38px; padding: 0 10px; color: var(--text); background: var(--surface-field); border: 1px solid var(--border-control); border-radius: 7px; font: 12px 'Plus Jakarta Sans', sans-serif; }
+.set-type-dialog-error { margin: 10px 0 0; color: var(--text-danger); font-size: 11px; }
+.set-type-dialog-actions { margin-top: 18px; display: flex; align-items: center; justify-content: flex-end; gap: 8px; }
+.set-type-dialog-actions > span { flex: 1; }
 .type-top > button { color: var(--gold-text); }
 .type-backoff > button { color: var(--text-type-backoff); }
 .type-warmup > button { color: var(--text-type-warmup); }

@@ -96,6 +96,7 @@ export type ProgramAction =
   | { type: 'rename-day'; weekId: string; dayId: string; name: string }
   | { type: 'add-row'; weekId: string; dayId: string; row: ProgramExercise }
   | { type: 'update-row'; weekId: string; dayId: string; rowId: string; patch: Partial<ProgramExercise> }
+  | { type: 'rename-set-type'; from: string; to: string }
   | { type: 'delete-row'; weekId: string; dayId: string; rowId: string }
   | { type: 'undo' }
   | { type: 'redo' };
