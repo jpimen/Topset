@@ -282,3 +282,8 @@
 ## 2026-11-10 - Remove manual athlete workout save
 
 - Remove the Save changes button after autosave is established; keep the save and sync status visible and retain the separate Post Video action.
+
+## 2026-11-10 - Silent athlete workout autosync
+
+- Hide normal syncing and waiting-to-sync banners so autosave does not show temporary popups or move attention away from the workout.
+- Keep the retry notice for actual sync failures.
