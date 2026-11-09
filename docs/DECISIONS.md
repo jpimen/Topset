@@ -257,3 +257,33 @@
 
 - Let athletes add or remove per-set log entries without changing the coach's set prescription. Renumber remaining entries after deletion; the workout session RPC replaces the session's log rows, so removed entries stay deleted after sync.
 - Start a new workout with the prescribed number of sets. For an existing saved workout, restore its saved set count so athlete additions and deletions persist when the workout reloads.
+
+## 2026-11-09 - Athlete log number field controls
+
+- Hide native up/down steppers on athlete workout log number inputs while keeping numeric input behavior and validation.
+- Scope the styling to the workout log input class so other number fields retain their current controls.
+
+## 2026-11-09 - Keep athlete workspace horizontally contained
+
+- Constrain athlete page and workspace grid items to their available width so focusing a check-in control cannot shift the full page sideways.
+- Keep horizontal scrolling inside the workout table viewport.
+
+## 2026-11-09 - Athlete workout log autosave
+
+- Autosave changed workout set logs to the existing local draft queue after 450 ms of inactivity, then use the existing background sync flow to send them to the coach.
+- Remove the manual Save changes control; the status indicates whether edits are saved locally or synced.
+
+## 2026-11-09 - Prevent workout save layout shifts
+
+- Keep athlete sync feedback in a fixed notice so queued drafts do not push workout content down when syncing starts or ends.
+- Retain loaded workout rows during background refreshes and show the loading row only before the first session response.
+- Keep the loaded program visible if a background refresh fails, and reserve a status line for refresh feedback.
+
+## 2026-11-10 - Remove manual athlete workout save
+
+- Remove the Save changes button after autosave is established; keep the save and sync status visible and retain the separate Post Video action.
+
+## 2026-11-10 - Silent athlete workout autosync
+
+- Hide normal syncing and waiting-to-sync banners so autosave does not show temporary popups or move attention away from the workout.
+- Keep the retry notice for actual sync failures.

@@ -27,9 +27,8 @@ export function AthleteWorkoutSessionsProvider({ athleteId, assignmentId, verifi
       } catch (cause) {
         console.error('Workout history could not be loaded.', cause);
         if (active) {
-          setSessions(null);
           setError(navigator.onLine
-            ? 'Workout history could not be loaded. Retry before editing unless this day has a saved local draft.'
+            ? 'Workout history could not be refreshed. Any loaded entries are still available; retry to check for newer entries.'
             : 'Offline: prescriptions and saved local drafts are available. Reconnect to load other workout entries.');
         }
       } finally {

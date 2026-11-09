@@ -4,10 +4,7 @@ import { deleteWorkoutDraft, readWorkoutDrafts, syncWorkoutDraft } from '../../l
 
 export function AthleteWorkoutSyncProvider({ children }: { children: ReactNode }) {
   const { profile } = useAuth();
-  const [pendingCount, setPendingCount] = useState(0);
-  const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
-  const [offline, setOffline] = useState(!navigator.onLine);
   const [retryKey, setRetryKey] = useState(0);
 
   useEffect(() => {
@@ -18,9 +15,7 @@ export function AthleteWorkoutSyncProvider({ children }: { children: ReactNode }
     let rerun = false;
     let timer: number | undefined;
     const readQueue = () => {
-      const queue = readWorkoutDrafts(athleteId);
-      if (active) setPendingCount(queue.length);
-      return queue;
+      return readWorkoutDrafts(athleteId);
     };
     const retry = async () => {
       if (!active) return;
@@ -29,8 +24,7 @@ export function AthleteWorkoutSyncProvider({ children }: { children: ReactNode }
       setError('');
       try {
         const queue = readQueue();
-        if (!navigator.onLine) { setOffline(true); return; }
-        setSaving(queue.length > 0);
+        if (!navigator.onLine) return;
         for (const submitted of queue) {
           if (!active) return;
           await syncWorkoutDraft(submitted);
@@ -53,7 +47,6 @@ export function AthleteWorkoutSyncProvider({ children }: { children: ReactNode }
       } finally {
         syncing = false;
         if (active) {
-          setSaving(false);
           if (rerun) { rerun = false; timer = window.setTimeout(() => void retry(), 0); }
         }
       }
@@ -70,12 +63,8 @@ export function AthleteWorkoutSyncProvider({ children }: { children: ReactNode }
         changed(new CustomEvent('topset:workout-drafts-changed', { detail: { athleteId } }));
       }
     };
-    const connection = () => {
-      setOffline(!navigator.onLine);
-      if (navigator.onLine) void retry();
-    };
+    const connection = () => { if (navigator.onLine) void retry(); };
     window.addEventListener('online', connection);
-    window.addEventListener('offline', connection);
     window.addEventListener('storage', storage);
     window.addEventListener('topset:workout-drafts-changed', changed);
     void retry();
@@ -83,16 +72,15 @@ export function AthleteWorkoutSyncProvider({ children }: { children: ReactNode }
       active = false;
       window.clearTimeout(timer);
       window.removeEventListener('online', connection);
-      window.removeEventListener('offline', connection);
       window.removeEventListener('storage', storage);
       window.removeEventListener('topset:workout-drafts-changed', changed);
     };
   }, [profile?.id, profile?.role, retryKey]);
 
   return <>
-    {(error || pendingCount > 0) && <div className="alert-banner alert-info athlete-global-sync" role="status"><span className="alert-mark">i</span><div>
-      {error || (saving ? 'Syncing your workout entries…' : `${pendingCount} workout ${pendingCount === 1 ? 'entry' : 'entries'} saved on this device${offline ? ' · offline' : ' · waiting to sync'}.`)}
-      {!saving && <button className="button button-quiet" onClick={() => setRetryKey((value) => value + 1)}>Retry sync</button>}
+    {error && <div className="alert-banner alert-info athlete-global-sync" role="alert"><span className="alert-mark">i</span><div>
+      {error}
+      <button className="button button-quiet" type="button" onClick={() => setRetryKey((value) => value + 1)}>Retry sync</button>
     </div></div>}
     {children}
   </>;
