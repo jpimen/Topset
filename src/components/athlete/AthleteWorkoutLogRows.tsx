@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { getLocalDraftForDay, storeWorkoutDraft } from '../../lib/athlete/logs';
 import { workoutDraftSchema, type AthleteDay, type WorkoutDraft } from '../../lib/athlete/types';
@@ -121,7 +121,7 @@ export function AthleteWorkoutLogRows({ athleteId, assignmentId, day, unit, onEd
     setSaveStatus('Unsaved changes');
   };
   const hasChanges = dirty || pendingSync;
-  const saveChanges = () => {
+  const saveChanges = useCallback(() => {
     if (!draft || !editable || saving || !hasChanges) return;
     const parsed = workoutDraftSchema.safeParse({ ...draft, session_date: today() });
     if (!parsed.success) { setSaveError(parsed.error.issues[0]?.message ?? 'Check the workout values.'); return; }
@@ -138,7 +138,13 @@ export function AthleteWorkoutLogRows({ athleteId, assignmentId, day, unit, onEd
       setSaveError(cause instanceof Error ? cause.message : 'Could not save this workout on the device.');
       setSaveStatus('Changes were not saved');
     } finally { setSaving(false); }
-  };
+  }, [athleteId, draft, editable, hasChanges, saving]);
+
+  useEffect(() => {
+    if (!dirty || !editable) return;
+    const timer = window.setTimeout(saveChanges, 450);
+    return () => window.clearTimeout(timer);
+  }, [dirty, draft, editable, saveChanges]);
 
   return <>
     {(loadError || historyError) && <tr><td colSpan={10}><div className="athlete-checkin-error" role="alert"><p>{loadError || historyError}</p><button className="button button-secondary" type="button" onClick={() => { setLocalVersion((value) => value + 1); refresh(); }}>Try again</button></div></td></tr>}
@@ -180,7 +186,7 @@ export function AthleteWorkoutLogRows({ athleteId, assignmentId, day, unit, onEd
       </tr>;
     })}
     {draft && !loadError && <tr className="athlete-program-log-save-row"><td colSpan={10}><div className="athlete-program-log-save-controls">
-      <div><span className="checkin-status" role="status">{saving ? 'Saving changes…' : saveStatus || (pendingSync ? 'Waiting to sync' : 'Changes save to your coach when you press Save changes.')}</span>{saveError && <p className="athlete-program-log-error" role="alert">{saveError}</p>}</div>
+      <div><span className="checkin-status" role="status">{saving ? 'Saving changes…' : saveStatus || (pendingSync ? 'Waiting to sync' : 'Changes save automatically after a short pause.')}</span>{saveError && <p className="athlete-program-log-error" role="alert">{saveError}</p>}</div>
       <div className="athlete-program-log-actions"><Link className="button button-secondary" to={`/athlete/post-video?${new URLSearchParams({ assignmentId, dayId: day.id, dayName: day.name })}`}>Post Video</Link><button className="button button-primary" type="button" onClick={() => void saveChanges()} disabled={!editable || !hasChanges || saving}>{saving ? 'Saving…' : 'Save changes'}</button></div>
     </div></td></tr>}
   </>;

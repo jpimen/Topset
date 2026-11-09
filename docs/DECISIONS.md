@@ -267,3 +267,8 @@
 
 - Constrain athlete page and workspace grid items to their available width so focusing a check-in control cannot shift the full page sideways.
 - Keep horizontal scrolling inside the workout table viewport.
+
+## 2026-11-09 - Athlete workout log autosave
+
+- Autosave changed workout set logs to the existing local draft queue after 450 ms of inactivity, then use the existing background sync flow to send them to the coach.
+- Keep the immediate Save changes control for athletes who want to flush a draft before the debounce completes.
