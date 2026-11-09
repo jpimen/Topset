@@ -231,3 +231,4 @@
 ## 2026-11-09 - Automatic Coach program saves
 
 - Save program edits automatically after a short idle period, then flush the latest draft before internal navigation. Attempt a final save when the page becomes hidden or starts unloading, and remove browser confirmation prompts.
+- Remove the manual Save changes button; keep save status, conflict recovery, and automatic retries after a new edit or reconnection.
