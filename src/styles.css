@@ -412,7 +412,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .athlete-program-day summary > span:last-child { color: var(--gold-text); }
 .athlete-program-empty-day { color: var(--muted); font-size: 12px; }
 .athlete-program-table-viewport { max-width: 100%; min-width: 0; margin: 0 0 12px; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-color: var(--scrollbar-thumb) var(--card); }
-.athlete-program-table-viewport:focus-visible { outline: 2px solid var(--gold-light); outline-offset: -2px; }
+.athlete-program-table-viewport:focus-visible { outline: 2px solid var(--gold-light); outline-offset: 2px; }
 .athlete-program-scroll-hint { display: none; }
 .athlete-program-table { width: 100%; min-width: 1240px; border-collapse: separate; border-spacing: 0; table-layout: fixed; }
 .athlete-program-table th, .athlete-program-table td { padding: 15px 16px; border-bottom: 1px solid var(--border-divider); text-align: left; vertical-align: top; }
@@ -421,21 +421,29 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .athlete-program-table tbody tr:last-child th, .athlete-program-table tbody tr:last-child td { border-bottom: 0; }
 .athlete-program-table tbody tr:hover { background: var(--surface-hover-subtle); }
 .athlete-program-table thead th:nth-child(1) { width: 12%; }
-.athlete-program-table thead th:nth-child(2) { width: 7%; }
-.athlete-program-table thead th:nth-child(3) { width: 4%; }
-.athlete-program-table thead th:nth-child(4), .athlete-program-table thead th:nth-child(5) { width: 5%; }
-.athlete-program-table thead th:nth-child(6) { width: 10%; }
+.athlete-program-table thead th:nth-child(2) { width: 6%; }
+.athlete-program-table thead th:nth-child(3) { width: 5%; }
+.athlete-program-table thead th:nth-child(4) { width: 6%; }
+.athlete-program-table thead th:nth-child(5) { width: 5%; }
+.athlete-program-table thead th:nth-child(6) { width: 12%; }
 .athlete-program-table thead th:nth-child(7) { width: 12%; }
-.athlete-program-table thead th:nth-child(8) { width: 45%; }
+.athlete-program-table thead th:nth-child(8) { width: 42%; }
+.athlete-program-table th:first-child, .athlete-program-table td:first-child { padding-left: 24px; }
 .athlete-program-exercise { color: var(--text) !important; font-weight: 700; }
 .athlete-program-set-number { color: var(--muted) !important; font: 10px var(--mono) !important; white-space: nowrap; }
-.athlete-program-set-grid { min-width: 0; display: grid; gap: 6px 9px; }
-.athlete-program-set-grid-heading, .athlete-program-set-grid-row { display: grid; grid-template-columns: 58px minmax(90px, .75fr) minmax(90px, .75fr) minmax(140px, 1.5fr); align-items: center; gap: 9px; }
-.athlete-program-set-grid-heading { color: var(--muted); font: 400 9px var(--mono); letter-spacing: .04em; text-transform: uppercase; }
-.athlete-program-set-grid-row { grid-column: 1 / -1; }
+.athlete-program-set-log { padding: 9px 11px; border: 1px solid var(--border-divider); border-radius: 9px; background: var(--surface-field); }
+.athlete-program-set-log summary { display: flex; align-items: center; gap: 5px; color: var(--gold-text); font-size: 11px; font-weight: 700; cursor: pointer; }
+.athlete-program-set-log summary span { color: var(--muted); font-weight: 500; }
+.athlete-program-set-log[open] summary { margin-bottom: 9px; }
+.athlete-program-set-grid { --athlete-set-columns: 56px minmax(95px, 1fr) minmax(95px, 1fr) minmax(140px, 2fr); min-width: 0; display: grid; gap: 8px; }
+.athlete-program-set-grid-header, .athlete-program-set-grid-row { display: grid; grid-template-columns: var(--athlete-set-columns); align-items: center; gap: 8px; }
+.athlete-program-set-grid-header { color: var(--muted); font: 400 9px var(--mono); letter-spacing: .04em; text-transform: uppercase; }
 .athlete-program-set-grid-row > .athlete-program-set-number { text-align: right; }
-.athlete-program-set-grid-row .athlete-program-log-input { min-height: 38px; }
-.athlete-program-unprescribed { color: var(--muted); font-size: 11px; }
+.athlete-program-set-grid-row .athlete-program-log-input { min-height: 40px; }
+.athlete-program-prescribed-load { white-space: nowrap; }
+.athlete-program-unprescribed-row th, .athlete-program-unprescribed-row td { color: var(--muted) !important; }
+.athlete-program-unprescribed-row td span { margin-left: 4px; }
+.athlete-program-unprescribed { color: var(--muted); font-size: 11px; white-space: nowrap; }
 .athlete-program-set-type { display: inline-block; color: var(--secondary); text-transform: uppercase; }
 .athlete-program-set-type.set-type-top { color: var(--text-set-top); }
 .athlete-program-set-type.set-type-backoff { color: var(--text-set-backoff); }

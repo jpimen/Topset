@@ -242,3 +242,9 @@
 ## 2026-11-09 - Athlete workout set alignment
 
 - Group each set's load, RPE, and athlete note controls on a single horizontal line inside the exercise row, so entries stay associated and aligned by set number.
+
+## 2026-11-09 - Athlete prescription completeness and log layout
+
+- Render set log labels and entries on a shared four-column grid. Collapse the set editor by default above six prescribed sets.
+- An athlete log is available only when set count, reps, and either a prescribed load or target RPE are present. Named incomplete rows remain as one compact not-prescribed line; unnamed rows are omitted.
+- Read the set count directly from the program prescription field; do not reinterpret it as reps.
