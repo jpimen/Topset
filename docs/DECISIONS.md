@@ -232,3 +232,28 @@
 
 - Save program edits automatically after a short idle period, then flush the latest draft before internal navigation. Attempt a final save when the page becomes hidden or starts unloading, and remove browser confirmation prompts.
 - Remove the manual Save changes button; keep save status, conflict recovery, and automatic retries after a new edit or reconnection.
+
+## 2026-11-09 - Athlete workout set logging layout
+
+- Render one log row per prescribed exercise and group per-set load, RPE, and athlete-note controls inside that row. Load fields are separated with plus signs to make a sequence such as 80 + 80 + 80 read as three sets.
+- Build log entries only for the coach-prescribed set count. An unset count produces no athlete set inputs; each entered set remains stored as its own logged_sets record for coach review and analytics.
+- Keep the current desktop table and horizontal scroll behavior while reducing its minimum width after removing the standalone Set column.
+
+## 2026-11-09 - Athlete workout set alignment
+
+- Group each set's load, RPE, and athlete note controls on a single horizontal line inside the exercise row, so entries stay associated and aligned by set number.
+
+## 2026-11-09 - Athlete prescription completeness and log layout
+
+- Render set log labels and entries on a shared four-column grid. Collapse the set editor by default above six prescribed sets.
+- An athlete log is available only when set count, reps, and either a prescribed load or target RPE are present. Named incomplete rows remain as one compact not-prescribed line; unnamed rows are omitted.
+- Read the set count directly from the program prescription field; do not reinterpret it as reps.
+
+## 2026-11-09 - Compact athlete set log disclosure
+
+- Keep the workout log column and set field grid in place, but collapse each Log sets section by default. The closed disclosure shows only its label and prescribed set count to keep exercise rows compact.
+
+## 2026-11-09 - Athlete add and remove set logs
+
+- Let athletes add or remove per-set log entries without changing the coach's set prescription. Renumber remaining entries after deletion; the workout session RPC replaces the session's log rows, so removed entries stay deleted after sync.
+- Start a new workout with the prescribed number of sets. For an existing saved workout, restore its saved set count so athlete additions and deletions persist when the workout reloads.

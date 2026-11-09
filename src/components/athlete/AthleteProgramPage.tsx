@@ -2,22 +2,9 @@ import { useCallback, useEffect, useState } from 'react';
 import { useAuth } from '../../auth/AuthProvider';
 import { AthleteWorkoutCheckInPanel } from './AthleteWorkoutCheckInPanel';
 import { AthleteWorkoutLogRows } from './AthleteWorkoutLogRows';
+import { athleteExerciseName, athleteLoadLabel, hasUsableExerciseName, isLoggablePrescription } from '../../lib/athlete/prescriptions';
 import { useAthleteProgram } from './useAthleteProgram';
 import { AthleteWorkoutSessionsProvider } from './AthleteWorkoutSessionsProvider';
-
-function loadLabel(row: { load_mode: string; load_value: number | null; load_min: number | null; load_max: number | null; percent_of?: 'e1rm' | 'tm' | null }, unit: string) {
-  const low = row.load_min ?? row.load_value;
-  const high = row.load_max;
-  if (row.load_mode === 'absolute') {
-    return low === null ? 'Load not specified' : high !== null && high !== low ? `${low}–${high} ${unit}` : `${low} ${unit}`;
-  }
-  if (row.load_mode === 'percent') {
-    const value = low === null ? '—' : high !== null && high !== low ? `${low}–${high}` : String(low);
-    return `${value}% of ${row.percent_of === 'tm' ? 'training max' : 'e1RM'}`;
-  }
-  if (row.load_mode === 'rpe') return 'RPE-derived · load estimate unavailable';
-  return 'No load prescribed';
-}
 
 export function AthleteProgramPage() {
   const { profile } = useAuth();
@@ -55,22 +42,22 @@ export function AthleteProgramPage() {
         <section className="athlete-program-days" aria-label={week.name}>
             {week.notes && <p className="athlete-week-note">{week.notes}</p>}
             {week.days.length === 0 ? <div className="coach-panel empty-state"><h2>No days added</h2><p>Your coach has not added training days to this week.</p></div> : week.days.map((day) => <div className={profile?.id ? 'athlete-day-checkin-layout' : undefined} key={day.id}><details className="coach-panel athlete-program-day" open>
-              <summary><span><strong>{day.name}</strong><small>{day.exercises.length} {day.exercises.length === 1 ? 'exercise' : 'exercises'}</small></span><span aria-hidden="true">⌄</span></summary>
+              <summary><span><strong>{day.name}</strong><small>{day.exercises.filter(hasUsableExerciseName).length} {day.exercises.filter(hasUsableExerciseName).length === 1 ? 'exercise' : 'exercises'}</small></span><span aria-hidden="true">⌄</span></summary>
               {day.notes && <p className="athlete-coach-note"><strong>Coach note</strong>{day.notes}</p>}
-              {day.exercises.length === 0 ? <p className="athlete-program-empty-day">No exercises in this day.</p> : <div className="athlete-program-table-viewport" role="region" aria-label={`${week.name} ${day.name} prescriptions`} tabIndex={0}>
-                <p className="athlete-program-scroll-hint">Swipe horizontally to view all columns. Log load and RPE separately for each set.</p>
+              {day.exercises.filter(hasUsableExerciseName).length === 0 ? <p className="athlete-program-empty-day">No exercises in this day.</p> : <div className="athlete-program-table-viewport" role="region" aria-label={`${week.name} ${day.name} prescriptions`} tabIndex={0}>
+                <p className="athlete-program-scroll-hint">Enter each set’s load, RPE, and notes in the exercise row.</p>
                 <table className="athlete-program-table">
                   <caption className="visually-hidden">{week.name}, {day.name} exercise prescriptions and athlete workout log</caption>
-                  <thead><tr><th scope="col">Exercise</th><th scope="col">Set type</th><th scope="col">Sets</th><th scope="col">Reps</th><th scope="col">RPE</th><th scope="col">Load</th><th scope="col">Coach notes</th><th scope="col">Set</th><th scope="col">Load lifted ({result.program.program.unit})</th><th scope="col">RPE lifted</th><th scope="col">Athlete notes</th></tr></thead>
-                  <tbody>{profile?.id ? <AthleteWorkoutLogRows athleteId={profile.id} assignmentId={result.assignment.id} day={day} unit={result.program.program.unit} onEditStateChange={onEditStateChange} /> : day.exercises.map((row) => <tr key={row.id}>
-                    <th scope="row" className="athlete-program-exercise">{row.exercise.name}</th>
+                  <thead><tr><th scope="col">Exercise</th><th scope="col">Set type</th><th scope="col">Sets</th><th scope="col">Reps</th><th scope="col">RPE</th><th scope="col">Load</th><th scope="col">Coach notes</th><th scope="col" colSpan={3}>Workout log · {result.program.program.unit}</th></tr></thead>
+                  <tbody>{profile?.id ? <AthleteWorkoutLogRows athleteId={profile.id} assignmentId={result.assignment.id} day={day} unit={result.program.program.unit} onEditStateChange={onEditStateChange} /> : day.exercises.filter(hasUsableExerciseName).map((row) => <tr key={row.id}>
+                    <th scope="row" className="athlete-program-exercise">{athleteExerciseName(row)}</th>
                     <td><span className={`athlete-program-set-type${row.set_type ? ` set-type-${row.set_type.toLowerCase().replace(/[^a-z0-9_-]/g, '-')}` : ''}`}>{row.set_type ?? '—'}</span></td>
                     <td>{row.sets ?? '—'}</td>
                     <td>{row.reps || '—'}</td>
                     <td>{row.rpe ?? '—'}</td>
-                    <td>{loadLabel(row, result.program.program.unit)}</td>
+                    <td className="athlete-program-prescribed-load">{athleteLoadLabel(row, result.program.program.unit)}</td>
                     <td className="athlete-program-coach-notes">{row.notes_coach || '—'}</td>
-                    <td>—</td><td>—</td><td>—</td><td>—</td>
+                    <td colSpan={3}>{isLoggablePrescription(row) ? '—' : <span className="athlete-program-unprescribed">— Not prescribed</span>}</td>
                   </tr>)}</tbody>
                 </table>
               </div>}
