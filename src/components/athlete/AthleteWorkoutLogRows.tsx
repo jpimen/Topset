@@ -135,7 +135,7 @@ export function AthleteWorkoutLogRows({ athleteId, assignmentId, day, unit, onEd
         <td className="athlete-program-prescribed-load">{athleteLoadLabel(exercise, unit)}</td>
         <td className="athlete-program-coach-notes">{exercise.notes_coach || '—'}</td>
         <td colSpan={3}>
-          <details className="athlete-program-set-log" open={sets.length <= 6}>
+          <details className="athlete-program-set-log">
             <summary>Log sets <span>({sets.length})</span></summary>
             <div className="athlete-program-set-grid" aria-label={`${exerciseName} workout log`}>
               <div className="athlete-program-set-grid-header"><span>Set</span><span>Load lifted ({unit})</span><span>RPE lifted</span><span>Athlete notes</span></div>

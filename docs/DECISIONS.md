@@ -248,3 +248,7 @@
 - Render set log labels and entries on a shared four-column grid. Collapse the set editor by default above six prescribed sets.
 - An athlete log is available only when set count, reps, and either a prescribed load or target RPE are present. Named incomplete rows remain as one compact not-prescribed line; unnamed rows are omitted.
 - Read the set count directly from the program prescription field; do not reinterpret it as reps.
+
+## 2026-11-09 - Compact athlete set log disclosure
+
+- Keep the workout log column and set field grid in place, but collapse each Log sets section by default. The closed disclosure shows only its label and prescribed set count to keep exercise rows compact.

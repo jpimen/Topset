@@ -431,10 +431,10 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .athlete-program-table th:first-child, .athlete-program-table td:first-child { padding-left: 24px; }
 .athlete-program-exercise { color: var(--text) !important; font-weight: 700; }
 .athlete-program-set-number { color: var(--muted) !important; font: 10px var(--mono) !important; white-space: nowrap; }
-.athlete-program-set-log { padding: 9px 11px; border: 1px solid var(--border-divider); border-radius: 9px; background: var(--surface-field); }
-.athlete-program-set-log summary { display: flex; align-items: center; gap: 5px; color: var(--gold-text); font-size: 11px; font-weight: 700; cursor: pointer; }
+.athlete-program-set-log { min-height: 26px; }
+.athlete-program-set-log summary { min-height: 26px; display: flex; align-items: center; justify-content: space-between; gap: 8px; color: var(--gold-text); font-size: 11px; font-weight: 700; cursor: pointer; }
 .athlete-program-set-log summary span { color: var(--muted); font-weight: 500; }
-.athlete-program-set-log[open] summary { margin-bottom: 9px; }
+.athlete-program-set-log[open] .athlete-program-set-grid { margin-top: 8px; }
 .athlete-program-set-grid { --athlete-set-columns: 56px minmax(95px, 1fr) minmax(95px, 1fr) minmax(140px, 2fr); min-width: 0; display: grid; gap: 8px; }
 .athlete-program-set-grid-header, .athlete-program-set-grid-row { display: grid; grid-template-columns: var(--athlete-set-columns); align-items: center; gap: 8px; }
 .athlete-program-set-grid-header { color: var(--muted); font: 400 9px var(--mono); letter-spacing: .04em; text-transform: uppercase; }
