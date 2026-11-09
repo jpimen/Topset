@@ -187,7 +187,7 @@ export function AthleteWorkoutLogRows({ athleteId, assignmentId, day, unit, onEd
     })}
     {draft && !loadError && <tr className="athlete-program-log-save-row"><td colSpan={10}><div className="athlete-program-log-save-controls">
       <div><span className="checkin-status" role="status">{saving ? 'Saving changes…' : saveStatus || (pendingSync ? 'Waiting to sync' : 'Changes save automatically after a short pause.')}</span>{saveError && <p className="athlete-program-log-error" role="alert">{saveError}</p>}</div>
-      <div className="athlete-program-log-actions"><Link className="button button-secondary" to={`/athlete/post-video?${new URLSearchParams({ assignmentId, dayId: day.id, dayName: day.name })}`}>Post Video</Link><button className="button button-primary" type="button" onClick={() => void saveChanges()} disabled={!editable || !hasChanges || saving}>{saving ? 'Saving…' : 'Save changes'}</button></div>
+      <div className="athlete-program-log-actions"><Link className="button button-secondary" to={`/athlete/post-video?${new URLSearchParams({ assignmentId, dayId: day.id, dayName: day.name })}`}>Post Video</Link></div>
     </div></td></tr>}
   </>;
 }

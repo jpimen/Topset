@@ -469,7 +469,6 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .athlete-program-log-save-controls > div:first-child { min-width: 0; flex: 1; }
 .athlete-program-log-save-controls .checkin-status { display: block; }
 .athlete-program-log-actions { display: flex; align-items: center; gap: 8px; flex: none; }
-.athlete-program-log-actions .button-primary { min-width: 112px; }
 .athlete-program-log-error { margin: 4px 0 0; color: var(--error); font-size: 10px; line-height: 1.5; }
 .athlete-post-video-card { max-width: 760px; padding: 22px; }
 .athlete-post-video-form { display: grid; gap: 14px; }

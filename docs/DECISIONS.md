@@ -271,11 +271,14 @@
 ## 2026-11-09 - Athlete workout log autosave
 
 - Autosave changed workout set logs to the existing local draft queue after 450 ms of inactivity, then use the existing background sync flow to send them to the coach.
-- Keep the immediate Save changes control for athletes who want to flush a draft before the debounce completes.
+- Remove the manual Save changes control; the status indicates whether edits are saved locally or synced.
 
 ## 2026-11-09 - Prevent workout save layout shifts
 
 - Keep athlete sync feedback in a fixed notice so queued drafts do not push workout content down when syncing starts or ends.
 - Retain loaded workout rows during background refreshes and show the loading row only before the first session response.
-- Keep the save action width stable while its label changes between ready and saving states.
 - Keep the loaded program visible if a background refresh fails, and reserve a status line for refresh feedback.
+
+## 2026-11-10 - Remove manual athlete workout save
+
+- Remove the Save changes button after autosave is established; keep the save and sync status visible and retain the separate Post Video action.
