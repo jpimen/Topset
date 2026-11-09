@@ -38,7 +38,6 @@ export function useAthleteProgram(athleteId: string | undefined, hasUnsavedEdits
       console.error('Athlete program could not be loaded.', cause);
       if (!active) return;
       if (edits.current) { setRefreshDeferred(true); return; }
-      setEntry(null);
       setError(cause instanceof Error ? cause.message : 'We could not load your assigned program. Check your connection and try again.');
     }).finally(() => { if (active) setLoading(false); });
     return () => { active = false; };

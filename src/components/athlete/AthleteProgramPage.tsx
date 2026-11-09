@@ -22,17 +22,18 @@ export function AthleteProgramPage() {
   useEffect(() => { if (result && selectedWeek >= result.program.weeks.length) setSelectedWeek(0); }, [result, selectedWeek]);
 
   if (loading && !result) return <main className="athlete-page"><div className="dashboard-skeleton" aria-label="Loading assigned program" /></main>;
-  if (error) return <main className="athlete-page"><section className="coach-panel empty-state" role="alert"><h1>Program unavailable</h1><p>{error}</p><button className="button button-secondary" onClick={refresh}>Try again</button></section></main>;
+  if (error && !result) return <main className="athlete-page"><section className="coach-panel empty-state" role="alert"><h1>Program unavailable</h1><p>{error}</p><button className="button button-secondary" onClick={refresh}>Try again</button></section></main>;
   if (!result) return <main className="athlete-page"><section className="coach-panel empty-state"><p className="eyebrow">PROGRAM</p><h1>No assigned program yet</h1><p>Your coach’s assigned plan will appear here.</p>{warning && <p role="alert">{warning}</p>}</section></main>;
 
   const week = result.program.weeks[selectedWeek];
   return (
     <main className="athlete-page">
       {offline && <p className="inline-state" role="status">Offline copy · last verified {new Date(verifiedAt!).toLocaleString()}. Access changes cannot be checked until you reconnect. Copies expire after 24 hours.</p>}
+      {error && <p className="inline-error" role="alert">{error}<button className="button button-secondary" onClick={refresh}>Try again</button></p>}
       {warning && <p className="inline-error" role="alert">{warning}</p>}
       {liveSyncWarning && <p className="inline-state" role="status">{liveSyncWarning}</p>}
       {refreshDeferred && <p className="inline-state" role="status">Program refresh paused while you have unsaved entries. Save your workout and check-in changes to load the latest plan.</p>}
-      {loading && <p role="status">Refreshing program…</p>}
+      <p className="athlete-program-refresh-status" aria-live="polite" role={loading ? 'status' : undefined}>{loading ? 'Refreshing program…' : ''}</p>
       <header className="athlete-page-heading"><div><p className="eyebrow">PROGRAM · {result.assignment.sync_mode === 'live' ? 'LIVE PLAN' : 'SAVED SNAPSHOT'}</p><h1>{result.program.program.name}</h1><p>{result.program.program.description || 'Your coach’s plan, available here to review at any time.'}</p></div><div className="athlete-program-heading-actions"><span className="athlete-readonly-tag">Read only</span><button className="button button-secondary" onClick={refresh}>Refresh program</button></div></header>
       <AthleteWorkoutSessionsProvider key={`${profile?.id}:${result.assignment.id}`} athleteId={profile!.id} assignmentId={result.assignment.id} verifiedAt={verifiedAt}>
       {result.program.weeks.length === 0 ? <section className="coach-panel empty-state"><h2>Your program is being prepared</h2><p>There are no weeks in this plan yet.</p></section> : <>

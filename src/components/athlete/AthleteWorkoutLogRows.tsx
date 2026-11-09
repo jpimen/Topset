@@ -148,7 +148,7 @@ export function AthleteWorkoutLogRows({ athleteId, assignmentId, day, unit, onEd
 
   return <>
     {(loadError || historyError) && <tr><td colSpan={10}><div className="athlete-checkin-error" role="alert"><p>{loadError || historyError}</p><button className="button button-secondary" type="button" onClick={() => { setLocalVersion((value) => value + 1); refresh(); }}>Try again</button></div></td></tr>}
-    {loading && <tr><td colSpan={10}><p role="status">Loading workout entries...</p></td></tr>}
+    {loading && sessions === null && <tr><td colSpan={10}><p role="status">Loading workout entries...</p></td></tr>}
     {day.exercises.map((exercise) => {
       const exerciseName = athleteExerciseName(exercise);
       if (!exerciseName) return null;

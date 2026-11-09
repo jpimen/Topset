@@ -388,6 +388,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .athlete-page-heading h1 { margin: 7px 0 10px; color: var(--text); font: 700 clamp(30px, 4vw, 42px)/1.08 var(--display); letter-spacing: -1.5px; }
 .athlete-page-heading p:not(.eyebrow) { max-width: 640px; margin: 0; color: var(--secondary); font-size: 13px; line-height: 1.6; }
 .athlete-page-heading > a { flex: none; }
+.athlete-program-refresh-status { min-height: 16px; margin: 0; color: var(--muted); font-size: 10px; line-height: 16px; }
 .workout-sync { min-height: 34px; padding: 0 11px; display: inline-flex; align-items: center; gap: 8px; flex: none; border: 1px solid var(--border); border-radius: 999px; color: var(--secondary); background: var(--surface-sync); font-size: 10px; }
 .workout-sync > span { width: 7px; height: 7px; border-radius: 50%; background: var(--success); }
 .workout-sync.sync-pending > span, .workout-sync.sync-saving > span { background: var(--gold-light); }
@@ -465,8 +466,10 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .athlete-program-log-loading { height: 58px; }
 .athlete-program-log-save-row td { padding: 10px 12px; border-top: 1px solid var(--border); }
 .athlete-program-log-save-controls { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+.athlete-program-log-save-controls > div:first-child { min-width: 0; flex: 1; }
 .athlete-program-log-save-controls .checkin-status { display: block; }
 .athlete-program-log-actions { display: flex; align-items: center; gap: 8px; flex: none; }
+.athlete-program-log-actions .button-primary { min-width: 112px; }
 .athlete-program-log-error { margin: 4px 0 0; color: var(--error); font-size: 10px; line-height: 1.5; }
 .athlete-post-video-card { max-width: 760px; padding: 22px; }
 .athlete-post-video-form { display: grid; gap: 14px; }
@@ -579,7 +582,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .coach-profile-form-footer > span { margin: 0; }
 .coach-profile-form-footer > div { display: flex; align-items: center; gap: 10px; }
 .coach-profile-form-footer .button { min-width: 118px; }
-.athlete-global-sync { margin: 18px clamp(15px, 4vw, 48px) 0; }
+.athlete-global-sync { position: fixed; z-index: 45; right: clamp(15px, 4vw, 48px); bottom: 16px; width: min(560px, calc(100vw - 30px)); margin: 0; box-shadow: 0 14px 38px var(--shadow-card-soft); }
 @media (max-width: 700px) {
   .theme-toggle-settings .appearance-setting-row { align-items: flex-start; flex-direction: column; }
   .workspace-athlete .workspace-body { display: block; min-height: calc(100vh - 62px); }
@@ -1009,6 +1012,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .workspace-coach .workspace-nav-link { min-height: 44px; padding: 0 11px; white-space: nowrap; }
   .workspace-athlete .workspace-body { display: block; min-height: calc(100vh - 62px); }
   .workspace-athlete .workspace-content { padding-bottom: calc(82px + env(safe-area-inset-bottom)); }
+  .athlete-global-sync { right: 12px; bottom: calc(82px + env(safe-area-inset-bottom)); width: calc(100vw - 24px); }
   .workspace-athlete .workspace-sidebar { height: auto; padding: 7px 8px max(7px, env(safe-area-inset-bottom)); }
   .workspace-athlete .workspace-nav-link { min-height: 44px; }
   .rulebook-page { padding: 25px 15px 42px; }
