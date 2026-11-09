@@ -426,15 +426,15 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .athlete-program-table thead th:nth-child(4), .athlete-program-table thead th:nth-child(5) { width: 5%; }
 .athlete-program-table thead th:nth-child(6) { width: 10%; }
 .athlete-program-table thead th:nth-child(7) { width: 12%; }
-.athlete-program-table thead th:nth-child(8) { width: 17%; }
-.athlete-program-table thead th:nth-child(9) { width: 10%; }
-.athlete-program-table thead th:nth-child(10) { width: 18%; }
+.athlete-program-table thead th:nth-child(8) { width: 45%; }
 .athlete-program-exercise { color: var(--text) !important; font-weight: 700; }
 .athlete-program-set-number { color: var(--muted) !important; font: 10px var(--mono) !important; white-space: nowrap; }
-.athlete-program-set-entries { display: flex; flex-wrap: wrap; align-items: end; gap: 7px; min-width: 0; }
-.athlete-program-load-entry { display: inline-flex; align-items: end; gap: 7px; }
-.athlete-program-set-entry { min-width: 76px; max-width: 140px; display: grid; gap: 5px; }
-.athlete-program-set-plus { align-self: center; padding-top: 16px; color: var(--muted); font: 12px var(--mono); }
+.athlete-program-set-grid { min-width: 0; display: grid; gap: 6px 9px; }
+.athlete-program-set-grid-heading, .athlete-program-set-grid-row { display: grid; grid-template-columns: 58px minmax(90px, .75fr) minmax(90px, .75fr) minmax(140px, 1.5fr); align-items: center; gap: 9px; }
+.athlete-program-set-grid-heading { color: var(--muted); font: 400 9px var(--mono); letter-spacing: .04em; text-transform: uppercase; }
+.athlete-program-set-grid-row { grid-column: 1 / -1; }
+.athlete-program-set-grid-row > .athlete-program-set-number { text-align: right; }
+.athlete-program-set-grid-row .athlete-program-log-input { min-height: 38px; }
 .athlete-program-unprescribed { color: var(--muted); font-size: 11px; }
 .athlete-program-set-type { display: inline-block; color: var(--secondary); text-transform: uppercase; }
 .athlete-program-set-type.set-type-top { color: var(--text-set-top); }

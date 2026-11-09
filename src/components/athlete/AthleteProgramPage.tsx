@@ -61,7 +61,7 @@ export function AthleteProgramPage() {
                 <p className="athlete-program-scroll-hint">Enter each set’s load, RPE, and notes in the exercise row.</p>
                 <table className="athlete-program-table">
                   <caption className="visually-hidden">{week.name}, {day.name} exercise prescriptions and athlete workout log</caption>
-                  <thead><tr><th scope="col">Exercise</th><th scope="col">Set type</th><th scope="col">Sets</th><th scope="col">Reps</th><th scope="col">RPE</th><th scope="col">Load</th><th scope="col">Coach notes</th><th scope="col">Loads lifted ({result.program.program.unit})</th><th scope="col">RPE by set</th><th scope="col">Athlete notes by set</th></tr></thead>
+                  <thead><tr><th scope="col">Exercise</th><th scope="col">Set type</th><th scope="col">Sets</th><th scope="col">Reps</th><th scope="col">RPE</th><th scope="col">Load</th><th scope="col">Coach notes</th><th scope="col" colSpan={3}>Workout log · {result.program.program.unit}</th></tr></thead>
                   <tbody>{profile?.id ? <AthleteWorkoutLogRows athleteId={profile.id} assignmentId={result.assignment.id} day={day} unit={result.program.program.unit} onEditStateChange={onEditStateChange} /> : day.exercises.map((row) => <tr key={row.id}>
                     <th scope="row" className="athlete-program-exercise">{row.exercise.name}</th>
                     <td><span className={`athlete-program-set-type${row.set_type ? ` set-type-${row.set_type.toLowerCase().replace(/[^a-z0-9_-]/g, '-')}` : ''}`}>{row.set_type ?? '—'}</span></td>

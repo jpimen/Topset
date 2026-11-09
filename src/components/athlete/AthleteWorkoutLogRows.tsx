@@ -135,18 +135,17 @@ export function AthleteWorkoutLogRows({ athleteId, assignmentId, day, unit, onEd
         <td>{exercise.rpe ?? '—'}</td>
         <td>{loadLabel(exercise, unit)}</td>
         <td className="athlete-program-coach-notes">{exercise.notes_coach || '—'}</td>
-        <td><div className="athlete-program-set-entries" aria-label={`${exercise.exercise.name} loads lifted`}>
-          {sets.length ? sets.map((set, index) => <span className="athlete-program-load-entry" key={set.set_number}>
-            <label className="athlete-program-set-entry"><span className="athlete-program-set-number">Set {set.set_number}</span><input className="athlete-program-log-input" aria-label={`${exercise.exercise.name}, set ${set.set_number}, load lifted`} type="number" min="0" max="10000" step="0.5" value={set.load_lifted ?? ''} placeholder="—" disabled={!editable || saving} onChange={(event) => updateSet(exercise.id, set.set_number, 'load_lifted', event.currentTarget.value === '' ? null : Number(event.currentTarget.value))} /></label>
-            {index < sets.length - 1 && <span className="athlete-program-set-plus" aria-hidden="true">+</span>}
-          </span>) : <span className="athlete-program-unprescribed">No sets prescribed</span>}
-        </div></td>
-        <td><div className="athlete-program-set-entries">
-          {sets.map((set) => <label className="athlete-program-set-entry" key={set.set_number}><span className="athlete-program-set-number">Set {set.set_number}</span><select className="athlete-program-log-input" aria-label={`${exercise.exercise.name}, set ${set.set_number}, RPE lifted`} value={set.rpe_lifted ?? ''} disabled={!editable || saving} onChange={(event) => updateSet(exercise.id, set.set_number, 'rpe_lifted', event.currentTarget.value ? Number(event.currentTarget.value) : null)}><option value="">—</option>{Array.from({ length: 19 }, (_, optionIndex) => (optionIndex + 2) / 2).map((value) => <option key={value} value={value}>{value.toFixed(1)}</option>)}</select></label>)}
-        </div></td>
-        <td><div className="athlete-program-set-entries">
-          {sets.map((set) => <label className="athlete-program-set-entry" key={set.set_number}><span className="athlete-program-set-number">Set {set.set_number}</span><input className="athlete-program-log-input athlete-program-log-note" aria-label={`${exercise.exercise.name}, set ${set.set_number}, athlete notes`} maxLength={2000} value={set.notes_athlete ?? ''} placeholder="Add note" disabled={!editable || saving} onChange={(event) => updateNotes(exercise.id, set.set_number, event.currentTarget.value)} /></label>)}
-        </div></td>
+        <td colSpan={3}>
+          {sets.length ? <div className="athlete-program-set-grid" aria-label={`${exercise.exercise.name} workout log`}>
+            <span className="athlete-program-set-grid-heading">Set</span><span className="athlete-program-set-grid-heading">Load lifted</span><span className="athlete-program-set-grid-heading">RPE lifted</span><span className="athlete-program-set-grid-heading">Athlete notes</span>
+            {sets.map((set) => <div className="athlete-program-set-grid-row" key={set.set_number}>
+              <span className="athlete-program-set-number">Set {set.set_number}</span>
+              <input className="athlete-program-log-input" aria-label={`${exercise.exercise.name}, set ${set.set_number}, load lifted`} type="number" min="0" max="10000" step="0.5" value={set.load_lifted ?? ''} placeholder="—" disabled={!editable || saving} onChange={(event) => updateSet(exercise.id, set.set_number, 'load_lifted', event.currentTarget.value === '' ? null : Number(event.currentTarget.value))} />
+              <select className="athlete-program-log-input" aria-label={`${exercise.exercise.name}, set ${set.set_number}, RPE lifted`} value={set.rpe_lifted ?? ''} disabled={!editable || saving} onChange={(event) => updateSet(exercise.id, set.set_number, 'rpe_lifted', event.currentTarget.value ? Number(event.currentTarget.value) : null)}><option value="">—</option>{Array.from({ length: 19 }, (_, optionIndex) => (optionIndex + 2) / 2).map((value) => <option key={value} value={value}>{value.toFixed(1)}</option>)}</select>
+              <input className="athlete-program-log-input athlete-program-log-note" aria-label={`${exercise.exercise.name}, set ${set.set_number}, athlete notes`} maxLength={2000} value={set.notes_athlete ?? ''} placeholder="Add note" disabled={!editable || saving} onChange={(event) => updateNotes(exercise.id, set.set_number, event.currentTarget.value)} />
+            </div>)}
+          </div> : <span className="athlete-program-unprescribed">No sets prescribed</span>}
+        </td>
       </tr>;
     })}
     {draft && !loadError && <tr className="athlete-program-log-save-row"><td colSpan={10}><div className="athlete-program-log-save-controls">

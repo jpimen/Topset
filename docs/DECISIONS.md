@@ -238,3 +238,7 @@
 - Render one log row per prescribed exercise and group per-set load, RPE, and athlete-note controls inside that row. Load fields are separated with plus signs to make a sequence such as 80 + 80 + 80 read as three sets.
 - Build log entries only for the coach-prescribed set count. An unset count produces no athlete set inputs; each entered set remains stored as its own logged_sets record for coach review and analytics.
 - Keep the current desktop table and horizontal scroll behavior while reducing its minimum width after removing the standalone Set column.
+
+## 2026-11-09 - Athlete workout set alignment
+
+- Group each set's load, RPE, and athlete note controls on a single horizontal line inside the exercise row, so entries stay associated and aligned by set number.
