@@ -9,3 +9,4 @@ export * from './scores';
 export * from './volume';
 export * from './fatigue';
 export * from './taper';
+export * from './percentage';

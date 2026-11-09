@@ -1,5 +1,10 @@
 # Decisions
 
+## 2026-11-10 — Minus percentage calculator
+
+- Add a signed percentage calculator to the shared Calculators page. Treat the entered percentage as signed, calculate `base × (percentage ÷ 100)`, and add that amount to the base; allow negative and decimal values for both fields.
+- Keep the arithmetic in the pure calculation engine and display the signed amount alongside the adjusted result.
+
 ## 2026-11-09 — Coach-defined program set types
 
 - Start the Coach builder's set-type menu with Topset, Backoff, Working, Warmup, and AMRAP, and allow coaches to manage built-in and custom options in a popup. Save the full list per coach in browser storage, matching the current device-local preference model.

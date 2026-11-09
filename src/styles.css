@@ -147,6 +147,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .plate-loadout-empty { color: var(--secondary); font-size: 12px; }
 .plate-loadout-caption { margin: 8px 0 0; color: var(--secondary); text-align: center; font-size: 10px; }
 .warmup-inputs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.minus-percentage-inputs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .warmup-list { margin-top: 20px; }
 .warmup-table-wrap { width: 100%; overflow-x: auto; border: 1px solid var(--border); border-radius: 12px; background: var(--surface-control-raised); }
 .warmup-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; }
