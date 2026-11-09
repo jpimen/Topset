@@ -382,7 +382,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .workspace-athlete .workspace-body { grid-template-columns: 184px minmax(0, 1fr); }
 .workspace-athlete .workspace-sidebar { background: var(--surface-sidebar); }
 .workspace-athlete .workspace-nav-link { min-height: 48px; }
-.athlete-page { width: 100%; margin: 0; padding: 34px clamp(20px, 3vw, 52px) 60px; }
+.workspace-athlete .workspace-content { min-width: 0; overflow-x: clip; }
+.athlete-page { width: 100%; max-width: 100%; min-width: 0; margin: 0; padding: 34px clamp(20px, 3vw, 52px) 60px; }
 .athlete-page-heading { margin-bottom: 25px; display: flex; align-items: flex-start; justify-content: space-between; gap: 22px; }
 .athlete-page-heading h1 { margin: 7px 0 10px; color: var(--text); font: 700 clamp(30px, 4vw, 42px)/1.08 var(--display); letter-spacing: -1.5px; }
 .athlete-page-heading p:not(.eyebrow) { max-width: 640px; margin: 0; color: var(--secondary); font-size: 13px; line-height: 1.6; }
@@ -401,6 +402,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .athlete-week-tabs button { min-height: 42px; padding: 0 15px; flex: none; border: 1px solid var(--border); border-radius: 9px; color: var(--secondary); background: var(--card); font-size: 12px; font-weight: 700; }
 .athlete-week-tabs button.selected { color: var(--gold-text); border-color: var(--border-button-hover); background: var(--surface-gold-muted); }
 .athlete-day-checkin-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(285px, .55fr); align-items: start; gap: 14px; padding-bottom: 14px; }
+.athlete-day-checkin-layout > * { min-width: 0; }
 .athlete-program-days { min-width: 0; display: grid; gap: 12px; }
 .athlete-week-note { margin: 0 0 4px; padding: 12px 14px; color: var(--secondary); background: var(--overlay-note); border-radius: 9px; font-size: 12px; line-height: 1.55; white-space: pre-wrap; }
 .athlete-program-day { padding: 0 22px; overflow: hidden; }

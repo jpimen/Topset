@@ -262,3 +262,8 @@
 
 - Hide native up/down steppers on athlete workout log number inputs while keeping numeric input behavior and validation.
 - Scope the styling to the workout log input class so other number fields retain their current controls.
+
+## 2026-11-09 - Keep athlete workspace horizontally contained
+
+- Constrain athlete page and workspace grid items to their available width so focusing a check-in control cannot shift the full page sideways.
+- Keep horizontal scrolling inside the workout table viewport.
