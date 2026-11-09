@@ -414,24 +414,28 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .athlete-program-table-viewport { max-width: 100%; min-width: 0; margin: 0 0 12px; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-color: var(--scrollbar-thumb) var(--card); }
 .athlete-program-table-viewport:focus-visible { outline: 2px solid var(--gold-light); outline-offset: -2px; }
 .athlete-program-scroll-hint { display: none; }
-.athlete-program-table { width: 100%; min-width: 1440px; border-collapse: separate; border-spacing: 0; table-layout: fixed; }
+.athlete-program-table { width: 100%; min-width: 1240px; border-collapse: separate; border-spacing: 0; table-layout: fixed; }
 .athlete-program-table th, .athlete-program-table td { padding: 15px 16px; border-bottom: 1px solid var(--border-divider); text-align: left; vertical-align: top; }
 .athlete-program-table thead th { position: sticky; top: 0; color: var(--muted); background: var(--card); font: 400 10px var(--mono); letter-spacing: .06em; text-transform: uppercase; }
 .athlete-program-table tbody th, .athlete-program-table tbody td { color: var(--secondary); font-size: 12.5px; line-height: 1.55; }
 .athlete-program-table tbody tr:last-child th, .athlete-program-table tbody tr:last-child td { border-bottom: 0; }
 .athlete-program-table tbody tr:hover { background: var(--surface-hover-subtle); }
-.athlete-program-table thead th:nth-child(1) { width: 15%; }
-.athlete-program-table thead th:nth-child(2) { width: 8%; }
-.athlete-program-table thead th:nth-child(3) { width: 5%; }
-.athlete-program-table thead th:nth-child(4), .athlete-program-table thead th:nth-child(5) { width: 6%; }
-.athlete-program-table thead th:nth-child(6) { width: 13%; }
-.athlete-program-table thead th:nth-child(7) { width: 15%; }
-.athlete-program-table thead th:nth-child(8) { width: 5%; }
+.athlete-program-table thead th:nth-child(1) { width: 12%; }
+.athlete-program-table thead th:nth-child(2) { width: 7%; }
+.athlete-program-table thead th:nth-child(3) { width: 4%; }
+.athlete-program-table thead th:nth-child(4), .athlete-program-table thead th:nth-child(5) { width: 5%; }
+.athlete-program-table thead th:nth-child(6) { width: 10%; }
+.athlete-program-table thead th:nth-child(7) { width: 12%; }
+.athlete-program-table thead th:nth-child(8) { width: 17%; }
 .athlete-program-table thead th:nth-child(9) { width: 10%; }
-.athlete-program-table thead th:nth-child(10) { width: 9%; }
-.athlete-program-table thead th:nth-child(11) { width: 13%; }
+.athlete-program-table thead th:nth-child(10) { width: 18%; }
 .athlete-program-exercise { color: var(--text) !important; font-weight: 700; }
 .athlete-program-set-number { color: var(--muted) !important; font: 10px var(--mono) !important; white-space: nowrap; }
+.athlete-program-set-entries { display: flex; flex-wrap: wrap; align-items: end; gap: 7px; min-width: 0; }
+.athlete-program-load-entry { display: inline-flex; align-items: end; gap: 7px; }
+.athlete-program-set-entry { min-width: 76px; max-width: 140px; display: grid; gap: 5px; }
+.athlete-program-set-plus { align-self: center; padding-top: 16px; color: var(--muted); font: 12px var(--mono); }
+.athlete-program-unprescribed { color: var(--muted); font-size: 11px; }
 .athlete-program-set-type { display: inline-block; color: var(--secondary); text-transform: uppercase; }
 .athlete-program-set-type.set-type-top { color: var(--text-set-top); }
 .athlete-program-set-type.set-type-backoff { color: var(--text-set-backoff); }

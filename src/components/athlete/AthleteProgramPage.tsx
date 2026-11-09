@@ -58,10 +58,10 @@ export function AthleteProgramPage() {
               <summary><span><strong>{day.name}</strong><small>{day.exercises.length} {day.exercises.length === 1 ? 'exercise' : 'exercises'}</small></span><span aria-hidden="true">⌄</span></summary>
               {day.notes && <p className="athlete-coach-note"><strong>Coach note</strong>{day.notes}</p>}
               {day.exercises.length === 0 ? <p className="athlete-program-empty-day">No exercises in this day.</p> : <div className="athlete-program-table-viewport" role="region" aria-label={`${week.name} ${day.name} prescriptions`} tabIndex={0}>
-                <p className="athlete-program-scroll-hint">Swipe horizontally to view all columns. Log load and RPE separately for each set.</p>
+                <p className="athlete-program-scroll-hint">Enter each set’s load, RPE, and notes in the exercise row.</p>
                 <table className="athlete-program-table">
                   <caption className="visually-hidden">{week.name}, {day.name} exercise prescriptions and athlete workout log</caption>
-                  <thead><tr><th scope="col">Exercise</th><th scope="col">Set type</th><th scope="col">Sets</th><th scope="col">Reps</th><th scope="col">RPE</th><th scope="col">Load</th><th scope="col">Coach notes</th><th scope="col">Set</th><th scope="col">Load lifted ({result.program.program.unit})</th><th scope="col">RPE lifted</th><th scope="col">Athlete notes</th></tr></thead>
+                  <thead><tr><th scope="col">Exercise</th><th scope="col">Set type</th><th scope="col">Sets</th><th scope="col">Reps</th><th scope="col">RPE</th><th scope="col">Load</th><th scope="col">Coach notes</th><th scope="col">Loads lifted ({result.program.program.unit})</th><th scope="col">RPE by set</th><th scope="col">Athlete notes by set</th></tr></thead>
                   <tbody>{profile?.id ? <AthleteWorkoutLogRows athleteId={profile.id} assignmentId={result.assignment.id} day={day} unit={result.program.program.unit} onEditStateChange={onEditStateChange} /> : day.exercises.map((row) => <tr key={row.id}>
                     <th scope="row" className="athlete-program-exercise">{row.exercise.name}</th>
                     <td><span className={`athlete-program-set-type${row.set_type ? ` set-type-${row.set_type.toLowerCase().replace(/[^a-z0-9_-]/g, '-')}` : ''}`}>{row.set_type ?? '—'}</span></td>

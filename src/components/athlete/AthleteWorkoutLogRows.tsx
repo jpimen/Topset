@@ -26,7 +26,7 @@ function makeDraft(assignmentId: string, day: AthleteDay, session?: AthleteWorko
     day_id: day.id,
     session_date: session?.session_date ?? today(),
     completed: false,
-    sets: day.exercises.flatMap((exercise) => Array.from({ length: Math.min(100, Math.max(1, exercise.sets ?? 1)) }, (_, index) => {
+    sets: day.exercises.flatMap((exercise) => Array.from({ length: Math.min(100, Math.max(0, exercise.sets ?? 0)) }, (_, index) => {
       const previous = session?.logged_sets.find((item) => item.program_exercise_id === exercise.id && item.set_number === index + 1);
       return { program_exercise_id: exercise.id, set_number: index + 1, load_lifted: previous?.load_lifted ?? null, rpe_lifted: previous?.rpe_lifted ?? null, notes_athlete: previous?.notes_athlete ?? null };
     })),
@@ -123,27 +123,33 @@ export function AthleteWorkoutLogRows({ athleteId, assignmentId, day, unit, onEd
   };
 
   return <>
-    {(loadError || historyError) && <tr><td colSpan={11}><div className="athlete-checkin-error" role="alert"><p>{loadError || historyError}</p><button className="button button-secondary" type="button" onClick={() => { setLocalVersion((value) => value + 1); refresh(); }}>Try again</button></div></td></tr>}
-    {loading && <tr><td colSpan={11}><p role="status">Loading workout entries...</p></td></tr>}
+    {(loadError || historyError) && <tr><td colSpan={10}><div className="athlete-checkin-error" role="alert"><p>{loadError || historyError}</p><button className="button button-secondary" type="button" onClick={() => { setLocalVersion((value) => value + 1); refresh(); }}>Try again</button></div></td></tr>}
+    {loading && <tr><td colSpan={10}><p role="status">Loading workout entries...</p></td></tr>}
     {day.exercises.map((exercise) => {
       const sets = draft?.sets.filter((item) => item.program_exercise_id === exercise.id).sort((a, b) => a.set_number - b.set_number) ?? [];
-      return sets.map((set, index) => <tr key={`${exercise.id}-${set.set_number}`}>
-        {index === 0 && <>
-          <th scope="rowgroup" rowSpan={sets.length} className="athlete-program-exercise">{exercise.exercise.name}</th>
-          <td rowSpan={sets.length}><span className={`athlete-program-set-type${exercise.set_type ? ` set-type-${exercise.set_type.toLowerCase().replace(/[^a-z0-9_-]/g, '-')}` : ''}`}>{exercise.set_type ?? '—'}</span></td>
-          <td rowSpan={sets.length}>{exercise.sets ?? '—'}</td>
-          <td rowSpan={sets.length}>{exercise.reps || '—'}</td>
-          <td rowSpan={sets.length}>{exercise.rpe ?? '—'}</td>
-          <td rowSpan={sets.length}>{loadLabel(exercise, unit)}</td>
-          <td rowSpan={sets.length} className="athlete-program-coach-notes">{exercise.notes_coach || '—'}</td>
-        </>}
-        <th scope="row" className="athlete-program-set-number">Set {set.set_number}</th>
-        <td><input className="athlete-program-log-input" aria-label={`${exercise.exercise.name}, set ${set.set_number}, load lifted`} type="number" min="0" max="10000" step="0.5" value={set.load_lifted ?? ''} placeholder="—" disabled={!editable || saving} onChange={(event) => updateSet(exercise.id, set.set_number, 'load_lifted', event.currentTarget.value === '' ? null : Number(event.currentTarget.value))} /></td>
-        <td><select className="athlete-program-log-input" aria-label={`${exercise.exercise.name}, set ${set.set_number}, RPE lifted`} value={set.rpe_lifted ?? ''} disabled={!editable || saving} onChange={(event) => updateSet(exercise.id, set.set_number, 'rpe_lifted', event.currentTarget.value ? Number(event.currentTarget.value) : null)}><option value="">—</option>{Array.from({ length: 19 }, (_, optionIndex) => (optionIndex + 2) / 2).map((value) => <option key={value} value={value}>{value.toFixed(1)}</option>)}</select></td>
-        <td><input className="athlete-program-log-input athlete-program-log-note" aria-label={`${exercise.exercise.name}, set ${set.set_number}, athlete notes`} maxLength={2000} value={set.notes_athlete ?? ''} placeholder="Add note" disabled={!editable || saving} onChange={(event) => updateNotes(exercise.id, set.set_number, event.currentTarget.value)} /></td>
-      </tr>);
+      return <tr key={exercise.id}>
+        <th scope="row" className="athlete-program-exercise">{exercise.exercise.name}</th>
+        <td><span className={`athlete-program-set-type${exercise.set_type ? ` set-type-${exercise.set_type.toLowerCase().replace(/[^a-z0-9_-]/g, '-')}` : ''}`}>{exercise.set_type ?? '—'}</span></td>
+        <td>{exercise.sets ?? '—'}</td>
+        <td>{exercise.reps || '—'}</td>
+        <td>{exercise.rpe ?? '—'}</td>
+        <td>{loadLabel(exercise, unit)}</td>
+        <td className="athlete-program-coach-notes">{exercise.notes_coach || '—'}</td>
+        <td><div className="athlete-program-set-entries" aria-label={`${exercise.exercise.name} loads lifted`}>
+          {sets.length ? sets.map((set, index) => <span className="athlete-program-load-entry" key={set.set_number}>
+            <label className="athlete-program-set-entry"><span className="athlete-program-set-number">Set {set.set_number}</span><input className="athlete-program-log-input" aria-label={`${exercise.exercise.name}, set ${set.set_number}, load lifted`} type="number" min="0" max="10000" step="0.5" value={set.load_lifted ?? ''} placeholder="—" disabled={!editable || saving} onChange={(event) => updateSet(exercise.id, set.set_number, 'load_lifted', event.currentTarget.value === '' ? null : Number(event.currentTarget.value))} /></label>
+            {index < sets.length - 1 && <span className="athlete-program-set-plus" aria-hidden="true">+</span>}
+          </span>) : <span className="athlete-program-unprescribed">No sets prescribed</span>}
+        </div></td>
+        <td><div className="athlete-program-set-entries">
+          {sets.map((set) => <label className="athlete-program-set-entry" key={set.set_number}><span className="athlete-program-set-number">Set {set.set_number}</span><select className="athlete-program-log-input" aria-label={`${exercise.exercise.name}, set ${set.set_number}, RPE lifted`} value={set.rpe_lifted ?? ''} disabled={!editable || saving} onChange={(event) => updateSet(exercise.id, set.set_number, 'rpe_lifted', event.currentTarget.value ? Number(event.currentTarget.value) : null)}><option value="">—</option>{Array.from({ length: 19 }, (_, optionIndex) => (optionIndex + 2) / 2).map((value) => <option key={value} value={value}>{value.toFixed(1)}</option>)}</select></label>)}
+        </div></td>
+        <td><div className="athlete-program-set-entries">
+          {sets.map((set) => <label className="athlete-program-set-entry" key={set.set_number}><span className="athlete-program-set-number">Set {set.set_number}</span><input className="athlete-program-log-input athlete-program-log-note" aria-label={`${exercise.exercise.name}, set ${set.set_number}, athlete notes`} maxLength={2000} value={set.notes_athlete ?? ''} placeholder="Add note" disabled={!editable || saving} onChange={(event) => updateNotes(exercise.id, set.set_number, event.currentTarget.value)} /></label>)}
+        </div></td>
+      </tr>;
     })}
-    {draft && !loadError && <tr className="athlete-program-log-save-row"><td colSpan={11}><div className="athlete-program-log-save-controls">
+    {draft && !loadError && <tr className="athlete-program-log-save-row"><td colSpan={10}><div className="athlete-program-log-save-controls">
       <div><span className="checkin-status" role="status">{saving ? 'Saving changes…' : saveStatus || (pendingSync ? 'Waiting to sync' : 'Changes save to your coach when you press Save changes.')}</span>{saveError && <p className="athlete-program-log-error" role="alert">{saveError}</p>}</div>
       <div className="athlete-program-log-actions"><Link className="button button-secondary" to={`/athlete/post-video?${new URLSearchParams({ assignmentId, dayId: day.id, dayName: day.name })}`}>Post Video</Link><button className="button button-primary" type="button" onClick={() => void saveChanges()} disabled={!editable || !hasChanges || saving}>{saving ? 'Saving…' : 'Save changes'}</button></div>
     </div></td></tr>}

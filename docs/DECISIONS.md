@@ -232,3 +232,9 @@
 
 - Save program edits automatically after a short idle period, then flush the latest draft before internal navigation. Attempt a final save when the page becomes hidden or starts unloading, and remove browser confirmation prompts.
 - Remove the manual Save changes button; keep save status, conflict recovery, and automatic retries after a new edit or reconnection.
+
+## 2026-11-09 - Athlete workout set logging layout
+
+- Render one log row per prescribed exercise and group per-set load, RPE, and athlete-note controls inside that row. Load fields are separated with plus signs to make a sequence such as 80 + 80 + 80 read as three sets.
+- Build log entries only for the coach-prescribed set count. An unset count produces no athlete set inputs; each entered set remains stored as its own logged_sets record for coach review and analytics.
+- Keep the current desktop table and horizontal scroll behavior while reducing its minimum width after removing the standalone Set column.
