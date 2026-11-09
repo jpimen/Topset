@@ -257,3 +257,8 @@
 
 - Let athletes add or remove per-set log entries without changing the coach's set prescription. Renumber remaining entries after deletion; the workout session RPC replaces the session's log rows, so removed entries stay deleted after sync.
 - Start a new workout with the prescribed number of sets. For an existing saved workout, restore its saved set count so athlete additions and deletions persist when the workout reloads.
+
+## 2026-11-09 - Athlete log number field controls
+
+- Hide native up/down steppers on athlete workout log number inputs while keeping numeric input behavior and validation.
+- Scope the styling to the workout log input class so other number fields retain their current controls.

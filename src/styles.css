@@ -455,6 +455,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .athlete-program-set-type.set-type-backoff { color: var(--text-set-backoff); }
 .athlete-program-coach-notes { white-space: pre-wrap; overflow-wrap: anywhere; }
 .athlete-program-log-input { width: 100%; min-width: 0; min-height: 40px; padding: 0 9px; border: 1px solid var(--border-control); border-radius: 8px; color: var(--text); background: var(--surface-field); font: 500 11px 'Plus Jakarta Sans', sans-serif; }
+.athlete-program-log-input[type='number'] { appearance: textfield; -moz-appearance: textfield; }
+.athlete-program-log-input[type='number']::-webkit-inner-spin-button, .athlete-program-log-input[type='number']::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
 .athlete-program-log-input:focus-visible { outline: 2px solid var(--gold-light); outline-offset: 1px; }
 .athlete-program-log-note { min-width: 130px; }
 .athlete-program-log-input:disabled { opacity: .55; }
