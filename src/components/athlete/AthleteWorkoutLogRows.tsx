@@ -18,11 +18,18 @@ function makeDraft(assignmentId: string, day: AthleteDay, session?: AthleteWorko
     day_id: day.id,
     session_date: session?.session_date ?? previousDraft?.session_date ?? today(),
     completed: previousDraft?.completed ?? false,
-    sets: day.exercises.filter((exercise) => hasUsableExerciseName(exercise) && isLoggablePrescription(exercise)).flatMap((exercise) => Array.from({ length: Math.min(100, exercise.sets ?? 0) }, (_, index) => {
-      const previous = session?.logged_sets.find((item) => item.program_exercise_id === exercise.id && item.set_number === index + 1)
-        ?? previousDraft?.sets.find((item) => item.program_exercise_id === exercise.id && item.set_number === index + 1);
-      return { program_exercise_id: exercise.id, set_number: index + 1, load_lifted: previous?.load_lifted ?? null, rpe_lifted: previous?.rpe_lifted ?? null, notes_athlete: previous?.notes_athlete ?? null };
-    })),
+    sets: day.exercises.filter((exercise) => hasUsableExerciseName(exercise) && isLoggablePrescription(exercise)).flatMap((exercise) => {
+      const previousSets = session?.logged_sets.filter((item) => item.program_exercise_id === exercise.id)
+        ?? previousDraft?.sets.filter((item) => item.program_exercise_id === exercise.id)
+        ?? [];
+      const previousCount = previousSets.reduce((maximum, item) => Math.max(maximum, item.set_number), 0);
+      const prescribedCount = session || previousDraft ? previousCount : exercise.sets ?? 0;
+      const count = Math.min(100, prescribedCount);
+      return Array.from({ length: count }, (_, index) => {
+        const previous = previousSets.find((item) => item.set_number === index + 1);
+        return { program_exercise_id: exercise.id, set_number: index + 1, load_lifted: previous?.load_lifted ?? null, rpe_lifted: previous?.rpe_lifted ?? null, notes_athlete: previous?.notes_athlete ?? null };
+      });
+    }),
   };
 }
 
@@ -95,6 +102,24 @@ export function AthleteWorkoutLogRows({ athleteId, assignmentId, day, unit, onEd
     setSaveError('');
     setSaveStatus('Unsaved changes');
   };
+  const addSet = (exerciseId: string) => {
+    if (!draft || !editable || saving) return;
+    const exerciseSets = draft.sets.filter((item) => item.program_exercise_id === exerciseId);
+    const nextSetNumber = exerciseSets.reduce((maximum, item) => Math.max(maximum, item.set_number), 0) + 1;
+    if (nextSetNumber > 100) return;
+    setDraft({ ...draft, sets: [...draft.sets, { program_exercise_id: exerciseId, set_number: nextSetNumber, load_lifted: null, rpe_lifted: null, notes_athlete: null }] });
+    setSaveError('');
+    setSaveStatus('Unsaved changes');
+  };
+  const removeSet = (exerciseId: string, setNumber: number) => {
+    if (!draft || !editable || saving) return;
+    const exerciseSets = draft.sets.filter((item) => item.program_exercise_id === exerciseId).sort((a, b) => a.set_number - b.set_number);
+    const remaining = exerciseSets.filter((item) => item.set_number !== setNumber);
+    const renumbered = remaining.map((item, index) => ({ ...item, set_number: index + 1 }));
+    setDraft({ ...draft, sets: [...draft.sets.filter((item) => item.program_exercise_id !== exerciseId), ...renumbered] });
+    setSaveError('');
+    setSaveStatus('Unsaved changes');
+  };
   const hasChanges = dirty || pendingSync;
   const saveChanges = () => {
     if (!draft || !editable || saving || !hasChanges) return;
@@ -143,8 +168,12 @@ export function AthleteWorkoutLogRows({ athleteId, assignmentId, day, unit, onEd
                 <span className="athlete-program-set-number">Set {set.set_number}</span>
                 <input className="athlete-program-log-input" aria-label={`${exerciseName}, set ${set.set_number}, load lifted`} type="number" inputMode="decimal" min="0" max="10000" step="0.5" value={set.load_lifted ?? ''} placeholder={unit} disabled={!editable || saving} onChange={(event) => updateSet(exercise.id, set.set_number, 'load_lifted', event.currentTarget.value === '' ? null : Number(event.currentTarget.value))} />
                 <select className="athlete-program-log-input" aria-label={`${exerciseName}, set ${set.set_number}, RPE lifted`} value={set.rpe_lifted ?? ''} disabled={!editable || saving} onChange={(event) => updateSet(exercise.id, set.set_number, 'rpe_lifted', event.currentTarget.value ? Number(event.currentTarget.value) : null)}><option value="">Select RPE</option>{Array.from({ length: 9 }, (_, optionIndex) => 6 + optionIndex * 0.5).map((value) => <option key={value} value={value}>{value.toFixed(1)}</option>)}</select>
-                <input className="athlete-program-log-input athlete-program-log-note" aria-label={`${exerciseName}, set ${set.set_number}, athlete notes`} maxLength={2000} value={set.notes_athlete ?? ''} placeholder="Add note" disabled={!editable || saving} onChange={(event) => updateNotes(exercise.id, set.set_number, event.currentTarget.value)} />
+                <div className="athlete-program-set-note-controls">
+                  <input className="athlete-program-log-input athlete-program-log-note" aria-label={`${exerciseName}, set ${set.set_number}, athlete notes`} maxLength={2000} value={set.notes_athlete ?? ''} placeholder="Add note" disabled={!editable || saving} onChange={(event) => updateNotes(exercise.id, set.set_number, event.currentTarget.value)} />
+                  <button className="athlete-program-set-remove" type="button" aria-label={`Remove set ${set.set_number} from ${exerciseName}`} title="Remove set" disabled={!editable || saving} onClick={() => removeSet(exercise.id, set.set_number)}>×</button>
+                </div>
               </div>)}
+              <button className="athlete-program-add-set" type="button" disabled={!editable || saving || sets.length >= 100} onClick={() => addSet(exercise.id)}>+ Add set</button>
             </div>
           </details>
         </td>

@@ -252,3 +252,8 @@
 ## 2026-11-09 - Compact athlete set log disclosure
 
 - Keep the workout log column and set field grid in place, but collapse each Log sets section by default. The closed disclosure shows only its label and prescribed set count to keep exercise rows compact.
+
+## 2026-11-09 - Athlete add and remove set logs
+
+- Let athletes add or remove per-set log entries without changing the coach's set prescription. Renumber remaining entries after deletion; the workout session RPC replaces the session's log rows, so removed entries stay deleted after sync.
+- Start a new workout with the prescribed number of sets. For an existing saved workout, restore its saved set count so athlete additions and deletions persist when the workout reloads.

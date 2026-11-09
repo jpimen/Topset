@@ -440,6 +440,12 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .athlete-program-set-grid-header { color: var(--muted); font: 400 9px var(--mono); letter-spacing: .04em; text-transform: uppercase; }
 .athlete-program-set-grid-row > .athlete-program-set-number { text-align: right; }
 .athlete-program-set-grid-row .athlete-program-log-input { min-height: 40px; }
+.athlete-program-set-note-controls { min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr) 26px; align-items: center; gap: 6px; }
+.athlete-program-set-remove { width: 26px; height: 28px; padding: 0; border: 1px solid var(--border-control); border-radius: 6px; color: var(--muted); background: transparent; font-size: 17px; line-height: 1; }
+.athlete-program-set-remove:hover:not(:disabled) { color: var(--error); border-color: var(--error); }
+.athlete-program-add-set { min-height: 30px; justify-self: start; padding: 0 8px; border: 1px dashed var(--border-control); border-radius: 6px; color: var(--gold-text); background: transparent; font-size: 10px; }
+.athlete-program-add-set:hover:not(:disabled) { border-color: var(--gold-light); background: var(--surface-gold-muted); }
+.athlete-program-add-set:disabled, .athlete-program-set-remove:disabled { opacity: .45; cursor: not-allowed; }
 .athlete-program-prescribed-load { white-space: nowrap; }
 .athlete-program-unprescribed-row th, .athlete-program-unprescribed-row td { color: var(--muted) !important; }
 .athlete-program-unprescribed-row td span { margin-left: 4px; }
