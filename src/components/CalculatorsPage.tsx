@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { DEFAULT_COLLAR_KG_PER_SIDE, LB_PER_KG, calculatePlates, calculateScores, estimateE1rm, generateWarmupPlan, loadFromE1rm, type E1rmFormula, type Sex, type Unit, type WarmupMethod } from '../lib/engine';
+import { DEFAULT_COLLAR_KG_PER_SIDE, LB_PER_KG, calculateMinusPercentage, calculatePlates, calculateScores, estimateE1rm, generateWarmupPlan, loadFromE1rm, type E1rmFormula, type Sex, type Unit, type WarmupMethod } from '../lib/engine';
 
-function NumberField({ label, value, onChange, min = 0, step = 'any' }: { label: string; value: string; onChange: (value: string) => void; min?: number; step?: string }) {
-  return <label className="calc-field"><span>{label}</span><input aria-label={label} type="number" min={min} step={step} value={value} onChange={(event) => onChange(event.target.value)} /></label>;
+function NumberField({ label, value, onChange, min = 0, step = 'any', allowNegative = false }: { label: string; value: string; onChange: (value: string) => void; min?: number; step?: string; allowNegative?: boolean }) {
+  return <label className="calc-field"><span>{label}</span><input aria-label={label} type="number" {...(!allowNegative ? { min } : {})} step={step} value={value} onChange={(event) => onChange(event.target.value)} /></label>;
 }
 function Card({ title, children }: { title: string; children: React.ReactNode }) { return <section className="calc-card"><h2>{title}</h2>{children}</section>; }
 function useCalculation<T>(calculate: () => T): { value?: T; error?: string } {
@@ -11,6 +11,7 @@ function useCalculation<T>(calculate: () => T): { value?: T; error?: string } {
 function toKg(value: number, unit: Unit): number { return unit === 'kg' ? value : value / LB_PER_KG; }
 function fromKg(value: number, unit: Unit): number { return unit === 'kg' ? value : value * LB_PER_KG; }
 function formatLoad(value: number): string { return value.toLocaleString('en-US', { maximumFractionDigits: 3 }); }
+function formatCalculatorValue(value: number): string { return value.toLocaleString('en-US', { maximumFractionDigits: 6 }); }
 function ResultLine({ children }: { children: React.ReactNode }) { return <p className="calc-result">{children}</p>; }
 function ErrorLine({ error }: { error?: string }) { return error ? <p className="calc-error" role="status">{error}</p> : null; }
 
@@ -79,6 +80,7 @@ export function CalculatorsPage() {
   const [topSet, setTopSet] = useState('140');
   const [warmupBar, setWarmupBar] = useState('20'); const [smallestChange, setSmallestChange] = useState('1.25'); const [warmupMethod, setWarmupMethod] = useState<WarmupMethod>('standard');
   const [total, setTotal] = useState('600'); const [bodyweight, setBodyweight] = useState('83'); const [sex, setSex] = useState<Sex>('male');
+  const [percentage, setPercentage] = useState('-12'); const [baseNumber, setBaseNumber] = useState('160');
   function changeUnit(next: Unit) {
     if (next === unit) return;
     const convert = (value: string) => value.trim() ? String(Number((next === 'lb' ? Number(value) * LB_PER_KG : Number(value) / LB_PER_KG).toFixed(1))) : value;
@@ -94,6 +96,10 @@ export function CalculatorsPage() {
   const plateResult = useCalculation(() => calculatePlates({ target: Number(target), bar: Number(bar), unit, collarPerSide: withCollar ? fromKg(DEFAULT_COLLAR_KG_PER_SIDE, unit) : 0 }));
   const warmups = useCalculation(() => generateWarmupPlan(Number(topSet), unit, { method: warmupMethod, barWeight: Number(warmupBar), increment: Number(smallestChange) }));
   const scores = useCalculation(() => calculateScores(toKg(Number(total), unit), toKg(Number(bodyweight), unit), sex));
+  const minusPercentage = useCalculation(() => {
+    if (!percentage.trim() || !baseNumber.trim()) throw new RangeError('Enter a percentage and base number.');
+    return calculateMinusPercentage(Number(baseNumber), Number(percentage));
+  });
   return <main className="calculators-page">
     <header className="calc-header"><a href={`/${location.pathname.split('/')[1]}`} className="calc-brand" aria-label="Topset home"><span className="calc-brand-mark" aria-hidden="true">T</span><span className="calc-brand-word">TOPSET<span>.</span></span></a><div><p className="eyebrow">TRAINING TOOLS</p><h1>Calculators</h1><p>Quick estimates for the platform and the weight room.</p></div><label className="calc-field unit-toggle"><span>Display unit</span><select value={unit} onChange={(event) => changeUnit(event.target.value as Unit)}><option value="kg">Kilograms (kg)</option><option value="lb">Pounds (lb)</option></select></label></header>
     <div className="calc-grid">
@@ -117,6 +123,7 @@ export function CalculatorsPage() {
         </div>}
       </Card>
       <Card title="Strength scores"><div className="calc-inputs"><NumberField label={`Total (${unit})`} value={total} onChange={setTotal} min={0.01}/><NumberField label={`Bodyweight (${unit})`} value={bodyweight} onChange={setBodyweight} min={0.01}/><label className="calc-field"><span>Coefficient set</span><select value={sex} onChange={(event) => setSex(event.target.value as Sex)}><option value="male">Men</option><option value="female">Women</option></select></label></div><ErrorLine error={scores.error}/>{scores.value && <div className="score-results"><ResultLine>DOTS <strong>{scores.value.dots.toFixed(2)}</strong></ResultLine><ResultLine>Wilks <strong>{scores.value.wilks.toFixed(2)}</strong></ResultLine><ResultLine>IPF GL <strong>{scores.value.ipfGl.toFixed(2)}</strong></ResultLine></div>}</Card>
+      <Card title="Minus percentage"><div className="calc-inputs minus-percentage-inputs"><NumberField label="Percentage (%)" value={percentage} onChange={setPercentage} allowNegative/><NumberField label="Base number" value={baseNumber} onChange={setBaseNumber} allowNegative/></div><ErrorLine error={minusPercentage.error}/>{minusPercentage.value && <div className="score-results"><ResultLine>Percentage amount <strong>{formatCalculatorValue(minusPercentage.value.percentageAmount)}</strong></ResultLine><ResultLine>Adjusted result <strong>{formatCalculatorValue(minusPercentage.value.adjustedResult)}</strong></ResultLine></div>}</Card>
     </div><p className="calc-disclaimer">Estimates only. Calculators are guidance, not guarantees.</p>
   </main>;
 }
