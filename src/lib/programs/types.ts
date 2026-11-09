@@ -19,6 +19,7 @@ export interface ProgramExercise {
   id: string;
   day_id: string;
   exercise_id: string | null;
+  exercise_name?: string | null;
   position: number;
   set_type: SetType | null;
   sets: number | null;

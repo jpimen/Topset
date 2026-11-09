@@ -13,7 +13,8 @@ const exerciseSchema = z.object({
 const prescriptionRowSchema = z.object({
   id: z.string().uuid(),
   day_id: z.string().uuid(),
-  exercise_id: z.string().uuid(),
+  exercise_id: z.string().uuid().nullable(),
+  exercise_name: z.string().nullable().optional(),
   position: z.number().int(),
   set_type: z.string().nullable(),
   sets: z.number().int().nullable(),

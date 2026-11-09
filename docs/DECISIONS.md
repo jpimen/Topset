@@ -222,3 +222,13 @@
 - Give athletes one load, RPE, and notes input for each prescribed set so three prescribed sets produce three independently editable workout logs.
 - Calculate coach-facing lifted totals as logged load multiplied by prescribed reps, and summarize squat, bench, and deadlift volume for the selected athlete across the visible week.
 - Label totals as load times prescribed reps because performed rep counts are not currently stored per logged set.
+
+## 2026-11-09 - Program-only custom exercises
+
+- Typing a new exercise in the Coach program builder adds it to that program draft without a browser confirmation or inserting it into the shared Exercises library.
+- Persist program-only exercise names on prescription rows with a nullable exercise reference, and carry them through live and snapshot athlete programs. Existing shared exercises continue to use the Exercises library.
+
+## 2026-11-09 - Automatic Coach program saves
+
+- Save program edits automatically after a short idle period, then flush the latest draft before internal navigation. Attempt a final save when the page becomes hidden or starts unloading, and remove browser confirmation prompts.
+- Remove the manual Save changes button; keep save status, conflict recovery, and automatic retries after a new edit or reconnection.

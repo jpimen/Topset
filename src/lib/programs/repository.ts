@@ -32,7 +32,10 @@ export async function loadProgram(programId: string): Promise<ProgramDocument> {
       ...day,
       exercises: ((day.program_exercises ?? []) as Array<Record<string, unknown>>).map((row) => ({
         ...row,
-        exercise: row.exercises,
+        exercise: row.exercises ?? (typeof row.exercise_name === 'string' && row.exercise_name.trim() ? {
+          id: row.id, owner_id: null, name: row.exercise_name, category: 'accessory', movement: 'other',
+          muscle_group: null, is_competition_lift: false,
+        } : null),
       })).sort((a, b) => Number((a as Record<string, unknown>).position) - Number((b as Record<string, unknown>).position)),
     })).sort((a, b) => Number((a as Record<string, unknown>).day_number) - Number((b as Record<string, unknown>).day_number)),
   })) as ProgramWeek[];
