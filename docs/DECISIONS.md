@@ -227,3 +227,7 @@
 
 - Typing a new exercise in the Coach program builder adds it to that program draft without a browser confirmation or inserting it into the shared Exercises library.
 - Persist program-only exercise names on prescription rows with a nullable exercise reference, and carry them through live and snapshot athlete programs. Existing shared exercises continue to use the Exercises library.
+
+## 2026-11-09 - Automatic Coach program saves
+
+- Save program edits automatically after a short idle period, then flush the latest draft before internal navigation. Attempt a final save when the page becomes hidden or starts unloading, and remove browser confirmation prompts.

@@ -244,12 +244,18 @@ export function ProgramBuilderPage() {
   const [saveError, setSaveError] = useState('');
   const [savedAt, setSavedAt] = useState('');
   const [savedDocument, setSavedDocument] = useState<ProgramDocument | null>(null);
+  const document = history.present;
+  const documentRef = useRef(document);
+  const savedDocumentRef = useRef(savedDocument);
+  const saveInFlight = useRef<Promise<string> | null>(null);
+  const failedAutoSaveDocument = useRef<ProgramDocument | null>(null);
   const [selectedWeek, setSelectedWeek] = useState('');
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
   const pendingSelectLastWeek = useRef(false);
   const pendingSelectLastBlock = useRef(false);
   const expectedAt = useState({ current: '' })[0];
-  const document = history.present;
+  documentRef.current = document;
+  savedDocumentRef.current = savedDocument;
   const setTypeOptions = customSetTypes;
   useEffect(() => {
     try {
@@ -274,10 +280,24 @@ export function ProgramBuilderPage() {
     setSaveError('');
     setStatus('saving');
     try {
-      const timestamp = await saveProgram(document, expectedAt.current);
-      expectedAt.current = timestamp;
-      setSavedAt(timestamp);
-      setSavedDocument(document);
+      while (true) {
+        if (saveInFlight.current) await saveInFlight.current;
+        const snapshot = documentRef.current;
+        if (snapshot === savedDocumentRef.current) break;
+
+        const request = saveProgram(snapshot, expectedAt.current);
+        saveInFlight.current = request;
+        try {
+          const timestamp = await request;
+          expectedAt.current = timestamp;
+          savedDocumentRef.current = snapshot;
+          setSavedAt(timestamp);
+          setSavedDocument(snapshot);
+          failedAutoSaveDocument.current = null;
+        } finally {
+          if (saveInFlight.current === request) saveInFlight.current = null;
+        }
+      }
       setStatus('saved');
     } catch (error) {
       setStatus(error instanceof Error && error.message === 'PROGRAM_CONFLICT' ? 'conflict' : 'error');
@@ -285,10 +305,10 @@ export function ProgramBuilderPage() {
       console.error('Coach program could not be saved.', error);
       throw error;
     }
-  }, [document, expectedAt]);
+  }, [expectedAt]);
   const saveAndNavigate = useCallback(async (destination: string) => {
     try {
-      await saveCurrent();
+      if (documentRef.current !== savedDocumentRef.current) await saveCurrent();
       navigate(destination);
     } catch {
       // Keep the builder open; the status and retry action expose the failure.
@@ -302,6 +322,7 @@ export function ProgramBuilderPage() {
       dispatch({ type: 'replace', document: loaded });
       expectedAt.current = loaded.program.updated_at;
       setSavedAt(loaded.program.updated_at);
+      savedDocumentRef.current = loaded;
       setSavedDocument(loaded);
       setSelectedBlockId(loaded.blocks?.[0]?.id ?? null);
       setSelectedWeek(loaded.weeks.find((week) => week.block_id === (loaded.blocks?.[0]?.id ?? null))?.id ?? '');
@@ -311,30 +332,43 @@ export function ProgramBuilderPage() {
     return () => { active = false; };
   }, [programId, coachId]);
   useEffect(() => {
-    if (!hasUnsaved) return;
-    const warn = (event: BeforeUnloadEvent) => { event.preventDefault(); event.returnValue = ''; };
-    window.addEventListener('beforeunload', warn);
-    return () => window.removeEventListener('beforeunload', warn);
-  }, [hasUnsaved]);
+    if (!hasUnsaved || status === 'saving' || status === 'conflict' || failedAutoSaveDocument.current === document) return;
+    const timer = window.setTimeout(() => {
+      const snapshot = document;
+      void saveCurrent().catch(() => { failedAutoSaveDocument.current = snapshot; });
+    }, 500);
+    return () => window.clearTimeout(timer);
+  }, [document, hasUnsaved, saveCurrent, status]);
+  useEffect(() => {
+    const flushOnLeave = () => {
+      if (documentRef.current !== savedDocumentRef.current) void saveCurrent().catch(() => undefined);
+    };
+    const flushWhenHidden = () => { if (window.document.visibilityState === 'hidden') flushOnLeave(); };
+    window.document.addEventListener('visibilitychange', flushWhenHidden);
+    window.addEventListener('pagehide', flushOnLeave);
+    return () => {
+      window.document.removeEventListener('visibilitychange', flushWhenHidden);
+      window.removeEventListener('pagehide', flushOnLeave);
+    };
+  }, [saveCurrent]);
   useEffect(() => {
     const confirmInternalNavigation = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
       const anchor = target.closest<HTMLAnchorElement>('a[href]');
-      if (!anchor || !hasUnsaved || anchor.target || event.defaultPrevented) return;
+      if (!anchor || (!hasUnsaved && status !== 'saving') || anchor.target || event.defaultPrevented) return;
       const destination = new URL(anchor.href, window.location.href);
       if (destination.origin !== window.location.origin || destination.pathname === window.location.pathname && destination.search === window.location.search && destination.hash === window.location.hash) return;
       event.preventDefault();
       event.stopPropagation();
-      if (!window.confirm('You have unsaved program changes. Save them before leaving?')) return;
       void saveAndNavigate(`${destination.pathname}${destination.search}${destination.hash}`);
     };
     window.document.addEventListener('click', confirmInternalNavigation, true);
     return () => window.document.removeEventListener('click', confirmInternalNavigation, true);
-  }, [document, hasUnsaved, saveAndNavigate]);
+  }, [hasUnsaved, saveAndNavigate, status]);
   const blocks = useMemo(() => document.blocks ?? [], [document.blocks]);
   const visibleWeeks = useMemo(() => document.weeks.filter((week) => week.block_id === selectedBlockId), [document.weeks, selectedBlockId]);
   const activeWeek = visibleWeeks.find((week) => week.id === selectedWeek) ?? visibleWeeks[0];
-  const reloadConflict = async () => { setLoading(true); try { const remote = await loadProgram(programId); dispatch({ type: 'replace', document: remote }); expectedAt.current = remote.program.updated_at; setSavedAt(remote.program.updated_at); setSavedDocument(remote); setStatus('saved'); setReady(true); } catch { setStatus('error'); } finally { setLoading(false); } };
+  const reloadConflict = async () => { setLoading(true); try { const remote = await loadProgram(programId); dispatch({ type: 'replace', document: remote }); documentRef.current = remote; expectedAt.current = remote.program.updated_at; setSavedAt(remote.program.updated_at); savedDocumentRef.current = remote; setSavedDocument(remote); setStatus('saved'); setReady(true); } catch { setStatus('error'); } finally { setLoading(false); } };
   const addCustomInline = async (name: string): Promise<Exercise | undefined> => {
     const found = exercises.find((exercise) => exercise.name.toLowerCase() === name.toLowerCase());
     if (found) return found;
@@ -374,7 +408,7 @@ export function ProgramBuilderPage() {
     {!activeWeek ? <section className="coach-panel empty-state"><span className="empty-state-mark">＋</span><h2>Add a week to get started</h2><button className="button button-primary" onClick={addWeek}>Add week</button></section> : <><div className="week-heading"><div><p className="eyebrow">TRAINING CYCLE / WEEK</p><h2 className="week-title">{activeWeek.name || 'Week'}</h2></div><button className="button button-primary" onClick={() => dispatch({ type: 'add-day', weekId: activeWeek.id })}>＋ Add day</button></div>
       {activeWeek.days.length ? <CoachWorkoutCheckInsProvider preferredProgramId={programId}><div className="day-stack">{activeWeek.days.map((day) => <div className="builder-day-checkin-row" key={day.id}><DayCard week={activeWeek} day={day} exercises={exercises} document={document} dispatch={dispatch} setTypeOptions={setTypeOptions} onManageSetTypes={() => setManageSetTypes(true)} onCreateExercise={addCustomInline} /><CoachWorkoutCheckInsPanel dayId={day.id} dayName={day.name} unit={document.program.unit} exerciseNames={Object.fromEntries(day.exercises.map((row) => [row.id, exercises.find((exercise) => exercise.id === row.exercise_id)?.name ?? row.exercise_name ?? 'Exercise']))} /></div>)}</div><WeekLiftTotals week={activeWeek} exercises={exercises} unit={document.program.unit} /></CoachWorkoutCheckInsProvider> : <section className="coach-panel empty-state"><span className="empty-state-mark">＋</span><h2>No training days in this week</h2><p>Add a day to begin the spreadsheet.</p><button className="button button-primary" onClick={() => dispatch({ type: 'add-day', weekId: activeWeek.id })}>Add first day</button></section>}
     </>}
-    <footer className="builder-footer"><span>WORKING DOCUMENT · {document.program.unit.toUpperCase()}</span><span>Save changes to sync the live plan with athletes.</span><button className="button button-quiet" onClick={() => { if (window.confirm('Save your recent edits and leave the builder?')) void saveAndNavigate('/coach/programs'); }}>Exit builder</button></footer>
+    <footer className="builder-footer"><span>WORKING DOCUMENT · {document.program.unit.toUpperCase()}</span><span>Changes save automatically.</span><button className="button button-quiet" onClick={() => void saveAndNavigate('/coach/programs')}>Exit builder</button></footer>
     {manageSetTypes && <SetTypeOptionsDialog options={customSetTypes} onClose={() => setManageSetTypes(false)} onSave={saveSetTypeOptions} />}
   </main>;
 }
