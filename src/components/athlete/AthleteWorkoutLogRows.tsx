@@ -157,7 +157,7 @@ export function AthleteWorkoutLogRows({ athleteId, assignmentId, day, unit, onEd
         <td colSpan={9}>— <span>Not prescribed</span></td>
       </tr>;
       const sets = draft?.sets.filter((item) => item.program_exercise_id === exercise.id).sort((a, b) => a.set_number - b.set_number) ?? [];
-      return <tr key={exercise.id}>
+      return <tr key={exercise.id} className="athlete-program-loggable-row">
         <th scope="row" className="athlete-program-exercise">{exerciseName}</th>
         <td><span className={`athlete-program-set-type${exercise.set_type ? ` set-type-${exercise.set_type.toLowerCase().replace(/[^a-z0-9_-]/g, '-')}` : ''}`}>{exercise.set_type ?? '—'}</span></td>
         <td>{exercise.sets ?? '—'}</td>

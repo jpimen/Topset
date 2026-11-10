@@ -1,5 +1,9 @@
 # Decisions
 
+## 2026-11-10 - Mobile athlete set log rows
+
+- On narrow screens, show each prescribed exercise as a full-width clickable “Log sets” disclosure row with dividers. Keep its inputs in the expanded panel and preserve the existing wide prescription table on larger screens.
+
 ## 2026-11-10 - Sync program blocks to the Athlete view
 
 - Keep Coach-defined block names, notes, and week membership in the Athlete program schema and render blocks as a level above their weeks.
