@@ -1,10 +1,12 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useAuth } from '../auth/AuthProvider';
+import { CALCULATOR_IDS, CALCULATOR_LABELS, DEFAULT_CALCULATOR_ORDER, DEFAULT_CALCULATOR_VISIBILITY, readCalculatorOrder, readCalculatorVisibility, storeCalculatorOrder, storeCalculatorVisibility, type CalculatorId, type CalculatorVisibility } from '../lib/calculatorPreferences';
 import { DEFAULT_COLLAR_KG_PER_SIDE, LB_PER_KG, calculateMinusPercentage, calculatePlates, calculateScores, estimateE1rm, generateWarmupPlan, loadFromE1rm, type E1rmFormula, type Sex, type Unit, type WarmupMethod } from '../lib/engine';
 
 function NumberField({ label, value, onChange, min = 0, step = 'any', allowNegative = false }: { label: string; value: string; onChange: (value: string) => void; min?: number; step?: string; allowNegative?: boolean }) {
   return <label className="calc-field"><span>{label}</span><input aria-label={label} type="number" {...(!allowNegative ? { min } : {})} step={step} value={value} onChange={(event) => onChange(event.target.value)} /></label>;
 }
-function Card({ title, children }: { title: string; children: React.ReactNode }) { return <section className="calc-card"><h2>{title}</h2>{children}</section>; }
+function Card({ title, children, style }: { title: string; children: React.ReactNode; style?: React.CSSProperties }) { return <section className="calc-card" style={style}><h2>{title}</h2>{children}</section>; }
 function useCalculation<T>(calculate: () => T): { value?: T; error?: string } {
   try { return { value: calculate() }; } catch (error) { return { error: error instanceof Error ? error.message : 'Check the entered values.' }; }
 }
@@ -72,6 +74,31 @@ function PlateLoadingDiagram({ plates, unit, withCollar }: { plates: number[]; u
 }
 
 export function CalculatorsPage() {
+  const { profile } = useAuth();
+  const userId = profile?.id ?? '';
+  const [visibility, setVisibility] = useState<CalculatorVisibility>(() => userId ? readCalculatorVisibility(userId) : { ...DEFAULT_CALCULATOR_VISIBILITY });
+  const [order, setOrder] = useState<CalculatorId[]>(() => userId ? readCalculatorOrder(userId) : [...DEFAULT_CALCULATOR_ORDER]);
+  useEffect(() => {
+    if (userId) {
+      storeCalculatorVisibility(userId, visibility);
+      storeCalculatorOrder(userId, order);
+    }
+  }, [userId, visibility, order]);
+  function setCalculatorVisible(id: CalculatorId, visible: boolean) { setVisibility((current) => ({ ...current, [id]: visible })); }
+  function moveCalculator(id: CalculatorId, offset: -1 | 1) {
+    setOrder((current) => {
+      const currentIndex = current.indexOf(id);
+      const targetIndex = currentIndex + offset;
+      if (targetIndex < 0 || targetIndex >= current.length) return current;
+      const next = [...current];
+      [next[currentIndex], next[targetIndex]] = [next[targetIndex], next[currentIndex]];
+      return next;
+    });
+  }
+  function restoreCalculators() {
+    setVisibility({ ...DEFAULT_CALCULATOR_VISIBILITY });
+    setOrder([...DEFAULT_CALCULATOR_ORDER]);
+  }
   const [unit, setUnit] = useState<Unit>('kg');
   const [weight, setWeight] = useState('140'); const [reps, setReps] = useState('5'); const [formula, setFormula] = useState<E1rmFormula>('epley');
   const [e1rm, setE1rm] = useState('180'); const [rpeReps, setRpeReps] = useState('3'); const [rpe, setRpe] = useState('8');
@@ -102,11 +129,27 @@ export function CalculatorsPage() {
   });
   return <main className="calculators-page">
     <header className="calc-header"><a href={`/${location.pathname.split('/')[1]}`} className="calc-brand" aria-label="Topset home"><span className="calc-brand-mark" aria-hidden="true">T</span><span className="calc-brand-word">TOPSET<span>.</span></span></a><div><p className="eyebrow">TRAINING TOOLS</p><h1>Calculators</h1><p>Quick estimates for the platform and the weight room.</p></div><label className="calc-field unit-toggle"><span>Display unit</span><select value={unit} onChange={(event) => changeUnit(event.target.value as Unit)}><option value="kg">Kilograms (kg)</option><option value="lb">Pounds (lb)</option></select></label></header>
-    <div className="calc-grid">
-      <Card title="Estimated one-rep max"><div className="calc-inputs"><NumberField label={`Lift weight (${unit})`} value={weight} onChange={setWeight} min={0.01}/><NumberField label="Repetitions" value={reps} onChange={setReps} min={1} step="1"/><label className="calc-field"><span>Formula</span><select value={formula} onChange={(event) => setFormula(event.target.value as E1rmFormula)}><option value="epley">Epley</option><option value="brzycki">Brzycki</option></select></label></div><ErrorLine error={e1.error}/>{e1.value && <ResultLine>{fromKg(e1.value.e1rmKg, unit).toFixed(1)} {unit} {e1.value.lowConfidence && <small>Low confidence above 10 reps</small>}</ResultLine>}</Card>
-      <Card title="RPE load"><div className="calc-inputs"><NumberField label={`e1RM (${unit})`} value={e1rm} onChange={setE1rm} min={0.01}/><NumberField label="Repetitions" value={rpeReps} onChange={setRpeReps} min={1} step="1"/><NumberField label="RPE (5–10)" value={rpe} onChange={setRpe} min={5} step="0.5"/></div><ErrorLine error={rpeResult.error}/>{rpeResult.value && <ResultLine>{(rpeResult.value.percent * 100).toFixed(1)}% 1RM · {rpeResult.value.load.toFixed(1)} {unit}</ResultLine>}</Card>
-      <Card title="Plate calculator"><div className="calc-inputs"><NumberField label={`Target load (${unit})`} value={target} onChange={setTarget} min={0}/><NumberField label={`Bar (${unit})`} value={bar} onChange={setBar} min={0.01}/><fieldset className="calc-field plate-collar-field"><legend>Collars</legend><div className="plate-collar-toggle" role="group" aria-label="Collar setting"><button type="button" aria-pressed={!withCollar} onClick={() => setWithCollar(false)}>No collar</button><button type="button" aria-pressed={withCollar} onClick={() => setWithCollar(true)}>With collar</button></div></fieldset></div><ErrorLine error={plateResult.error}/>{plateResult.value && <><PlateLoadingDiagram plates={plateResult.value.platesPerSide} unit={unit} withCollar={withCollar}/><p className="calc-help">Achieved: {plateResult.value.achievedLoad.toFixed(2)} {unit}{!plateResult.value.reachable && ` · Difference: ${plateResult.value.difference.toFixed(2)} ${unit}`}</p>{plateResult.value.difference < 0 && <p className="calc-help">Target is below the bar weight; remove the bar before loading.</p>}</>}</Card>
-      <Card title="Warm-up sets">
+    <div className="calc-page-layout">
+      <section className="calc-tool-rail" aria-label="Organize calculators">
+        <p className="eyebrow">MY CALCULATORS</p>
+        <p className="calc-rail-count">{CALCULATOR_IDS.filter((id) => visibility[id]).length} of {CALCULATOR_IDS.length} shown</p>
+        <div className="calc-organizer-list">{order.map((id, index) => <div className="calc-organizer-row" key={id}>
+          <label className={`calc-visibility-option${visibility[id] ? ' active' : ''}`}>
+            <span>{CALCULATOR_LABELS[id]}</span>
+            <input type="checkbox" role="switch" aria-label={`Show ${CALCULATOR_LABELS[id]}`} checked={visibility[id]} onChange={(event) => setCalculatorVisible(id, event.target.checked)} />
+          </label>
+          <div className="calc-order-controls">
+            <button type="button" className="calc-order-button" aria-label={`Move ${CALCULATOR_LABELS[id]} up`} title="Move up" disabled={index === 0} onClick={() => moveCalculator(id, -1)}>↑</button>
+            <button type="button" className="calc-order-button" aria-label={`Move ${CALCULATOR_LABELS[id]} down`} title="Move down" disabled={index === order.length - 1} onClick={() => moveCalculator(id, 1)}>↓</button>
+          </div>
+        </div>)}</div>
+        <button type="button" className="calc-restore-button" onClick={restoreCalculators} disabled={CALCULATOR_IDS.every((id) => visibility[id]) && order.every((id, index) => id === DEFAULT_CALCULATOR_ORDER[index])}>Restore defaults</button>
+      </section>
+      <div className="calc-grid">
+      {visibility['estimated-one-rep-max'] && <Card title="Estimated one-rep max" style={{ order: order.indexOf('estimated-one-rep-max') }}><div className="calc-inputs"><NumberField label={`Lift weight (${unit})`} value={weight} onChange={setWeight} min={0.01}/><NumberField label="Repetitions" value={reps} onChange={setReps} min={1} step="1"/><label className="calc-field"><span>Formula</span><select value={formula} onChange={(event) => setFormula(event.target.value as E1rmFormula)}><option value="epley">Epley</option><option value="brzycki">Brzycki</option></select></label></div><ErrorLine error={e1.error}/>{e1.value && <ResultLine>{fromKg(e1.value.e1rmKg, unit).toFixed(1)} {unit} {e1.value.lowConfidence && <small>Low confidence above 10 reps</small>}</ResultLine>}</Card>}
+      {visibility['rpe-load'] && <Card title="RPE load" style={{ order: order.indexOf('rpe-load') }}><div className="calc-inputs"><NumberField label={`e1RM (${unit})`} value={e1rm} onChange={setE1rm} min={0.01}/><NumberField label="Repetitions" value={rpeReps} onChange={setRpeReps} min={1} step="1"/><NumberField label="RPE (5–10)" value={rpe} onChange={setRpe} min={5} step="0.5"/></div><ErrorLine error={rpeResult.error}/>{rpeResult.value && <ResultLine>{(rpeResult.value.percent * 100).toFixed(1)}% 1RM · {rpeResult.value.load.toFixed(1)} {unit}</ResultLine>}</Card>}
+      {visibility['plate-calculator'] && <Card title="Plate calculator" style={{ order: order.indexOf('plate-calculator') }}><div className="calc-inputs"><NumberField label={`Target load (${unit})`} value={target} onChange={setTarget} min={0}/><NumberField label={`Bar (${unit})`} value={bar} onChange={setBar} min={0.01}/><fieldset className="calc-field plate-collar-field"><legend>Collars</legend><div className="plate-collar-toggle" role="group" aria-label="Collar setting"><button type="button" aria-pressed={!withCollar} onClick={() => setWithCollar(false)}>No collar</button><button type="button" aria-pressed={withCollar} onClick={() => setWithCollar(true)}>With collar</button></div></fieldset></div><ErrorLine error={plateResult.error}/>{plateResult.value && <><PlateLoadingDiagram plates={plateResult.value.platesPerSide} unit={unit} withCollar={withCollar}/><p className="calc-help">Achieved: {plateResult.value.achievedLoad.toFixed(2)} {unit}{!plateResult.value.reachable && ` · Difference: ${plateResult.value.difference.toFixed(2)} ${unit}`}</p>{plateResult.value.difference < 0 && <p className="calc-help">Target is below the bar weight; remove the bar before loading.</p>}</>}</Card>}
+      {visibility['warm-up-sets'] && <Card title="Warm-up sets" style={{ order: order.indexOf('warm-up-sets') }}>
         <div className="calc-inputs warmup-inputs">
           <NumberField label={`Top set (${unit})`} value={topSet} onChange={setTopSet} min={0.01}/>
           <NumberField label={`Barbell (${unit})`} value={warmupBar} onChange={setWarmupBar} min={0.01}/>
@@ -121,9 +164,11 @@ export function CalculatorsPage() {
             <p className="calc-help warmup-rounding-note">Loads are rounded to the nearest {formatLoad(Number(smallestChange))} {unit} increment.</p>
           </> : <p className="calc-help">No warm-up loads fall below the top set with these settings.</p>}
         </div>}
-      </Card>
-      <Card title="Strength scores"><div className="calc-inputs"><NumberField label={`Total (${unit})`} value={total} onChange={setTotal} min={0.01}/><NumberField label={`Bodyweight (${unit})`} value={bodyweight} onChange={setBodyweight} min={0.01}/><label className="calc-field"><span>Coefficient set</span><select value={sex} onChange={(event) => setSex(event.target.value as Sex)}><option value="male">Men</option><option value="female">Women</option></select></label></div><ErrorLine error={scores.error}/>{scores.value && <div className="score-results"><ResultLine>DOTS <strong>{scores.value.dots.toFixed(2)}</strong></ResultLine><ResultLine>Wilks <strong>{scores.value.wilks.toFixed(2)}</strong></ResultLine><ResultLine>IPF GL <strong>{scores.value.ipfGl.toFixed(2)}</strong></ResultLine></div>}</Card>
-      <Card title="Minus percentage"><div className="calc-inputs minus-percentage-inputs"><NumberField label="Percentage (%)" value={percentage} onChange={setPercentage} allowNegative/><NumberField label="Base number" value={baseNumber} onChange={setBaseNumber} allowNegative/></div><ErrorLine error={minusPercentage.error}/>{minusPercentage.value && <div className="score-results"><ResultLine>Percentage amount <strong>{formatCalculatorValue(minusPercentage.value.percentageAmount)}</strong></ResultLine><ResultLine>Adjusted result <strong>{formatCalculatorValue(minusPercentage.value.adjustedResult)}</strong></ResultLine></div>}</Card>
-    </div><p className="calc-disclaimer">Estimates only. Calculators are guidance, not guarantees.</p>
+      </Card>}
+      {visibility['strength-scores'] && <Card title="Strength scores" style={{ order: order.indexOf('strength-scores') }}><div className="calc-inputs"><NumberField label={`Total (${unit})`} value={total} onChange={setTotal} min={0.01}/><NumberField label={`Bodyweight (${unit})`} value={bodyweight} onChange={setBodyweight} min={0.01}/><label className="calc-field"><span>Coefficient set</span><select value={sex} onChange={(event) => setSex(event.target.value as Sex)}><option value="male">Men</option><option value="female">Women</option></select></label></div><ErrorLine error={scores.error}/>{scores.value && <div className="score-results"><ResultLine>DOTS <strong>{scores.value.dots.toFixed(2)}</strong></ResultLine><ResultLine>Wilks <strong>{scores.value.wilks.toFixed(2)}</strong></ResultLine><ResultLine>IPF GL <strong>{scores.value.ipfGl.toFixed(2)}</strong></ResultLine></div>}</Card>}
+      {visibility['minus-percentage'] && <Card title="Minus percentage" style={{ order: order.indexOf('minus-percentage') }}><div className="calc-inputs minus-percentage-inputs"><NumberField label="Percentage (%)" value={percentage} onChange={setPercentage} allowNegative/><NumberField label="Base number" value={baseNumber} onChange={setBaseNumber} allowNegative/></div><ErrorLine error={minusPercentage.error}/>{minusPercentage.value && <div className="score-results"><ResultLine>Percentage amount <strong>{formatCalculatorValue(minusPercentage.value.percentageAmount)}</strong></ResultLine><ResultLine>Adjusted result <strong>{formatCalculatorValue(minusPercentage.value.adjustedResult)}</strong></ResultLine></div>}</Card>}
+      </div>
+    </div>
+    <p className="calc-disclaimer">Estimates only. Calculators are guidance, not guarantees.</p>
   </main>;
 }

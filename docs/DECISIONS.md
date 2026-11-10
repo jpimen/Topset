@@ -1,5 +1,11 @@
 # Decisions
 
+## 2026-11-10 - Calculator visibility preferences
+
+- Show all six calculators by default and let each signed-in user hide or restore individual cards from the Calculators page.
+- Let users order cards with move-up and move-down controls, and store both order and visibility in browser local storage under versioned keys scoped by profile ID. This follows existing device-local preference patterns and keeps accounts on a shared device separate.
+- Keep visibility separate from calculator input state and calculations; removing a card only removes it from the page layout.
+
 ## 2026-11-10 — Minus percentage calculator
 
 - Add a signed percentage calculator to the shared Calculators page. Treat the entered percentage as signed, calculate `base × (percentage ÷ 100)`, and add that amount to the base; allow negative and decimal values for both fields.
