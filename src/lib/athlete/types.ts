@@ -40,10 +40,17 @@ const daySchema = z.object({
 
 const weekSchema = z.object({
   id: z.string().uuid(),
+  block_id: z.string().uuid().nullable().optional(),
   week_number: z.number().int(),
   name: z.string(),
   notes: z.string().nullable(),
   days: z.array(daySchema),
+});
+
+const blockSchema = z.object({
+  id: z.string().uuid(),
+  name: z.string(),
+  notes: z.string().nullable(),
 });
 
 export const athleteProgramSchema = z.object({
@@ -54,6 +61,7 @@ export const athleteProgramSchema = z.object({
     unit: z.enum(['kg', 'lb']),
     updated_at: z.string(),
   }),
+  blocks: z.array(blockSchema).optional().default([]),
   weeks: z.array(weekSchema),
 });
 
