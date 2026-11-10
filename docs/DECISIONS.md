@@ -1,5 +1,10 @@
 # Decisions
 
+## 2026-11-10 - Larger athlete training video uploads
+
+- Raise the per-video cap to 50 GB, the supported maximum for Supabase TUS resumable uploads. Use 6 MiB chunks, retries, and upload progress so large videos can survive transient network interruptions.
+- Store video byte counts as PostgreSQL `bigint` and raise the bucket limit to match. Supabase's project-wide limit and plan still cap actual uploads; document that constraint in the UI/report.
+
 ## 2026-11-10 - Mobile athlete set log rows
 
 - On narrow screens, show each prescribed exercise as a full-width clickable “Log sets” disclosure row with dividers. Keep its inputs in the expanded panel and preserve the existing wide prescription table on larger screens.
