@@ -7,7 +7,7 @@ const mocks = vi.hoisted(() => ({ userId: 'calculator-user-1' }));
 vi.mock('../auth/AuthProvider', () => ({ useAuth: () => ({ profile: { id: mocks.userId } }) }));
 
 import { CalculatorsPage } from './CalculatorsPage';
-import { CALCULATOR_IDS, calculatorPreferenceKey } from '../lib/calculatorPreferences';
+import { CALCULATOR_IDS, calculatorOrderKey, calculatorPreferenceKey, DEFAULT_CALCULATOR_ORDER } from '../lib/calculatorPreferences';
 
 let host: HTMLDivElement;
 let root: Root;
@@ -51,18 +51,27 @@ describe('CalculatorsPage visibility preferences', () => {
     expect([...host.querySelectorAll('.calc-card h2')].some((heading) => heading.textContent === 'RPE load')).toBe(false);
     expect(JSON.parse(localStorage.getItem(calculatorPreferenceKey(mocks.userId)) ?? '{}')['rpe-load']).toBe(false);
 
+    const movePlateUp = [...host.querySelectorAll('button')].find((button) => button.getAttribute('aria-label') === 'Move Plate calculator up');
+    act(() => movePlateUp?.click());
+    const plateCard = [...host.querySelectorAll('.calc-card')].find((card) => card.querySelector('h2')?.textContent === 'Plate calculator');
+    expect(plateCard?.getAttribute('style')).toContain('order: 1');
+    expect(JSON.parse(localStorage.getItem(calculatorOrderKey(mocks.userId)) ?? '[]')[1]).toBe('plate-calculator');
+
     act(() => root.unmount());
     root = createRoot(host);
     renderPage();
     expect(host.querySelectorAll('.calc-grid > .calc-card')).toHaveLength(5);
     expect([...host.querySelectorAll('.calc-card h2')].some((heading) => heading.textContent === 'RPE load')).toBe(false);
+    const restoredPlateCard = [...host.querySelectorAll('.calc-card')].find((card) => card.querySelector('h2')?.textContent === 'Plate calculator');
+    expect(restoredPlateCard?.getAttribute('style')).toContain('order: 1');
 
     openOrganizer();
-    const restore = [...host.querySelectorAll('button')].find((button) => button.textContent?.trim() === 'Show all calculators');
+    const restore = [...host.querySelectorAll('button')].find((button) => button.textContent?.trim() === 'Restore defaults');
     act(() => restore?.click());
     expect(host.querySelectorAll('.calc-grid > .calc-card')).toHaveLength(6);
     expect(host.textContent).toContain('6 of 6 calculators visible');
     expect(CALCULATOR_IDS.every((id) => JSON.parse(localStorage.getItem(calculatorPreferenceKey(mocks.userId)) ?? '{}')[id] === true)).toBe(true);
+    expect(JSON.parse(localStorage.getItem(calculatorOrderKey(mocks.userId)) ?? '[]')).toEqual(DEFAULT_CALCULATOR_ORDER);
   });
 
   it("keeps one user's choices separate from another user", () => {
