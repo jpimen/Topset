@@ -1,5 +1,11 @@
 # Decisions
 
+## 2026-11-10 - Sync program blocks to the Athlete view
+
+- Keep Coach-defined block names, notes, and week membership in the Athlete program schema and render blocks as a level above their weeks.
+- Include blocks and each week's `block_id` in new saved snapshots as well as live program loads. Existing snapshots without block metadata remain readable and are grouped under a single legacy Block without changing snapshot immutability.
+- Keep weeks with missing or invalid block references visible under a legacy Block so no assigned training content disappears.
+
 ## 2026-11-10 - Calculator visibility preferences
 
 - Show all six calculators by default and let each signed-in user hide or restore individual cards from the Calculators page.

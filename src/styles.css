@@ -426,6 +426,11 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .athlete-coach-note { margin: 13px 0 0; padding: 11px 13px; display: grid; gap: 4px; border-left: 2px solid var(--gold); color: var(--secondary); background: var(--overlay-note); font-size: 12px; line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; }
 .athlete-coach-note strong { color: var(--gold-text); font-size: 10px; text-transform: uppercase; letter-spacing: .6px; }
 .athlete-week-tabs button:focus-visible, .athlete-program-day summary:focus-visible { outline: 2px solid var(--gold-light); outline-offset: 2px; }
+.athlete-block-tabs { margin-bottom: 8px; display: flex; gap: 8px; overflow-x: auto; padding: 3px 1px 7px; }
+.athlete-block-tabs button { min-height: 42px; padding: 0 15px; flex: none; border: 1px solid var(--border); border-radius: 9px; color: var(--secondary); background: var(--surface); font-size: 12px; font-weight: 700; }
+.athlete-block-tabs button.selected { color: var(--gold-text); border-color: var(--border-button-hover); background: var(--surface-gold-muted); }
+.athlete-block-tabs button:focus-visible { outline: 2px solid var(--gold-light); outline-offset: 2px; }
+.athlete-block-note { margin-bottom: 12px; }
 .athlete-week-tabs { margin-bottom: 16px; display: flex; gap: 8px; overflow-x: auto; padding: 3px 1px 9px; }
 .athlete-week-tabs button { min-height: 42px; padding: 0 15px; flex: none; border: 1px solid var(--border); border-radius: 9px; color: var(--secondary); background: var(--card); font-size: 12px; font-weight: 700; }
 .athlete-week-tabs button.selected { color: var(--gold-text); border-color: var(--border-button-hover); background: var(--surface-gold-muted); }
@@ -1064,7 +1069,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .athlete-page-heading { margin-bottom: 20px; flex-direction: column; gap: 12px; }
   .athlete-program-heading-actions { width: 100%; flex-wrap: wrap; }
   .athlete-program-heading-actions .button { min-height: 44px; }
-  .athlete-week-tabs button { min-height: 44px; flex: none; }
+  .athlete-week-tabs button, .athlete-block-tabs button { min-height: 44px; flex: none; }
   .athlete-day-checkin-layout { grid-template-columns: minmax(0, 1fr); }
   .athlete-program-day { padding-inline: 14px; }
   .athlete-program-day summary { min-height: 56px; }

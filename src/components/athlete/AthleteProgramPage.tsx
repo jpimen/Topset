@@ -6,6 +6,8 @@ import { athleteExerciseName, athleteLoadLabel, hasUsableExerciseName, isLoggabl
 import { useAthleteProgram } from './useAthleteProgram';
 import { AthleteWorkoutSessionsProvider } from './AthleteWorkoutSessionsProvider';
 
+const LEGACY_BLOCK_ID = '__legacy_block__';
+
 export function AthleteProgramPage() {
   const { profile } = useAuth();
   const [edits, setEdits] = useState<Record<string, boolean>>({});
@@ -18,14 +20,26 @@ export function AthleteProgramPage() {
     });
   }, []);
   const { result, loading, error, refresh, refreshDeferred, offline, verifiedAt, warning, liveSyncWarning } = useAthleteProgram(profile?.id, Object.keys(edits).length > 0);
+  const [selectedBlockId, setSelectedBlockId] = useState('');
   const [selectedWeek, setSelectedWeek] = useState(0);
-  useEffect(() => { if (result && selectedWeek >= result.program.weeks.length) setSelectedWeek(0); }, [result, selectedWeek]);
+  const displayBlocks = result ? (() => {
+    const blocks = result.program.blocks;
+    const hasUnmatchedWeek = result.program.weeks.some((week) => !week.block_id || !blocks.some((block) => block.id === week.block_id));
+    return hasUnmatchedWeek ? [...blocks, { id: LEGACY_BLOCK_ID, name: 'Block', notes: null }] : blocks;
+  })() : [];
+  const activeBlockId = displayBlocks.some((block) => block.id === selectedBlockId) ? selectedBlockId : (displayBlocks[0]?.id ?? '');
+  const activeBlock = displayBlocks.find((block) => block.id === activeBlockId);
+  const visibleWeeks = result ? result.program.weeks.filter((week) =>
+    (week.block_id && displayBlocks.some((block) => block.id === week.block_id) ? week.block_id : LEGACY_BLOCK_ID) === activeBlockId,
+  ) : [];
+  useEffect(() => { if (activeBlockId && activeBlockId !== selectedBlockId) { setSelectedBlockId(activeBlockId); setSelectedWeek(0); } }, [activeBlockId, selectedBlockId]);
+  useEffect(() => { if (selectedWeek >= visibleWeeks.length) setSelectedWeek(0); }, [visibleWeeks.length, selectedWeek]);
 
   if (loading && !result) return <main className="athlete-page"><div className="dashboard-skeleton" aria-label="Loading assigned program" /></main>;
   if (error && !result) return <main className="athlete-page"><section className="coach-panel empty-state" role="alert"><h1>Program unavailable</h1><p>{error}</p><button className="button button-secondary" onClick={refresh}>Try again</button></section></main>;
   if (!result) return <main className="athlete-page"><section className="coach-panel empty-state"><p className="eyebrow">PROGRAM</p><h1>No assigned program yet</h1><p>Your coach’s assigned plan will appear here.</p>{warning && <p role="alert">{warning}</p>}</section></main>;
 
-  const week = result.program.weeks[selectedWeek];
+  const week = visibleWeeks[selectedWeek];
   return (
     <main className="athlete-page">
       {offline && <p className="inline-state" role="status">Offline copy · last verified {new Date(verifiedAt!).toLocaleString()}. Access changes cannot be checked until you reconnect. Copies expire after 24 hours.</p>}
@@ -37,10 +51,14 @@ export function AthleteProgramPage() {
       <header className="athlete-page-heading"><div><p className="eyebrow">PROGRAM · {result.assignment.sync_mode === 'live' ? 'LIVE PLAN' : 'SAVED SNAPSHOT'}</p><h1>{result.program.program.name}</h1><p>{result.program.program.description || 'Your coach’s plan, available here to review at any time.'}</p></div><div className="athlete-program-heading-actions"><span className="athlete-readonly-tag">Read only</span><button className="button button-secondary" onClick={refresh}>Refresh program</button></div></header>
       <AthleteWorkoutSessionsProvider key={`${profile?.id}:${result.assignment.id}`} athleteId={profile!.id} assignmentId={result.assignment.id} verifiedAt={verifiedAt}>
       {result.program.weeks.length === 0 ? <section className="coach-panel empty-state"><h2>Your program is being prepared</h2><p>There are no weeks in this plan yet.</p></section> : <>
+        {displayBlocks.length > 0 && <nav className="athlete-block-tabs" aria-label="Program blocks">
+          {displayBlocks.map((block, index) => <button key={block.id} className={activeBlockId === block.id ? 'selected' : ''} aria-pressed={activeBlockId === block.id} onClick={() => { setSelectedBlockId(block.id); setSelectedWeek(0); }}>{block.name || `Block ${index + 1}`}</button>)}
+        </nav>}
+        {activeBlock?.notes && <p className="athlete-week-note athlete-block-note">{activeBlock.notes}</p>}
         <nav className="athlete-week-tabs" aria-label="Program weeks">
-          {result.program.weeks.map((item, index) => <button key={item.id} className={selectedWeek === index ? 'selected' : ''} aria-pressed={selectedWeek === index} onClick={() => setSelectedWeek(index)}>{item.name}</button>)}
+          {visibleWeeks.map((item, index) => <button key={item.id} className={selectedWeek === index ? 'selected' : ''} aria-pressed={selectedWeek === index} onClick={() => setSelectedWeek(index)}>{item.name}</button>)}
         </nav>
-        <section className="athlete-program-days" aria-label={week.name}>
+        {week && <section className="athlete-program-days" aria-label={week.name}>
             {week.notes && <p className="athlete-week-note">{week.notes}</p>}
             {week.days.length === 0 ? <div className="coach-panel empty-state"><h2>No days added</h2><p>Your coach has not added training days to this week.</p></div> : week.days.map((day) => <div className={profile?.id ? 'athlete-day-checkin-layout' : undefined} key={day.id}><details className="coach-panel athlete-program-day" open>
               <summary><span><strong>{day.name}</strong><small>{day.exercises.filter(hasUsableExerciseName).length} {day.exercises.filter(hasUsableExerciseName).length === 1 ? 'exercise' : 'exercises'}</small></span><span aria-hidden="true">⌄</span></summary>
@@ -63,7 +81,7 @@ export function AthleteProgramPage() {
                 </table>
               </div>}
             </details>{profile?.id && <AthleteWorkoutCheckInPanel athleteId={profile.id} assignmentId={result.assignment.id} dayId={day.id} dayName={day.name} defaultUnit={result.program.program.unit} onEditStateChange={onEditStateChange} />}</div>)}
-          </section>
+          </section>}
       </>}
       </AthleteWorkoutSessionsProvider>
     </main>
