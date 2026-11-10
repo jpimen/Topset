@@ -17,6 +17,7 @@ export function AthletePostVideoPage() {
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState('');
   const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
 
@@ -37,10 +38,11 @@ export function AthletePostVideoPage() {
     event.preventDefault();
     if (!profile || !assignmentId.success || !dayId.success || !dayName || !file) return;
     setUploading(true);
+    setUploadProgress(0);
     setError('');
     setNotice('');
     try {
-      await postAthleteTrainingVideo({ athleteId: profile.id, assignmentId: assignmentId.data, dayId: dayId.data, dayName, label, file });
+      await postAthleteTrainingVideo({ athleteId: profile.id, assignmentId: assignmentId.data, dayId: dayId.data, dayName, label, file, onProgress: setUploadProgress });
       setNotice(`${label} video posted for ${dayName}.`);
       setFile(null);
       if (fileInputRef.current) fileInputRef.current.value = '';
@@ -65,14 +67,15 @@ export function AthletePostVideoPage() {
       <div className="panel-heading"><div><p className="eyebrow">{dayName}</p><h2 id="post-video-heading">Training video</h2></div></div>
       <form className="athlete-post-video-form" onSubmit={(event) => void submit(event)}>
         <label className="form-field" htmlFor="training-video-label">Video label<select id="training-video-label" value={label} onChange={(event) => setLabel(event.currentTarget.value as (typeof trainingVideoLabels)[number])}>{trainingVideoLabels.map((option) => <option key={option} value={option}>{option}</option>)}</select></label>
-        <label className="form-field" htmlFor="training-video-file">Video file<input ref={fileInputRef} id="training-video-file" type="file" accept="video/mp4,video/quicktime,video/webm,video/x-m4v,.mp4,.mov,.webm,.m4v" onChange={chooseFile} /> <span className="field-help">MP4, MOV, M4V, or WebM · up to 100 MB</span></label>
+        <label className="form-field" htmlFor="training-video-file">Video file<input ref={fileInputRef} id="training-video-file" type="file" accept="video/mp4,video/quicktime,video/webm,video/x-m4v,.mp4,.mov,.webm,.m4v" onChange={chooseFile} /> <span className="field-help">MP4, MOV, M4V, or WebM · up to {MAX_TRAINING_VIDEO_BYTES / 1_000_000_000} GB</span></label>
         {file && <div className="athlete-post-video-preview"><video src={previewUrl} controls playsInline preload="metadata">Video preview is not supported by this browser.</video><span>{file.name} · {(file.size / (1024 * 1024)).toFixed(1)} MB</span></div>}
         {error && <p className="inline-error" role="alert">{error}</p>}
+        {uploading && <p className="inline-state" role="status">Uploading video: {uploadProgress}%</p>}
         {notice && <p className="inline-state" role="status">{notice}</p>}
         {notice && <button className="button button-secondary athlete-post-video-another" type="button" onClick={() => { setNotice(''); fileInputRef.current?.click(); }}>Post another video</button>}
         <div className="athlete-post-video-actions"><Link className="button button-secondary" to="/athlete/program">Back to program</Link><button className="button button-primary" type="submit" disabled={!file || uploading || !profile}>{uploading ? 'Posting video…' : 'Post video'}</button></div>
       </form>
     </section>
-    <p className="field-help athlete-post-video-limit">Videos must be smaller than {MAX_TRAINING_VIDEO_BYTES / (1024 * 1024)} MB. Your upload is private to you and your currently linked coach.</p>
+    <p className="field-help athlete-post-video-limit">Videos can be up to {MAX_TRAINING_VIDEO_BYTES / 1_000_000_000} GB, subject to the project storage limit. Large uploads can resume after a network interruption. Your upload is private to you and your currently linked coach.</p>
   </main>;
 }
