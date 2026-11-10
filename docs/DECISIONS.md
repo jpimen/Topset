@@ -17,8 +17,9 @@
 
 ## 2026-11-10 - Calculator visibility preferences
 
-- Show all six calculators by default and let each signed-in user hide or restore individual cards from the Calculators page.
+- Start with all calculator cards hidden and let each signed-in user enable only the tools they want from the in-page selector. Keep a separate Show all calculators action for users who want every card.
 - Let users order cards with move-up and move-down controls, and store both order and visibility in browser local storage under versioned keys scoped by profile ID. This follows existing device-local preference patterns and keeps accounts on a shared device separate.
+- Migrate customized selections from the earlier preference format. Treat an all-visible old value as the previous default and start that account with no cards selected.
 - Keep visibility separate from calculator input state and calculations; removing a card only removes it from the page layout.
 
 ## 2026-11-10 — Minus percentage calculator

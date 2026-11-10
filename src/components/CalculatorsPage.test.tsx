@@ -7,7 +7,7 @@ const mocks = vi.hoisted(() => ({ userId: 'calculator-user-1' }));
 vi.mock('../auth/AuthProvider', () => ({ useAuth: () => ({ profile: { id: mocks.userId } }) }));
 
 import { CalculatorsPage } from './CalculatorsPage';
-import { CALCULATOR_IDS, calculatorOrderKey, calculatorPreferenceKey, DEFAULT_CALCULATOR_ORDER } from '../lib/calculatorPreferences';
+import { CALCULATOR_IDS, calculatorOrderKey, calculatorPreferenceKey, DEFAULT_CALCULATOR_ORDER, DEFAULT_CALCULATOR_VISIBILITY } from '../lib/calculatorPreferences';
 
 let host: HTMLDivElement;
 let root: Root;
@@ -35,16 +35,21 @@ afterEach(() => {
 });
 
 describe('CalculatorsPage visibility preferences', () => {
-  it('starts with every calculator visible, saves toggles per user, and restores all calculators', () => {
+  it('starts with no cards visible, persists choices and order, and can show every calculator', () => {
+    localStorage.setItem(`topset:calculator-visibility:v1:${mocks.userId}`, JSON.stringify(Object.fromEntries(CALCULATOR_IDS.map((id) => [id, true]))));
     renderPage();
-    expect(host.querySelectorAll('.calc-grid > .calc-card')).toHaveLength(6);
-    expect(host.textContent).toContain('6 of 6 shown');
+    expect(host.querySelectorAll('.calc-grid > .calc-card')).toHaveLength(0);
+    expect(host.textContent).toContain('0 of 6 shown');
+    expect(host.textContent).toContain('Choose a calculator from the list to show it here.');
 
     expect(host.querySelectorAll('[role="switch"]')).toHaveLength(6);
+    expect(host.querySelectorAll('[role="switch"]:checked')).toHaveLength(0);
     toggle('RPE load');
-    expect(host.querySelectorAll('.calc-grid > .calc-card')).toHaveLength(5);
-    expect([...host.querySelectorAll('.calc-card h2')].some((heading) => heading.textContent === 'RPE load')).toBe(false);
-    expect(JSON.parse(localStorage.getItem(calculatorPreferenceKey(mocks.userId)) ?? '{}')['rpe-load']).toBe(false);
+    expect(host.querySelectorAll('.calc-grid > .calc-card')).toHaveLength(1);
+    expect([...host.querySelectorAll('.calc-card h2')].some((heading) => heading.textContent === 'RPE load')).toBe(true);
+    expect(JSON.parse(localStorage.getItem(calculatorPreferenceKey(mocks.userId)) ?? '{}')['rpe-load']).toBe(true);
+    toggle('Plate calculator');
+    expect(host.querySelectorAll('.calc-grid > .calc-card')).toHaveLength(2);
 
     const movePlateUp = [...host.querySelectorAll('button')].find((button) => button.getAttribute('aria-label') === 'Move Plate calculator up');
     act(() => movePlateUp?.click());
@@ -55,12 +60,12 @@ describe('CalculatorsPage visibility preferences', () => {
     act(() => root.unmount());
     root = createRoot(host);
     renderPage();
-    expect(host.querySelectorAll('.calc-grid > .calc-card')).toHaveLength(5);
-    expect([...host.querySelectorAll('.calc-card h2')].some((heading) => heading.textContent === 'RPE load')).toBe(false);
+    expect(host.querySelectorAll('.calc-grid > .calc-card')).toHaveLength(2);
+    expect([...host.querySelectorAll('.calc-card h2')].some((heading) => heading.textContent === 'RPE load')).toBe(true);
     const restoredPlateCard = [...host.querySelectorAll('.calc-card')].find((card) => card.querySelector('h2')?.textContent === 'Plate calculator');
     expect(restoredPlateCard?.getAttribute('style')).toContain('order: 1');
 
-    const restore = [...host.querySelectorAll('button')].find((button) => button.textContent?.trim() === 'Restore defaults');
+    const restore = [...host.querySelectorAll('button')].find((button) => button.textContent?.trim() === 'Show all calculators');
     act(() => restore?.click());
     expect(host.querySelectorAll('.calc-grid > .calc-card')).toHaveLength(6);
     expect(host.textContent).toContain('6 of 6 shown');
@@ -70,11 +75,20 @@ describe('CalculatorsPage visibility preferences', () => {
 
   it("keeps one user's choices separate from another user", () => {
     renderPage();
+    expect(host.querySelectorAll('.calc-grid > .calc-card')).toHaveLength(0);
     toggle('Plate calculator');
+    expect(host.querySelectorAll('.calc-grid > .calc-card')).toHaveLength(1);
     act(() => root.unmount());
     mocks.userId = 'calculator-user-2';
     root = createRoot(host);
     renderPage();
-    expect(host.querySelectorAll('.calc-grid > .calc-card')).toHaveLength(6);
+    expect(host.querySelectorAll('.calc-grid > .calc-card')).toHaveLength(0);
+  });
+
+  it('preserves a customized selection when migrating old preferences', () => {
+    localStorage.setItem(`topset:calculator-visibility:v1:${mocks.userId}`, JSON.stringify({ ...DEFAULT_CALCULATOR_VISIBILITY, 'strength-scores': true }));
+    renderPage();
+    expect(host.querySelectorAll('.calc-grid > .calc-card')).toHaveLength(1);
+    expect(host.querySelector('.calc-card h2')?.textContent).toBe('Strength scores');
   });
 });

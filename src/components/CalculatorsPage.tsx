@@ -95,8 +95,8 @@ export function CalculatorsPage() {
       return next;
     });
   }
-  function restoreCalculators() {
-    setVisibility({ ...DEFAULT_CALCULATOR_VISIBILITY });
+  function showAllCalculators() {
+    setVisibility(Object.fromEntries(CALCULATOR_IDS.map((id) => [id, true])) as CalculatorVisibility);
     setOrder([...DEFAULT_CALCULATOR_ORDER]);
   }
   const [unit, setUnit] = useState<Unit>('kg');
@@ -143,9 +143,10 @@ export function CalculatorsPage() {
             <button type="button" className="calc-order-button" aria-label={`Move ${CALCULATOR_LABELS[id]} down`} title="Move down" disabled={index === order.length - 1} onClick={() => moveCalculator(id, 1)}>↓</button>
           </div>
         </div>)}</div>
-        <button type="button" className="calc-restore-button" onClick={restoreCalculators} disabled={CALCULATOR_IDS.every((id) => visibility[id]) && order.every((id, index) => id === DEFAULT_CALCULATOR_ORDER[index])}>Restore defaults</button>
+        <button type="button" className="calc-restore-button" onClick={showAllCalculators} disabled={CALCULATOR_IDS.every((id) => visibility[id]) && order.every((id, index) => id === DEFAULT_CALCULATOR_ORDER[index])}>Show all calculators</button>
       </section>
       <div className="calc-grid">
+      {CALCULATOR_IDS.every((id) => !visibility[id]) && <p className="calc-empty-state">Choose a calculator from the list to show it here.</p>}
       {visibility['estimated-one-rep-max'] && <Card title="Estimated one-rep max" style={{ order: order.indexOf('estimated-one-rep-max') }}><div className="calc-inputs"><NumberField label={`Lift weight (${unit})`} value={weight} onChange={setWeight} min={0.01}/><NumberField label="Repetitions" value={reps} onChange={setReps} min={1} step="1"/><label className="calc-field"><span>Formula</span><select value={formula} onChange={(event) => setFormula(event.target.value as E1rmFormula)}><option value="epley">Epley</option><option value="brzycki">Brzycki</option></select></label></div><ErrorLine error={e1.error}/>{e1.value && <ResultLine>{fromKg(e1.value.e1rmKg, unit).toFixed(1)} {unit} {e1.value.lowConfidence && <small>Low confidence above 10 reps</small>}</ResultLine>}</Card>}
       {visibility['rpe-load'] && <Card title="RPE load" style={{ order: order.indexOf('rpe-load') }}><div className="calc-inputs"><NumberField label={`e1RM (${unit})`} value={e1rm} onChange={setE1rm} min={0.01}/><NumberField label="Repetitions" value={rpeReps} onChange={setRpeReps} min={1} step="1"/><NumberField label="RPE (5–10)" value={rpe} onChange={setRpe} min={5} step="0.5"/></div><ErrorLine error={rpeResult.error}/>{rpeResult.value && <ResultLine>{(rpeResult.value.percent * 100).toFixed(1)}% 1RM · {rpeResult.value.load.toFixed(1)} {unit}</ResultLine>}</Card>}
       {visibility['plate-calculator'] && <Card title="Plate calculator" style={{ order: order.indexOf('plate-calculator') }}><div className="calc-inputs"><NumberField label={`Target load (${unit})`} value={target} onChange={setTarget} min={0}/><NumberField label={`Bar (${unit})`} value={bar} onChange={setBar} min={0.01}/><fieldset className="calc-field plate-collar-field"><legend>Collars</legend><div className="plate-collar-toggle" role="group" aria-label="Collar setting"><button type="button" aria-pressed={!withCollar} onClick={() => setWithCollar(false)}>No collar</button><button type="button" aria-pressed={withCollar} onClick={() => setWithCollar(true)}>With collar</button></div></fieldset></div><ErrorLine error={plateResult.error}/>{plateResult.value && <><PlateLoadingDiagram plates={plateResult.value.platesPerSide} unit={unit} withCollar={withCollar}/><p className="calc-help">Achieved: {plateResult.value.achievedLoad.toFixed(2)} {unit}{!plateResult.value.reachable && ` · Difference: ${plateResult.value.difference.toFixed(2)} ${unit}`}</p>{plateResult.value.difference < 0 && <p className="calc-help">Target is below the bar weight; remove the bar before loading.</p>}</>}</Card>}
