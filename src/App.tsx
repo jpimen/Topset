@@ -1,4 +1,4 @@
-import { BrowserRouter, NavLink, Navigate, Outlet, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, Link, NavLink, Navigate, Outlet, Route, Routes } from 'react-router-dom';
 import { useState } from 'react';
 import { AuthProvider, useAuth } from './auth/AuthProvider';
 import { HomeRedirect, RequireRole } from './auth/RouteGuards';
@@ -50,19 +50,46 @@ function WorkspaceLayout({ role }: { role: 'coach' | 'athlete' }) {
     <div key={`${profile?.id}:${role}`} className={`workspace-shell workspace-${role}`}>
       <header className="workspace-header">
         <NavLink className="brand-lockup" to="/" aria-label="Topset home"><span className="brand-mark" aria-hidden="true">T</span><span className="brand-word">TOPSET<span className="brand-period">.</span></span></NavLink>
-        <div className="workspace-user"><span className="user-avatar">{profile?.name.slice(0, 1).toUpperCase() ?? 'T'}</span><span>{profile?.name}</span><button disabled={signingOut} onClick={() => void signOut()}>{signingOut ? 'Signing out...' : 'Sign out'}</button></div>
+        <div className="workspace-user"><Link className="workspace-user-profile" to={`/${role}/profile`} aria-label={profile?.name ? `Open ${profile.name}'s profile` : 'Open your profile'}><span className="user-avatar" aria-hidden="true">{profile?.name.slice(0, 1).toUpperCase() ?? 'T'}</span><span className="workspace-user-name">{profile?.name}</span></Link><button disabled={signingOut} onClick={() => void signOut()}>{signingOut ? 'Signing out...' : 'Sign out'}</button></div>
       </header>
       <div className="workspace-body">
         <aside className="workspace-sidebar">
           <p className="eyebrow">{role === 'coach' ? 'COACH WORKSPACE' : 'ATHLETE WORKSPACE'}</p>
           <nav className="workspace-nav" aria-label="Primary navigation">
-            {navigation.map(({ label, to }, index) => <NavLink key={to} to={to} end={index === 0} className={({ isActive }) => `workspace-nav-link${isActive ? ' active' : ''}`}>{label}</NavLink>)}
+            {navigation.map(({ label, to }, index) => <NavLink key={to} to={to} end={index === 0} aria-label={label} title={label} className={({ isActive }) => `workspace-nav-link${isActive ? ' active' : ''}`}>
+              <span className="workspace-nav-icon" aria-hidden="true"><WorkspaceNavIcon destination={to} /></span>
+              <span className="workspace-nav-label-full">{label}</span>
+              <span className="workspace-nav-label-compact" aria-hidden="true">{compactNavigationLabel(role, label)}</span>
+            </NavLink>)}
           </nav>
         </aside>
         {routeContent}
       </div>
     </div>
   );
+}
+
+function compactNavigationLabel(role: 'coach' | 'athlete', label: string): string {
+  if (role !== 'athlete') return label;
+  if (label === 'Calculators') return 'Tools';
+  if (label === 'IPF Rulebook') return 'Rules';
+  return label;
+}
+
+function WorkspaceNavIcon({ destination }: { destination: string }) {
+  const path = destination.split('/').filter(Boolean).at(-1) ?? '';
+  switch (path) {
+    case 'program': return <svg viewBox="0 0 20 20"><path d="M3 10h14M5 6v8m10-8v8M2.5 8v4m15-4v4" /></svg>;
+    case 'progress': return <svg viewBox="0 0 20 20"><path d="M3 16V9m5 7V5m5 11v-6m4 6H2m1-2 4-4 3 2 6-7" /></svg>;
+    case 'calculators': return <svg viewBox="0 0 20 20"><rect x="4" y="2.5" width="12" height="15" rx="2" /><path d="M7 6h6M7 10h.01M10 10h.01M13 10h.01M7 13h.01M10 13h.01M13 13h.01" /></svg>;
+    case 'rulebook': return <svg viewBox="0 0 20 20"><path d="M3.5 4.5A2 2 0 0 1 5.5 2.5H16v14H5.5a2 2 0 0 1-2-2zM3.5 4.5v10M7 6h6m-6 3h6" /></svg>;
+    case 'profile': return <svg viewBox="0 0 20 20"><circle cx="10" cy="6.5" r="3" /><path d="M4 17a6 6 0 0 1 12 0" /></svg>;
+    case 'settings': return <svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="3" /><path d="m8.3 2.8.4-1h2.6l.4 1a7.5 7.5 0 0 1 1.4.6l1-.4 1.8 1.8-.4 1a7.5 7.5 0 0 1 .6 1.4l1 .4v2.6l-1 .4a7.5 7.5 0 0 1-.6 1.4l.4 1-1.8 1.8-1-.4a7.5 7.5 0 0 1-1.4.6l-.4 1H8.7l-.4-1a7.5 7.5 0 0 1-1.4-.6l-1 .4-1.8-1.8.4-1a7.5 7.5 0 0 1-.6-1.4l-1-.4V7.6l1-.4a7.5 7.5 0 0 1 .6-1.4l-.4-1 1.8-1.8 1 .4a7.5 7.5 0 0 1 1.4-.6Z" transform="translate(0 1.5) scale(.9)" /></svg>;
+    case 'athletes': return <svg viewBox="0 0 20 20"><circle cx="7" cy="6" r="2.5" /><circle cx="14" cy="7" r="2" /><path d="M2.5 16a4.5 4.5 0 0 1 9 0m.5-3.5a3.5 3.5 0 0 1 5.5 3" /></svg>;
+    case 'exercises': return <svg viewBox="0 0 20 20"><path d="M3 10h14M5 6v8m10-8v8M2.5 8v4m15-4v4" /></svg>;
+    case 'programs': return <svg viewBox="0 0 20 20"><path d="M4 3.5h12v13H4zM7 7h6m-6 3h6m-6 3h3" /></svg>;
+    default: return <svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="7" /><path d="M10 6v4l2.5 1.5" /></svg>;
+  }
 }
 
 function AppRoutes() {

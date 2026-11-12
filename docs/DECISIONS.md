@@ -1,5 +1,13 @@
 # Decisions
 
+## 2026-11-13 - Topset UI refresh
+
+- Keep Coach navigation as a full-label, horizontally scrollable mobile rail and make Athlete bottom navigation legible with compact visible labels, simple icons, and full accessible names. Preserve all role-scoped destinations.
+- Refresh the shared surface and control system through the existing dark/light tokens and CSS. Keep the Coach grid and Athlete prescription table scroll contained so the page itself does not overflow.
+- Contain the Coach day/check-in strip in its own horizontal viewport on narrow layouts, show guidance for both scrollable areas, and stack weekly totals on tablets and phones.
+- Preserve route guards, auth/data flows, program behavior, and existing accessibility semantics; make the visual pass without adding dependencies.
+- Keep workout logging autosaved and offline-safe; update the session tests to assert the current disclosure and persistence behavior instead of restoring the obsolete manual-save control.
+
 ## 2026-11-10 - Larger athlete training video uploads
 
 - Raise the per-video cap to 50 GB, the supported maximum for Supabase TUS resumable uploads. Use 6 MiB chunks, retries, and upload progress so large videos can survive transient network interruptions.

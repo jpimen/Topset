@@ -1,4 +1,4 @@
-:root,
+﻿:root,
 html[data-theme='dark'] {
   color-scheme: dark;
   --page: #0E0D0A;
@@ -376,4 +376,14 @@ html[data-theme='light'] {
   --black-shadow-05: #0005;
   --black-shadow-09: #0009;
   --shadow-card-soft-strong: #0003;
+
+  --gold: #98741E;
+  --gold-light: #B18A2B;
+  --gold-deep: #80620B;
+  --text-error-bright: #8D2D23;
+  --border-selected-glow: #80620B20;
+  --shadow-card-soft: #20241F0A;
+  --shadow-card: #20241F16;
+  --shadow-dialog: #20241F42;
+  --shadow-primary: #80620B16;
 }
