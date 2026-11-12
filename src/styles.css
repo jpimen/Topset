@@ -498,34 +498,9 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .athlete-program-log-input:disabled { opacity: .55; }
 
 @media (max-width: 760px) {
-  .athlete-program-table-viewport { overflow-x: visible; }
-  .athlete-program-table, .athlete-program-table tbody { display: block; width: 100%; min-width: 0; }
-  .athlete-program-table thead { display: none; }
-  .athlete-program-table tbody tr.athlete-program-loggable-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 0; width: 100%; padding: 0 8px 10px; border-bottom: 1px solid var(--border-divider); }
-  .athlete-program-table tbody tr.athlete-program-unprescribed-row { display: block; width: 100%; border-bottom: 1px solid var(--border-divider); }
-  .athlete-program-table tbody tr.athlete-program-loggable-row > th { display: block; grid-column: 1 / -1; box-sizing: border-box; width: 100%; min-width: 0; padding: 12px 10px 9px; border-bottom: 1px solid var(--border-divider); text-align: left; }
-  .athlete-program-table tbody tr.athlete-program-loggable-row > td { display: block; box-sizing: border-box; min-width: 0; padding: 8px 10px; border: 0; border-bottom: 1px solid var(--border-divider); }
-  .athlete-program-table tbody tr.athlete-program-loggable-row > td:nth-of-type(odd):not(:nth-of-type(7)) { border-right: 1px solid var(--border-divider); }
-  .athlete-program-table tbody tr.athlete-program-loggable-row > td:nth-of-type(-n+5)::before,
-  .athlete-program-table tbody tr.athlete-program-loggable-row > td:nth-of-type(6)::before { content: attr(data-label); display: block; margin-bottom: 4px; color: var(--muted); font: 400 9px/1.4 var(--mono); letter-spacing: .05em; text-transform: uppercase; }
-  .athlete-program-table tbody tr.athlete-program-loggable-row > td:nth-of-type(-n+5) { min-height: 49px; }
-  .athlete-program-table tbody tr.athlete-program-loggable-row > td:nth-of-type(5),
-  .athlete-program-table tbody tr.athlete-program-loggable-row > td:nth-of-type(6),
-  .athlete-program-table tbody tr.athlete-program-loggable-row > td:last-child { grid-column: 1 / -1; }
-  .athlete-program-table tbody tr.athlete-program-loggable-row > td:nth-of-type(5) { border-right: 0; }
-  .athlete-program-table tbody tr.athlete-program-loggable-row > td:last-child { width: 100%; min-width: 0; padding: 4px 0 0; border: 0; }
-  .athlete-program-table tbody tr.athlete-program-unprescribed-row > th,
-  .athlete-program-table tbody tr.athlete-program-unprescribed-row > td { display: block; box-sizing: border-box; width: 100%; padding: 8px 16px; }
-  .athlete-program-table tbody tr.athlete-program-unprescribed-row > th { padding-bottom: 0; }
-  .athlete-program-table tbody tr.athlete-program-loggable-row .athlete-program-set-log { display: block; box-sizing: border-box; width: 100%; }
-  .athlete-program-table tbody tr.athlete-program-loggable-row .athlete-program-set-log summary { width: 100%; box-sizing: border-box; margin-inline: 0; padding-inline: 12px; }
-  .athlete-program-table tbody tr.athlete-program-loggable-row .athlete-program-set-grid { padding: 0 0 12px; overflow-x: auto; }
-  .athlete-program-table tbody tr.athlete-program-loggable-row .athlete-program-set-grid-header,
-  .athlete-program-table tbody tr.athlete-program-loggable-row .athlete-program-set-grid-row { min-width: 480px; }
-  .athlete-program-table tbody tr.athlete-program-log-save-row { display: block; }
-  .athlete-program-table tbody tr.athlete-program-log-save-row > td { display: block; padding: 10px 0; }
-  .athlete-program-log-save-controls { align-items: flex-start; flex-direction: column; }
-  .athlete-program-log-actions { align-self: flex-end; }
+  .athlete-program-table-viewport { width: 100%; max-width: 100%; overflow-x: auto; overscroll-behavior-x: contain; }
+  .athlete-program-table { display: table; width: 1040px; min-width: 1040px; table-layout: fixed; }
+  .athlete-program-scroll-hint { display: block; margin: 0; padding: 8px 14px; color: var(--muted); font-size: 10px; line-height: 1.5; }
 }
 .athlete-program-log-loading { height: 58px; }
 .athlete-program-log-save-row td { padding: 10px 12px; border-top: 1px solid var(--border); }
