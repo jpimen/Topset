@@ -57,9 +57,10 @@ it('keeps prescriptions visible offline and recovers a local draft before histor
   expect(host.textContent).toContain('Offline: prescriptions');
   expect(host.querySelectorAll('th.athlete-program-exercise')).toHaveLength(2);
   const inputs = host.querySelectorAll<HTMLInputElement>('input[type="number"]');
+  expect(inputs).toHaveLength(1);
   expect(inputs[0].value).toBe('105');
   expect(inputs[0].disabled).toBe(false);
-  expect(inputs[1].disabled).toBe(true);
+  expect(host.querySelectorAll('tr.athlete-program-loggable-row')[1].querySelectorAll('input')).toHaveLength(0);
   expect(readWorkoutDrafts(athleteId)).toHaveLength(1);
 });
 
@@ -70,17 +71,16 @@ it('preserves unsaved input during shared history revalidation and persists befo
   expect(dirty).toHaveBeenCalledWith(`log:${assignmentId}:${dayId}`, true);
   await render(2);
   expect(host.querySelector<HTMLInputElement>('input[type="number"]')!.value).toBe('112.5');
-  const save = [...host.querySelectorAll('button')].find((button) => button.textContent === 'Save changes')!;
-  await act(async () => save.click());
+  await act(async () => { await new Promise((resolve) => window.setTimeout(resolve, 500)); });
   expect(readWorkoutDrafts(athleteId)[0].sets[0].load_lifted).toBe(112.5);
-  expect(host.textContent).toContain('waiting to sync');
+  expect(host.textContent).toContain('Saved on this device - waiting to sync');
 });
 
 it('shows storage failure without marking unsaved entries as saved', async () => {
   await render();
   act(() => change(host.querySelector<HTMLInputElement>('input[type="number"]')!, '120'));
   vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => { throw new Error('quota'); });
-  act(() => [...host.querySelectorAll('button')].find((button) => button.textContent === 'Save changes')!.click());
+  await act(async () => { await new Promise((resolve) => window.setTimeout(resolve, 500)); });
   expect(host.textContent).toContain('Changes were not saved');
   expect(host.querySelector<HTMLInputElement>('input[type="number"]')!.value).toBe('120');
 });

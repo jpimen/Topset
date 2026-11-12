@@ -4,14 +4,20 @@
   font-family: 'Plus Jakarta Sans', sans-serif;
   color: var(--text);
   background: var(--page);
+  line-height: 1.5;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   --display: 'Syne', sans-serif;
   --mono: 'Space Mono', monospace;
-  --radius-input: 12px;
-  --radius-card: 22px;
-  --radius-button: 13px;
+  --radius-input: 9px;
+  --radius-card: 15px;
+  --radius-button: 9px;
+  --radius-panel: 14px;
+  --radius-control: 8px;
+  --space-page-inline: clamp(16px, 3vw, 40px);
+  --space-panel: clamp(16px, 2vw, 24px);
+  --workspace-sidebar-width: 216px;
 }
 
 * { box-sizing: border-box; }
@@ -1165,6 +1171,380 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .tag { font-size: 7px; }
 }
 
+/* Topset interface refresh: quieter surfaces, stronger hierarchy, consistent controls. */
+html { background: var(--page); }
+body { color: var(--text); background: var(--page); line-height: 1.55; }
+button, input, select, textarea { font-family: 'Plus Jakarta Sans', sans-serif; }
+button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; }
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+  outline: 2px solid var(--gold-text);
+  outline-offset: 2px;
+  box-shadow: none;
+}
+button:disabled { cursor: not-allowed; }
+h1, h2, h3, h4 { color: var(--text); line-height: 1.2; }
+::selection { color: var(--text); background: var(--surface-gold-chip); }
+
+.workspace-shell { background: var(--page); }
+.workspace-header {
+  height: 68px;
+  padding-inline: clamp(16px, 2.5vw, 36px);
+  border-color: var(--border);
+  background: var(--page);
+}
+.workspace-body { grid-template-columns: var(--workspace-sidebar-width) minmax(0, 1fr); }
+.workspace-sidebar {
+  top: 68px;
+  height: calc(100vh - 68px);
+  min-height: calc(100vh - 68px);
+  padding: 24px 12px 18px;
+  border-color: var(--border);
+  background: var(--surface-sidebar);
+}
+.workspace-sidebar > .eyebrow { padding-inline: 11px; letter-spacing: 1.2px; }
+.workspace-nav { gap: 4px; }
+.workspace-nav-link {
+  min-height: 44px;
+  gap: 8px;
+  padding-inline: 11px;
+  border-radius: var(--radius-control);
+  color: var(--secondary);
+  font-size: 12px;
+  font-weight: 600;
+  transition: color .15s ease, background-color .15s ease, border-color .15s ease;
+}
+.workspace-nav-link:hover { color: var(--text); background: var(--overlay-hover); }
+.workspace-nav-link.active {
+  color: var(--gold-text);
+  border-color: var(--border-active-nav);
+  background: var(--surface-gold-muted);
+  box-shadow: inset 3px 0 0 var(--gold-text);
+}
+.workspace-nav-icon, .workspace-nav-label-compact { display: none; }
+.workspace-user { gap: 10px; color: var(--secondary); }
+.workspace-user button {
+  min-height: 40px;
+  flex: none;
+  padding-inline: 13px;
+  border-radius: var(--radius-control);
+  border-color: var(--border-control);
+  color: var(--text);
+  background: var(--surface-control);
+  white-space: nowrap;
+}
+.workspace-user button:hover { border-color: var(--border-button-hover); color: var(--gold-text); }
+.workspace-header .brand-mark {
+  border-radius: 8px;
+  background: var(--surface-gold-chip);
+  border-color: var(--border-accent);
+  box-shadow: none;
+}
+.workspace-header .brand-lockup::after { display: none; }
+
+.coach-page, .athlete-page, .calculators-page, .rulebook-page {
+  min-width: 0;
+  color: var(--text);
+}
+.coach-page { width: min(100%, 1640px); padding: 34px var(--space-page-inline) 56px; }
+.athlete-page { width: min(100%, 1500px); padding: 32px var(--space-page-inline) 56px; }
+.calculators-page { padding: 36px var(--space-page-inline) 56px; }
+.rulebook-page { padding-block: 34px 56px; }
+.coach-page-header { min-height: 0; margin-bottom: 24px; gap: 20px; }
+.coach-page-header h1, .athlete-page-heading h1 {
+  margin-top: 6px;
+  font-size: clamp(30px, 3vw, 40px);
+  line-height: 1.1;
+  letter-spacing: -1.25px;
+}
+.coach-page-header > div:first-child > p:last-child,
+.athlete-page-heading p:not(.eyebrow) { color: var(--secondary); line-height: 1.6; }
+.eyebrow { font-size: 10px; letter-spacing: 1.35px; }
+.eyebrow-dot { box-shadow: none; }
+.workspace-content > .calculators-page { width: min(100%, 1480px); }
+
+.coach-panel, .calc-card, .metrics-panel, .recent-programs,
+.athlete-program-day, .athlete-checkin-panel, .rulebook-records,
+.rulebook-chapter, .rulebook-sources, .builder-topbar, .day-card,
+.programs-panel, .library-panel, .roster-panel, .invite-panel,
+.coach-profile-card, .coach-profile-details, .athlete-profile-card,
+.athlete-profile-details, .coach-video-card, .athlete-video-card {
+  border-color: var(--border-card);
+  border-radius: var(--radius-panel);
+  background: var(--card);
+  box-shadow: none;
+}
+.coach-panel { background: var(--card); }
+.panel-heading { align-items: flex-start; }
+.panel-heading h2 { font-size: 19px; }
+.metric-cards { gap: 12px; }
+.metric-cards article {
+  min-height: 128px;
+  padding: 19px 20px;
+  border-color: var(--border-card);
+  border-radius: var(--radius-panel);
+  background: var(--surface-card-soft);
+}
+.metric-cards article > span { letter-spacing: .8px; }
+.metric-cards strong { font-size: 34px; }
+.recent-programs, .programs-panel, .library-panel, .roster-panel, .invite-panel { padding: var(--space-panel); }
+.recent-program { border-color: var(--border-divider); }
+.recent-program-icon, .program-list-icon, .exercise-card-icon {
+  border-color: var(--border-card-subtle);
+  border-radius: 9px;
+  background: var(--surface-control);
+}
+.empty-state { min-height: 240px; padding: 32px 20px; }
+.empty-state-mark { border-color: var(--border-card-subtle); border-radius: 10px; background: var(--surface-control); }
+.program-list-row, .roster-row, .roster-athlete-row { border-color: var(--border-divider); }
+.search-field, .input-shell, .form-field input, .form-field select,
+.calc-field input, .calc-field select, .rulebook-search input,
+.athlete-program-log-input, .athlete-checkin-table input,
+.athlete-checkin-table select, .coach-profile-form input,
+.coach-profile-form select, .coach-profile-form textarea,
+.athlete-profile-form input, .athlete-profile-form select,
+.athlete-profile-form textarea {
+  border-color: var(--border-control);
+  border-radius: var(--radius-input);
+  background: var(--surface-field);
+  color: var(--text);
+}
+.search-field { height: 42px; }
+.form-field, .calc-field { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 12px; letter-spacing: .015em; text-transform: none; }
+.form-field input, .form-field select { height: 44px; font-size: 14px; }
+.button, .auth-button {
+  min-height: 42px;
+  padding-inline: 15px;
+  border-radius: var(--radius-button);
+  font-size: 12px;
+  font-weight: 700;
+  box-shadow: none;
+  transition: color .15s ease, background-color .15s ease, border-color .15s ease, transform .15s ease;
+}
+.button-primary, .auth-button:not(.auth-button-secondary), .signup-form > .auth-button {
+  color: var(--text-on-primary);
+  background: var(--gold-light);
+  border-color: var(--gold-light);
+  box-shadow: none;
+}
+.button-primary:hover:not(:disabled), .auth-button:not(:disabled):not(.auth-button-secondary):hover {
+  filter: none;
+  background: var(--gold-hover);
+  border-color: var(--gold-hover);
+  transform: translateY(-1px);
+}
+.button-secondary, .auth-button-secondary {
+  color: var(--text);
+  border-color: var(--border-control);
+  background: var(--surface-control);
+  box-shadow: none;
+}
+.button-secondary:hover:not(:disabled), .auth-button-secondary:hover:not(:disabled) {
+  color: var(--gold-text);
+  border-color: var(--border-button-hover);
+  background: var(--surface-button-hover);
+  box-shadow: none;
+}
+.button-quiet { border-color: transparent; background: transparent; }
+.icon-button, .row-actions button { border-radius: var(--radius-control); }
+.alert-banner, .inline-state { border-radius: var(--radius-control); }
+.inline-state { line-height: 1.5; }
+.dashboard-skeleton { border-radius: var(--radius-panel); }
+
+.auth-page { min-width: 0; background: var(--page); }
+.auth-card, .wizard-card, .state-card {
+  border-color: var(--border-card);
+  border-radius: var(--radius-panel);
+  background: var(--card);
+  box-shadow: none;
+}
+.auth-card::before, .wizard-card::before, .config-error-screen .state-card::before { display: none; }
+.login-card h1, .wizard-heading h1 { letter-spacing: -1.5px; }
+.auth-button { min-height: 50px; }
+.theme-toggle { border-color: var(--border-control); border-radius: var(--radius-control); background: var(--surface-control); }
+.theme-toggle button, .theme-toggle-icon { border-radius: 6px; }
+.theme-toggle button[aria-pressed='true'] { background: var(--gold-light); }
+.theme-toggle-icon { background: var(--surface-control); }
+.state-card { padding: clamp(22px, 4vw, 36px); }
+.state-card h1 { font-size: clamp(24px, 4vw, 30px); }
+
+.calc-header { border-color: var(--border-divider); }
+.calc-brand-mark { border-radius: 8px; box-shadow: none; }
+.calc-brand::after { display: none; }
+.calc-card { padding: clamp(17px, 2vw, 24px); }
+.calc-card h2 { font-size: 19px; }
+.calc-organizer-panel { border-color: var(--border-card); border-radius: var(--radius-panel); box-shadow: none; }
+.rulebook-record-source, .rulebook-records, .rulebook-chapter, .rulebook-sources { border-color: var(--border-card); }
+.rulebook-chapter { box-shadow: none; }
+.rulebook-heading h1 { letter-spacing: -1.25px; }
+
+.program-builder-page {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  padding: 28px clamp(14px, 2vw, 28px) 44px;
+  overflow: visible;
+}
+.builder-topbar { border-color: var(--border-card); background: var(--surface-card-soft); }
+.day-card { border-color: var(--border-day); background: var(--surface-card-soft); }
+.day-card-header { border-color: var(--border-divider); }
+.day-stack { max-width: 100%; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: thin; scrollbar-color: var(--scrollbar-thumb) var(--surface-control); }
+.day-stack::-webkit-scrollbar { height: 7px; }
+.day-stack::-webkit-scrollbar-thumb { border-radius: 8px; background: var(--scrollbar-thumb); }
+.day-stack::-webkit-scrollbar-track { background: var(--surface-control); }
+.day-card-body { max-width: 100%; overflow-x: auto; overscroll-behavior-x: contain; }
+.builder-grid-scroll-hint { display: none; }
+.program-grid { border-color: var(--border-grid-cell); }
+.builder-cell { border-color: var(--border-grid-cell); }
+.builder-cell:focus-within { background: var(--surface-cell-focus); }
+.builder-footer { border-color: var(--border-divider); }
+.athlete-program-day { padding-inline: 20px; }
+.athlete-program-day summary { border-bottom-color: transparent; }
+.athlete-program-day[open] summary { border-bottom: 1px solid var(--border-divider); }
+.athlete-program-table-viewport { border-radius: var(--radius-control); scrollbar-width: thin; }
+.athlete-program-table { border-color: var(--border-grid-divider); }
+.athlete-program-table thead th { color: var(--secondary); background: var(--surface-card-soft); }
+.athlete-program-table th, .athlete-program-table td { border-color: var(--border-divider); }
+.athlete-program-scroll-hint { color: var(--secondary); }
+.athlete-checkin-table thead th { font-size: 9px; }
+.athlete-checkin-table tbody th { font-size: 11px; }
+.athlete-checkin-actions .button { min-height: 44px; }
+.athlete-program-log-input { min-height: 42px; font-size: 13px; }
+.dialog-backdrop { background: var(--overlay-backdrop); }
+.exercise-dialog { border-radius: var(--radius-panel); box-shadow: 0 18px 48px var(--shadow-dialog); }
+.exercise-dialog .panel-heading { margin-bottom: 16px; }
+
+@media (min-width: 1024px) {
+  .workspace-body { grid-template-columns: var(--workspace-sidebar-width) minmax(0, 1fr); }
+  .workspace-athlete .workspace-body { grid-template-columns: var(--workspace-sidebar-width) minmax(0, 1fr); }
+}
+
+@media (min-width: 1024px) and (max-width: 2047px) {
+  .builder-grid-scroll-hint {
+    display: block;
+    margin: 0;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border-divider);
+    color: var(--secondary);
+    font-size: 10px;
+  }
+}
+
+@media (min-width: 1024px) and (max-width: 1699px) {
+  .day-stack::before {
+    content: 'Scroll horizontally to review athlete check-ins';
+    display: block;
+    margin-bottom: -5px;
+    color: var(--secondary);
+    font-size: 10px;
+    text-align: left;
+  }
+}
+
+@media (max-width: 1023px) {
+  .workspace-body, .workspace-athlete .workspace-body { grid-template-columns: 180px minmax(0, 1fr); }
+  .workspace-header { height: 64px; }
+  .workspace-sidebar { top: 64px; height: calc(100vh - 64px); min-height: calc(100vh - 64px); }
+  .coach-page { padding-block: 28px 44px; }
+  .athlete-page { padding-block: 28px 44px; }
+  .week-lift-totals { align-items: stretch; flex-direction: column; gap: 12px; padding: 15px; }
+  .week-lift-totals dl { width: 100%; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+  .week-lift-totals dl > div { min-width: 0; }
+  .builder-grid-scroll-hint {
+    display: block;
+    margin: 0;
+    padding: 7px 10px;
+    border-bottom: 1px solid var(--border-divider);
+    color: var(--secondary);
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 700px) {
+  .workspace-header { height: 60px; padding-inline: 13px; }
+  .workspace-header .brand-mark { width: 32px; height: 32px; }
+  .workspace-header .brand-word { font-size: 15px; letter-spacing: .8px; }
+  .workspace-body, .workspace-athlete .workspace-body { display: block; min-height: calc(100vh - 60px); }
+  .workspace-coach .workspace-sidebar {
+    top: 60px;
+    padding: 6px 10px;
+    border-bottom-color: var(--border);
+    background: var(--surface-sidebar-mobile);
+    backdrop-filter: none;
+  }
+  .workspace-coach .workspace-nav { gap: 4px; }
+  .workspace-coach .workspace-nav-link { min-height: 44px; }
+  .workspace-athlete .workspace-content { padding-bottom: calc(92px + env(safe-area-inset-bottom)); }
+  .workspace-athlete .workspace-sidebar {
+    padding: 6px 6px max(6px, env(safe-area-inset-bottom));
+    border-top-color: var(--border);
+    background: var(--surface-sidebar-mobile);
+    backdrop-filter: none;
+  }
+  .workspace-athlete .workspace-nav { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 2px; }
+  .workspace-athlete .workspace-nav-link {
+    min-width: 0;
+    min-height: 58px;
+    padding: 5px 1px 4px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 3px;
+    border-radius: 7px;
+    font-size: 10px;
+    line-height: 1.1;
+  }
+  .workspace-athlete .workspace-nav-link.active { box-shadow: inset 0 2px 0 var(--gold-text); }
+  .workspace-athlete .workspace-nav-icon {
+    width: 17px;
+    height: 17px;
+    display: grid;
+    place-items: center;
+    color: currentColor;
+  }
+  .workspace-athlete .workspace-nav-icon svg {
+    width: 17px;
+    height: 17px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .workspace-athlete .workspace-nav-label-full { display: none; }
+  .workspace-athlete .workspace-nav-label-compact { display: block; white-space: nowrap; }
+  .workspace-athlete .workspace-nav-link[aria-current='page'] .workspace-nav-label-compact { font-weight: 800; }
+  .athlete-global-sync { bottom: calc(98px + env(safe-area-inset-bottom)); }
+  .coach-page, .athlete-page, .calculators-page { padding-inline: 15px; }
+  .coach-page-header { align-items: stretch; flex-direction: column; gap: 13px; }
+  .coach-page-header .button { align-self: flex-start; }
+  .athlete-page-heading { align-items: stretch; flex-direction: column; gap: 13px; }
+  .athlete-program-heading-actions { flex-wrap: wrap; }
+  .metric-cards { grid-template-columns: minmax(0, 1fr); }
+  .metric-cards article { min-height: 108px; }
+  .coach-panel, .calc-card { border-radius: var(--radius-panel); }
+  .program-builder-page { padding: 18px 12px 34px; }
+  .program-grid { min-width: 1050px; }
+  .day-card-body { overflow-x: auto; }
+  .athlete-program-day { padding-inline: 13px; }
+  .exercise-dialog { width: 100%; }
+  .dialog-actions .button { min-height: 46px; }
+}
+
+@media (max-width: 380px) {
+  .workspace-header { padding-inline: 10px; }
+  .workspace-user { gap: 5px; }
+  .workspace-user > span:not(.user-avatar) { max-width: 72px; }
+  .workspace-user button { flex: none; padding-inline: 8px; font-size: 11px; white-space: nowrap; }
+  .workspace-athlete .workspace-nav-link { font-size: 9px; }
+  .workspace-athlete .workspace-nav-icon, .workspace-athlete .workspace-nav-icon svg { width: 16px; height: 16px; }
+  .coach-page, .athlete-page, .calculators-page { padding-inline: 12px; }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; }
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+  }
 }
