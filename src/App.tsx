@@ -1,4 +1,4 @@
-import { BrowserRouter, NavLink, Navigate, Outlet, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, Link, NavLink, Navigate, Outlet, Route, Routes } from 'react-router-dom';
 import { useState } from 'react';
 import { AuthProvider, useAuth } from './auth/AuthProvider';
 import { HomeRedirect, RequireRole } from './auth/RouteGuards';
@@ -50,7 +50,7 @@ function WorkspaceLayout({ role }: { role: 'coach' | 'athlete' }) {
     <div key={`${profile?.id}:${role}`} className={`workspace-shell workspace-${role}`}>
       <header className="workspace-header">
         <NavLink className="brand-lockup" to="/" aria-label="Topset home"><span className="brand-mark" aria-hidden="true">T</span><span className="brand-word">TOPSET<span className="brand-period">.</span></span></NavLink>
-        <div className="workspace-user"><span className="user-avatar">{profile?.name.slice(0, 1).toUpperCase() ?? 'T'}</span><span>{profile?.name}</span><button disabled={signingOut} onClick={() => void signOut()}>{signingOut ? 'Signing out...' : 'Sign out'}</button></div>
+        <div className="workspace-user"><Link className="workspace-user-profile" to={`/${role}/profile`} aria-label={profile?.name ? `Open ${profile.name}'s profile` : 'Open your profile'}><span className="user-avatar" aria-hidden="true">{profile?.name.slice(0, 1).toUpperCase() ?? 'T'}</span><span className="workspace-user-name">{profile?.name}</span></Link><button disabled={signingOut} onClick={() => void signOut()}>{signingOut ? 'Signing out...' : 'Sign out'}</button></div>
       </header>
       <div className="workspace-body">
         <aside className="workspace-sidebar">
