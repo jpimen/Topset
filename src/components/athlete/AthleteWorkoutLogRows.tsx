@@ -159,12 +159,12 @@ export function AthleteWorkoutLogRows({ athleteId, assignmentId, day, unit, onEd
       const sets = draft?.sets.filter((item) => item.program_exercise_id === exercise.id).sort((a, b) => a.set_number - b.set_number) ?? [];
       return <tr key={exercise.id} className="athlete-program-loggable-row">
         <th scope="row" className="athlete-program-exercise">{exerciseName}</th>
-        <td><span className={`athlete-program-set-type${exercise.set_type ? ` set-type-${exercise.set_type.toLowerCase().replace(/[^a-z0-9_-]/g, '-')}` : ''}`}>{exercise.set_type ?? '—'}</span></td>
-        <td>{exercise.sets ?? '—'}</td>
-        <td>{exercise.reps || '—'}</td>
-        <td>{exercise.rpe ?? '—'}</td>
-        <td className="athlete-program-prescribed-load">{athleteLoadLabel(exercise, unit)}</td>
-        <td className="athlete-program-coach-notes">{exercise.notes_coach || '—'}</td>
+        <td data-label="Set type"><span className={`athlete-program-set-type${exercise.set_type ? ` set-type-${exercise.set_type.toLowerCase().replace(/[^a-z0-9_-]/g, '-')}` : ''}`}>{exercise.set_type ?? '—'}</span></td>
+        <td data-label="Sets">{exercise.sets ?? '—'}</td>
+        <td data-label="Reps">{exercise.reps || '—'}</td>
+        <td data-label="Target RPE">{exercise.rpe ?? '—'}</td>
+        <td data-label="Target load" className="athlete-program-prescribed-load">{athleteLoadLabel(exercise, unit)}</td>
+        <td data-label="Coach notes" className="athlete-program-coach-notes">{exercise.notes_coach || '—'}</td>
         <td colSpan={3}>
           <details className="athlete-program-set-log">
             <summary>Log sets <span>({sets.length})</span></summary>

@@ -20,35 +20,33 @@ export const CALCULATOR_LABELS: Record<CalculatorId, string> = {
 };
 
 export const DEFAULT_CALCULATOR_VISIBILITY: CalculatorVisibility = {
-  'estimated-one-rep-max': true,
-  'rpe-load': true,
-  'plate-calculator': true,
-  'warm-up-sets': true,
-  'strength-scores': true,
-  'minus-percentage': true,
+  'estimated-one-rep-max': false,
+  'rpe-load': false,
+  'plate-calculator': false,
+  'warm-up-sets': false,
+  'strength-scores': false,
+  'minus-percentage': false,
 };
 
-export const DEFAULT_CALCULATOR_ORDER: CalculatorId[] = [...CALCULATOR_IDS];
-
-const STORAGE_PREFIX = 'topset:calculator-visibility:v1';
-const ORDER_STORAGE_PREFIX = 'topset:calculator-order:v1';
+const STORAGE_PREFIX = 'topset:calculator-visibility:v2';
+const LEGACY_STORAGE_PREFIX = 'topset:calculator-visibility:v1';
 type PreferenceStorage = Pick<Storage, 'getItem' | 'setItem'>;
 
 export function calculatorPreferenceKey(userId: string): string {
   return `${STORAGE_PREFIX}:${userId}`;
 }
 
-export function calculatorOrderKey(userId: string): string {
-  return `${ORDER_STORAGE_PREFIX}:${userId}`;
-}
-
 export function readCalculatorVisibility(userId: string, storage?: PreferenceStorage | null): CalculatorVisibility {
   try {
     const source = storage ?? (typeof window === 'undefined' ? null : window.localStorage);
-    const value: unknown = JSON.parse(source?.getItem(calculatorPreferenceKey(userId)) ?? 'null');
+    const current = source?.getItem(calculatorPreferenceKey(userId));
+    const legacyValue = current === null ? source?.getItem(`${LEGACY_STORAGE_PREFIX}:${userId}`) : null;
+    const value: unknown = JSON.parse(current ?? legacyValue ?? 'null');
     if (!value || typeof value !== 'object' || Array.isArray(value)) return { ...DEFAULT_CALCULATOR_VISIBILITY };
     const saved = value as Record<string, unknown>;
-    return Object.fromEntries(CALCULATOR_IDS.map((id) => [id, typeof saved[id] === 'boolean' ? saved[id] : true])) as CalculatorVisibility;
+    const legacyDefault = current === null && CALCULATOR_IDS.every((id) => saved[id] === true);
+    if (legacyDefault) return { ...DEFAULT_CALCULATOR_VISIBILITY };
+    return Object.fromEntries(CALCULATOR_IDS.map((id) => [id, typeof saved[id] === 'boolean' ? saved[id] : DEFAULT_CALCULATOR_VISIBILITY[id]])) as CalculatorVisibility;
   } catch {
     return { ...DEFAULT_CALCULATOR_VISIBILITY };
   }
@@ -60,26 +58,5 @@ export function storeCalculatorVisibility(userId: string, visibility: Calculator
     target?.setItem(calculatorPreferenceKey(userId), JSON.stringify(visibility));
   } catch {
     // The current selection remains usable for this page when storage is unavailable.
-  }
-}
-
-export function readCalculatorOrder(userId: string, storage?: PreferenceStorage | null): CalculatorId[] {
-  try {
-    const source = storage ?? (typeof window === 'undefined' ? null : window.localStorage);
-    const stored: unknown = JSON.parse(source?.getItem(calculatorOrderKey(userId)) ?? 'null');
-    if (!Array.isArray(stored)) return [...DEFAULT_CALCULATOR_ORDER];
-    const valid = stored.filter((id): id is CalculatorId => CALCULATOR_IDS.includes(id));
-    return [...new Set(valid), ...DEFAULT_CALCULATOR_ORDER.filter((id) => !valid.includes(id))];
-  } catch {
-    return [...DEFAULT_CALCULATOR_ORDER];
-  }
-}
-
-export function storeCalculatorOrder(userId: string, order: CalculatorId[], storage?: PreferenceStorage | null): void {
-  try {
-    const target = storage ?? (typeof window === 'undefined' ? null : window.localStorage);
-    target?.setItem(calculatorOrderKey(userId), JSON.stringify(order));
-  } catch {
-    // The current order remains usable for this page when storage is unavailable.
   }
 }
