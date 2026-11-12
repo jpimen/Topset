@@ -501,14 +501,19 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .athlete-program-table-viewport { overflow-x: visible; }
   .athlete-program-table { min-width: 0; }
   .athlete-program-table thead { display: none; }
-  .athlete-program-table tbody tr.athlete-program-loggable-row { display: block; border-bottom: 1px solid var(--border-divider); }
-  .athlete-program-table tbody tr.athlete-program-loggable-row > th,
+  .athlete-program-table tbody tr.athlete-program-loggable-row { display: grid; grid-template-columns: minmax(0, 1fr); width: 100%; border-bottom: 1px solid var(--border-divider); }
+  .athlete-program-table tbody tr.athlete-program-loggable-row > th { display: block; min-width: 0; padding: 12px 16px 4px; text-align: left; }
   .athlete-program-table tbody tr.athlete-program-loggable-row > td { display: none; }
-  .athlete-program-table tbody tr.athlete-program-loggable-row > td:last-child { display: block; padding: 0 16px; }
-  .athlete-program-table tbody tr.athlete-program-loggable-row .athlete-program-set-log summary { margin-inline: -16px; padding-inline: 24px; }
+  .athlete-program-table tbody tr.athlete-program-loggable-row > td:last-child { display: block; box-sizing: border-box; width: 100%; min-width: 0; padding: 0 16px; }
+  .athlete-program-table tbody tr.athlete-program-loggable-row .athlete-program-set-log { width: 100%; }
+  .athlete-program-table tbody tr.athlete-program-loggable-row .athlete-program-set-log summary { width: 100%; box-sizing: border-box; margin-inline: 0; padding-inline: 12px; }
   .athlete-program-table tbody tr.athlete-program-loggable-row .athlete-program-set-grid { padding: 0 0 12px; overflow-x: auto; }
   .athlete-program-table tbody tr.athlete-program-loggable-row .athlete-program-set-grid-header,
   .athlete-program-table tbody tr.athlete-program-loggable-row .athlete-program-set-grid-row { min-width: 480px; }
+  .athlete-program-table tbody tr.athlete-program-log-save-row { display: block; }
+  .athlete-program-table tbody tr.athlete-program-log-save-row > td { display: block; padding: 10px 0; }
+  .athlete-program-log-save-controls { align-items: flex-start; flex-direction: column; }
+  .athlete-program-log-actions { align-self: flex-end; }
 }
 .athlete-program-log-loading { height: 58px; }
 .athlete-program-log-save-row td { padding: 10px 12px; border-top: 1px solid var(--border); }
