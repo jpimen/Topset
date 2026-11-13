@@ -1,13 +1,8 @@
 import { useEffect, useState, type ChangeEvent, type FormEvent } from 'react';
-import { Link } from 'react-router-dom';
 import { useAuth } from '../../auth/AuthProvider';
 import { supabase } from '../../lib/supabase';
 import { AthleteCoachLinkCard } from './AthleteCoachLinkCard';
 import { ThemeToggle } from '../ThemeToggle';
-
-export function AthleteProgressPage() {
-  return <main className="athlete-page"><header className="athlete-page-heading"><div><p className="eyebrow">PROGRESS</p><h1>Your training, over time</h1><p>Strength trends and training history will appear here as you log workouts.</p></div></header><section className="coach-panel empty-state athlete-placeholder"><span className="empty-state-mark">↗</span><h2>Progress tracking is next</h2><p>For now, your completed sessions are available in your Program and your coach can review synced logs.</p><Link className="button button-secondary" to="/athlete/program">Go to your program</Link></section></main>;
-}
 
 export function AthleteSettingsPage() {
   return <main className="athlete-page">
