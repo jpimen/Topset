@@ -1,5 +1,9 @@
 # Decisions
 
+## 2026-11-14 - Black flexed-arm favicon
+
+- Replace the gray outlined arm with a bold black flexed-arm silhouette on a transparent canvas, following the supplied visual direction without text or extra decoration.
+
 ## 2026-11-14 - Monochrome flexed-arm favicon
 
 - Replace the plate graphic with a simple gray-and-white flexed-arm icon on a transparent background, keeping the weight-training theme and small-size legibility.
