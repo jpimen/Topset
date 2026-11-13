@@ -1,5 +1,9 @@
 # Decisions
 
+## 2026-11-14 - Monochrome front-facing plate favicon
+
+- Replace the cartoon plate mascot with a straight-on monochrome plate and a clear 25kg marking. Keep the graphic simple and high contrast, with no tilt or colored accents.
+
 ## 2026-11-14 - Flat mascot badge favicon
 
 - Simplify the red plate mascot into a bold cream-on-red circular badge with expressive eyes and a plate hub. Keep the friendly mascot feel and high contrast at small sizes without using GitHub's cat or exact mark.

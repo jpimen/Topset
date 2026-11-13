@@ -1,33 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <defs>
-    <linearGradient id="badge" x1="0" y1="0" x2="1" y2="1">
-      <stop stop-color="#F04B56" />
-      <stop offset="1" stop-color="#A80F24" />
-    </linearGradient>
-  </defs>
-  <circle cx="32" cy="32" r="30" fill="#201216" />
-  <circle cx="32" cy="32" r="27.5" fill="url(#badge)" stroke="#FF8A84" stroke-width="1.5" />
-  <g transform="rotate(-10 32 32)" stroke-linejoin="round">
-    <ellipse cx="29" cy="33" rx="21" ry="25" fill="#781321" stroke="#5A101A" stroke-width="1.5" />
-    <ellipse cx="33" cy="30" rx="20" ry="25" fill="#FFF2E3" stroke="#FFF9EF" stroke-width="1.5" />
-    <ellipse cx="33" cy="30" rx="16.5" ry="21" fill="none" stroke="#C7A99C" stroke-width="1.4" />
-    <ellipse cx="33" cy="30" rx="14.3" ry="18.5" fill="none" stroke="#E4D0C1" stroke-width=".8" />
-    <g fill="#741320" stroke="#741320" stroke-linecap="round">
-      <path d="M20 16q3-3 6-1" fill="none" stroke-width="2.2" />
-      <path d="M37 14q3-2 6 1" fill="none" stroke-width="2.2" />
-      <ellipse cx="23.5" cy="21" rx="4.5" ry="5.5" fill="#FFF" stroke-width="1.1" />
-      <ellipse cx="40" cy="20" rx="4.5" ry="5.5" fill="#FFF" stroke-width="1.1" />
-      <ellipse cx="24.8" cy="21.6" rx="2.2" ry="3.2" fill="#251117" stroke="none" />
-      <ellipse cx="41.2" cy="20.6" rx="2.2" ry="3.2" fill="#251117" stroke="none" />
-    </g>
-    <g fill="#fff">
-      <circle cx="23.6" cy="19.3" r="1.35" />
-      <circle cx="40.1" cy="18.3" r="1.35" />
-    </g>
-    <ellipse cx="33" cy="32" rx="6.4" ry="8.3" fill="#C5B8AE" stroke="#FFF" stroke-width="1.5" />
-    <ellipse cx="33" cy="32" rx="3.1" ry="4.8" fill="#781321" />
-    <path d="M28 44q5 4 10-1" fill="none" stroke="#741320" stroke-linecap="round" stroke-width="2.3" />
-    <path d="M30 45q3 1.5 6-.3" fill="none" stroke="#E88A83" stroke-linecap="round" stroke-width=".9" />
-    <circle cx="33" cy="52" r="1.3" fill="#B62030" />
-  </g>
+  <rect x="2" y="2" width="60" height="60" rx="14" fill="#171717" />
+  <circle cx="32" cy="32" r="26" fill="#F7F7F7" stroke="#F7F7F7" stroke-width="2" />
+  <circle cx="32" cy="32" r="22" fill="none" stroke="#252525" stroke-width="2" />
+  <circle cx="32" cy="31" r="7" fill="#252525" />
+  <circle cx="32" cy="31" r="4.5" fill="#171717" />
+  <text x="32" y="49" fill="#171717" font-family="Arial, sans-serif" font-size="10" font-weight="700" letter-spacing=".2" text-anchor="middle">25kg</text>
 </svg>
