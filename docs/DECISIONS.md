@@ -1,5 +1,49 @@
 # Decisions
 
+## 2026-11-14 - Black transparent arm favicon
+
+- Use pure black line art on a transparent canvas for the flexed-arm favicon.
+
+## 2026-11-14 - Line-art arm favicon
+
+- Replace the filled arm silhouette with a light charcoal line-art flexed arm on white, following the user's supplied reference image and keeping the favicon free of text.
+
+## 2026-11-14 - Refined flexed-arm favicon silhouette
+
+- Redraw the arm with a more distinct fist, raised forearm, and bicep curve so the powerlifting mark remains recognizable at favicon scale.
+
+## 2026-11-14 - Black flexed-arm favicon
+
+- Replace the gray outlined arm with a bold black flexed-arm silhouette on a transparent canvas, following the supplied visual direction without text or extra decoration.
+
+## 2026-11-14 - Monochrome flexed-arm favicon
+
+- Replace the plate graphic with a simple gray-and-white flexed-arm icon on a transparent background, keeping the weight-training theme and small-size legibility.
+
+## 2026-11-14 - Transparent plate favicon
+
+- Remove the dark background and use a transparent canvas with a white plate, gray details, and gray 25kg label so the icon stays visible across browser themes.
+
+## 2026-11-14 - Monochrome front-facing plate favicon
+
+- Replace the cartoon plate mascot with a straight-on monochrome plate and a clear 25kg marking. Keep the graphic simple and high contrast, with no tilt or colored accents.
+
+## 2026-11-14 - Flat mascot badge favicon
+
+- Simplify the red plate mascot into a bold cream-on-red circular badge with expressive eyes and a plate hub. Keep the friendly mascot feel and high contrast at small sizes without using GitHub's cat or exact mark.
+
+## 2026-11-14 - Cartoon plate mascot favicon
+
+- Give the angled red calibrated plate an expressive cartoon face with glossy eyes and a friendly smile. Keep the 3D rim and steel hub details, and omit text.
+
+## 2026-11-14 - Angled 3D plate favicon
+
+- Show the red calibrated plate in an oblique, raised-rim view with a steel hub and soft shadow. Omit weight labels and branding text so the mark stays clear at favicon size.
+
+## 2026-11-14 - Red calibrated plate favicon
+
+- Replace the gold barbell-and-T favicon with a red competition plate, including a steel hub and calibration markers. Keep the existing SVG favicon URL.
+
 ## 2026-11-14 - Keep set type menu within the builder card
 
 - Render the Coach set type menu above the grid's horizontal scroll viewport so it is not clipped by the table. Let it use the visible space to the program builder's bottom edge, and flip it above the active row when there is not enough room below.
@@ -330,3 +374,15 @@
 
 - Hide normal syncing and waiting-to-sync banners so autosave does not show temporary popups or move attention away from the workout.
 - Keep the retry notice for actual sync failures.
+
+## 2026-11-14 - UI-matched Topset favicon
+
+- Replace the detailed arm drawing with a compact barbell forming the Topset T mark, matching the application's gold-on-dark brand badge and remaining legible at favicon sizes.
+
+## 2026-11-14 - Black transparent Topset favicon
+
+- Use the black barbell T mark on a transparent canvas, following the requested monochrome favicon style.
+
+## 2026-11-14 - Sharp Topset T favicon
+
+- Use square corners on the T crossbar and stem for a crisper silhouette at favicon sizes; retain rounded barbell plate details.
