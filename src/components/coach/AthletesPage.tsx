@@ -244,6 +244,14 @@ export function AthletesPage() {
             {selectedPhotoUrl ? <img className="roster-profile-photo" src={selectedPhotoUrl} alt={`${selectedAthlete.athlete.name} profile`} /> : <span className="roster-profile-photo roster-profile-photo-fallback" aria-hidden="true">{selectedAthlete.athlete.name.slice(0, 1).toUpperCase()}</span>}
             <div><strong>{selectedAthlete.athlete.category || 'Athlete'}</strong><small>Linked {new Date(selectedAthlete.created_at).toLocaleDateString()}</small></div>
           </div>
+          <section className="roster-profile-maxes" aria-labelledby="roster-profile-maxes-heading">
+            <div className="roster-profile-maxes-heading"><h3 id="roster-profile-maxes-heading">Current one rep maxes</h3><span>{selectedAthlete.athlete.unit ?? 'kg'}</span></div>
+            <dl>
+              <div><dt>Squat</dt><dd>{selectedAthlete.athlete.squat_max ?? 'Not provided'}</dd></div>
+              <div><dt>Bench</dt><dd>{selectedAthlete.athlete.bench_max ?? 'Not provided'}</dd></div>
+              <div><dt>Deadlift</dt><dd>{selectedAthlete.athlete.deadlift_max ?? 'Not provided'}</dd></div>
+            </dl>
+          </section>
           <dl className="roster-profile-details">
             <div><dt>Weight class</dt><dd>{selectedAthlete.athlete.weight_class || 'Not provided'}</dd></div>
             <div><dt>Team or gym</dt><dd>{selectedAthlete.athlete.team_name || 'Not provided'}</dd></div>
