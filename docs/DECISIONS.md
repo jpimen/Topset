@@ -1,5 +1,9 @@
 # Decisions
 
+## 2026-11-14 - Monochrome flexed-arm favicon
+
+- Replace the plate graphic with a simple gray-and-white flexed-arm icon on a transparent background, keeping the weight-training theme and small-size legibility.
+
 ## 2026-11-14 - Transparent plate favicon
 
 - Remove the dark background and use a transparent canvas with a white plate, gray details, and gray 25kg label so the icon stays visible across browser themes.

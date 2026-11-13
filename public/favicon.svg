@@ -1,7 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <circle cx="32" cy="32" r="27" fill="#FAFAFA" stroke="#777" stroke-width="2" />
-  <circle cx="32" cy="32" r="22" fill="none" stroke="#777" stroke-width="2" />
-  <circle cx="32" cy="31" r="7" fill="none" stroke="#777" stroke-width="2" />
-  <circle cx="32" cy="31" r="4.5" fill="none" />
-  <text x="32" y="49" fill="#4D4D4D" font-family="Arial, sans-serif" font-size="10" font-weight="700" letter-spacing=".2" text-anchor="middle">25kg</text>
+  <g stroke="#696969" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 50c-4-3-5-8-2-12l9-10c1-2 2-4 2-7 0-7 5-13 12-14 6-1 11 2 14 7l4-4c2-2 5 0 4 3 3 1 4 4 1 6 2 2 1 5-2 6l-7 8c-1 8-6 14-14 17-7 3-15 3-21 0Z" fill="#F5F5F5" stroke-width="2.5" />
+    <path d="M18 37c4-1 7 0 10 3 3 2 7 2 10 0" fill="none" stroke-width="2.3" />
+    <path d="M24 27c2-5 6-8 11-8 4 0 7 2 9 5" fill="none" stroke-width="2.3" />
+    <path d="m48 16 3-3m0 7 3-3m-1 7 3-3" fill="none" stroke-width="1.6" />
+    <path d="m13 42 6 5" fill="none" stroke-width="2" />
+  </g>
 </svg>
