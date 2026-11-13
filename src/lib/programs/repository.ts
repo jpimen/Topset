@@ -123,7 +123,9 @@ export async function archiveProgram(programId: string) {
 export async function listExercises(): Promise<Exercise[]> {
   const { data, error } = await client().from('exercises').select('*').order('category').order('name');
   raise(error);
-  return (data ?? []) as Exercise[];
+  const exercises = (data ?? []) as Exercise[];
+  const overriddenBuiltins = new Set(exercises.flatMap((exercise) => exercise.base_exercise_id ? [exercise.base_exercise_id] : []));
+  return exercises.filter((exercise) => exercise.owner_id !== null || !overriddenBuiltins.has(exercise.id));
 }
 
 export async function createExercise(ownerId: string, values: Omit<Exercise, 'id' | 'owner_id'>) {
@@ -133,6 +135,18 @@ export async function createExercise(ownerId: string, values: Omit<Exercise, 'id
 }
 
 export async function updateExercise(exercise: Exercise) {
+  if (exercise.owner_id === null) {
+    const { error } = await client().rpc('customize_builtin_exercise', {
+      p_exercise_id: exercise.id,
+      p_name: exercise.name,
+      p_category: exercise.category,
+      p_movement: exercise.movement,
+      p_muscle_group: exercise.muscle_group,
+      p_is_competition_lift: exercise.is_competition_lift,
+    });
+    raise(error);
+    return;
+  }
   const { error } = await client().from('exercises').update({
     name: exercise.name, category: exercise.category, movement: exercise.movement,
     muscle_group: exercise.muscle_group, is_competition_lift: exercise.is_competition_lift,

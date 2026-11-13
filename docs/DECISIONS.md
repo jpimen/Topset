@@ -390,3 +390,7 @@
 ## 2026-11-14 - Show the profile photo in the workspace header
 
 - Resolve the signed profile photo URL for the current account and show it in the header avatar, keeping the initial as a fallback when there is no usable photo.
+
+## 2026-11-14 - Coach-specific built-in exercise edits
+
+- Let coaches edit every built-in exercise by creating a private override, then move only their program rows to that override. Keep the global built-in unchanged for other coaches and preserve snapshot assignments.
