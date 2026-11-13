@@ -64,7 +64,7 @@ export function AthleteProgramPage() {
               <summary><span><strong>{day.name}</strong><small>{day.exercises.filter(hasUsableExerciseName).length} {day.exercises.filter(hasUsableExerciseName).length === 1 ? 'exercise' : 'exercises'}</small></span><span aria-hidden="true">⌄</span></summary>
               {day.notes && <p className="athlete-coach-note"><strong>Coach note</strong>{day.notes}</p>}
               {day.exercises.filter(hasUsableExerciseName).length === 0 ? <p className="athlete-program-empty-day">No exercises in this day.</p> : <div className="athlete-program-table-viewport" role="region" aria-label={`${week.name} ${day.name} prescriptions`} tabIndex={0}>
-                <p className="athlete-program-scroll-hint">Swipe across the table to view each exercise and workout log column.</p>
+                <p className="athlete-program-scroll-hint">Swipe across the table to view workout log columns. Exercise stays fixed.</p>
                 <table className="athlete-program-table">
                   <caption className="visually-hidden">{week.name}, {day.name} exercise prescriptions and athlete workout log</caption>
                   <thead><tr><th scope="col">Exercise</th><th scope="col">Set type</th><th scope="col">Sets</th><th scope="col">Reps</th><th scope="col">RPE</th><th scope="col">Load</th><th scope="col">Coach notes</th><th scope="col" colSpan={3}>Workout log · {result.program.program.unit}</th></tr></thead>

@@ -19,7 +19,6 @@ export function getWorkspaceNavigation(role: WorkspaceRole): WorkspaceNavigation
     ]
     : [
       { label: 'Program', to: '/athlete/program' },
-      { label: 'Progress', to: '/athlete/progress' },
       { label: 'Calculators', to: '/athlete/calculators' },
       { label: 'IPF Rulebook', to: '/athlete/rulebook' },
       { label: 'Profile', to: '/athlete/profile' },
