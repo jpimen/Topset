@@ -1,5 +1,9 @@
 # Decisions
 
+## 2026-11-14 - Refined flexed-arm favicon silhouette
+
+- Redraw the arm with a more distinct fist, raised forearm, and bicep curve so the powerlifting mark remains recognizable at favicon scale.
+
 ## 2026-11-14 - Black flexed-arm favicon
 
 - Replace the gray outlined arm with a bold black flexed-arm silhouette on a transparent canvas, following the supplied visual direction without text or extra decoration.
