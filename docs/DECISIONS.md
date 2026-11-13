@@ -374,3 +374,7 @@
 
 - Hide normal syncing and waiting-to-sync banners so autosave does not show temporary popups or move attention away from the workout.
 - Keep the retry notice for actual sync failures.
+
+## 2026-11-14 - UI-matched Topset favicon
+
+- Replace the detailed arm drawing with a compact barbell forming the Topset T mark, matching the application's gold-on-dark brand badge and remaining legible at favicon sizes.
