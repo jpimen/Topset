@@ -1,5 +1,9 @@
 # Decisions
 
+## 2026-11-14 - Transparent plate favicon
+
+- Remove the dark background and use a transparent canvas with a white plate, gray details, and gray 25kg label so the icon stays visible across browser themes.
+
 ## 2026-11-14 - Monochrome front-facing plate favicon
 
 - Replace the cartoon plate mascot with a straight-on monochrome plate and a clear 25kg marking. Keep the graphic simple and high contrast, with no tilt or colored accents.
