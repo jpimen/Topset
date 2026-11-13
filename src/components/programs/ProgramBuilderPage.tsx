@@ -1,5 +1,6 @@
-import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useReducer, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
+import { createPortal } from 'react-dom';
 import { EditableGridCell, focusProgramGridCell } from './EditableGridCell';
 import { useCoachId } from '../coach/useCoachId';
 import { createBlankRow, createProgramHistory, createRow, parseReps, programReducer, validateLoad } from '../../lib/programs/document';
@@ -24,11 +25,47 @@ function SetTypeCell({ row, value, options, onManageOptions, onCommit, onClear }
 }) {
   const [open, setOpen] = useState(false);
   const root = useRef<HTMLDivElement>(null);
+  const menu = useRef<HTMLDivElement>(null);
+  const [menuPosition, setMenuPosition] = useState<{ top: number; left: number; width: number; maxHeight: number }>();
   useEffect(() => {
     if (!open) return;
-    const close = (event: PointerEvent) => { if (!root.current?.contains(event.target as Node)) setOpen(false); };
+    const close = (event: PointerEvent) => {
+      const target = event.target as Node;
+      if (!root.current?.contains(target) && !menu.current?.contains(target)) setOpen(false);
+    };
     window.document.addEventListener('pointerdown', close);
     return () => window.document.removeEventListener('pointerdown', close);
+  }, [open]);
+  useLayoutEffect(() => {
+    if (!open) return;
+    const positionMenu = () => {
+      const trigger = root.current?.querySelector('button');
+      const builder = root.current?.closest('.program-builder-page');
+      if (!trigger || !builder) return;
+      const triggerRect = trigger.getBoundingClientRect();
+      const builderRect = builder.getBoundingClientRect();
+      const width = Math.min(Math.max(130, triggerRect.width), window.innerWidth - 16);
+      const left = Math.max(8, Math.min(triggerRect.left, window.innerWidth - width - 8));
+      const belowTop = triggerRect.bottom + 3;
+      const belowBottom = Math.min(builderRect.bottom - 8, window.innerHeight - 8);
+      let top = belowTop;
+      let maxHeight = Math.max(0, belowBottom - belowTop);
+      const naturalHeight = menu.current?.scrollHeight ?? 0;
+      const aboveTop = Math.max(builderRect.top + 8, 8);
+      const aboveHeight = Math.max(0, triggerRect.top - 3 - aboveTop);
+      if (maxHeight < naturalHeight && aboveHeight > maxHeight) {
+        maxHeight = Math.min(naturalHeight, aboveHeight);
+        top = triggerRect.top - 3 - maxHeight;
+      }
+      setMenuPosition({ top, left, width, maxHeight });
+    };
+    positionMenu();
+    window.addEventListener('resize', positionMenu);
+    window.addEventListener('scroll', positionMenu, true);
+    return () => {
+      window.removeEventListener('resize', positionMenu);
+      window.removeEventListener('scroll', positionMenu, true);
+    };
   }, [open]);
   const choose = (option: string) => { onCommit(option); setOpen(false); };
   const listedOptions = value && !options.includes(value) ? [...options, value] : options;
@@ -39,12 +76,12 @@ function SetTypeCell({ row, value, options, onManageOptions, onCommit, onClear }
       else if (event.key === 'ArrowLeft') { event.preventDefault(); focusProgramGridCell(row, 0); }
       else if (event.key === 'ArrowRight') { event.preventDefault(); focusProgramGridCell(row, 2); }
     }}>{(setTypeLabels[value] ?? value) || <span className="builder-cell-placeholder">—</span>}<span aria-hidden="true">⌄</span></button>
-    {open && <div className="set-type-menu" role="menu" aria-label="Set type options">
+    {open && createPortal(<div ref={menu} className="set-type-menu" role="menu" aria-label="Set type options" style={menuPosition}>
       <button type="button" role="menuitem" onClick={() => choose('')}>—</button>
       {listedOptions.map((option) => <button type="button" role="menuitem" key={option} aria-current={value === option ? 'true' : undefined} onClick={() => choose(option)}>{setTypeLabels[option] ?? option}</button>)}
       <div className="set-type-menu-divider" />
       <button type="button" role="menuitem" className="set-type-add-option" onClick={() => { setOpen(false); onManageOptions(); }}>＋ Add option</button>
-    </div>}
+    </div>, window.document.body)}
   </div>;
 }
 

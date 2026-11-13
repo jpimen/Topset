@@ -1,5 +1,9 @@
 # Decisions
 
+## 2026-11-14 - Keep set type menu within the builder card
+
+- Render the Coach set type menu above the grid's horizontal scroll viewport so it is not clipped by the table. Let it use the visible space to the program builder's bottom edge, and flip it above the active row when there is not enough room below.
+
 ## 2026-11-13 - Powerlifting favicon
 
 - Add an SVG favicon with a barbell and the Topset T mark, using the existing charcoal and gold brand colors. Keep it as a lightweight, dependency-free static asset served from the Vite public directory.
