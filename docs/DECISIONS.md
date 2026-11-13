@@ -1,5 +1,9 @@
 # Decisions
 
+## 2026-11-14 - Red calibrated plate favicon
+
+- Replace the gold barbell-and-T favicon with a red competition plate, including a steel hub and calibration markers. Keep the existing SVG favicon URL.
+
 ## 2026-11-14 - Keep set type menu within the builder card
 
 - Render the Coach set type menu above the grid's horizontal scroll viewport so it is not clipped by the table. Let it use the visible space to the program builder's bottom edge, and flip it above the active row when there is not enough room below.
