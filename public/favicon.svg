@@ -1,7 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
   <title id="title">Topset</title>
-  <rect x="2" y="2" width="60" height="60" rx="14" fill="#443717" stroke="#705D2A" stroke-width="2" />
-  <g fill="#E8C25A">
+  <g fill="#000000">
     <rect x="13" y="17" width="38" height="6" rx="3" />
     <rect x="9" y="12" width="5" height="16" rx="2" />
     <rect x="16" y="13" width="4" height="14" rx="1.5" />

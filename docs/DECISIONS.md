@@ -378,3 +378,7 @@
 ## 2026-11-14 - UI-matched Topset favicon
 
 - Replace the detailed arm drawing with a compact barbell forming the Topset T mark, matching the application's gold-on-dark brand badge and remaining legible at favicon sizes.
+
+## 2026-11-14 - Black transparent Topset favicon
+
+- Use the black barbell T mark on a transparent canvas, following the requested monochrome favicon style.
