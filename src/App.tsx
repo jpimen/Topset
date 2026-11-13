@@ -1,5 +1,5 @@
 import { BrowserRouter, Link, NavLink, Navigate, Outlet, Route, Routes } from 'react-router-dom';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { AuthProvider, useAuth } from './auth/AuthProvider';
 import { HomeRedirect, RequireRole } from './auth/RouteGuards';
 import { AuthPage } from './components/AuthPage';
@@ -27,6 +27,24 @@ function WorkspaceLayout({ role }: { role: 'coach' | 'athlete' }) {
   const { profile, storageWarning } = useAuth();
   const [signOutError, setSignOutError] = useState('');
   const [signingOut, setSigningOut] = useState(false);
+  const [profilePhotoUrl, setProfilePhotoUrl] = useState<string | null>(null);
+  useEffect(() => {
+    let active = true;
+    const loadProfilePhoto = async () => {
+      setProfilePhotoUrl(null);
+      if (!profile?.profile_photo_path || !supabase) return;
+      try {
+        const { data, error } = await supabase.storage.from('athlete-profile-photos').createSignedUrl(profile.profile_photo_path, 3600);
+        if (error) throw error;
+        if (active) setProfilePhotoUrl(data.signedUrl);
+      } catch (cause) {
+        if (!active) return;
+        console.error('Workspace profile photo could not be loaded.', cause);
+      }
+    };
+    void loadProfilePhoto();
+    return () => { active = false; };
+  }, [profile?.profile_photo_path]);
   const signOut = async () => {
     if (!supabase) return;
     setSigningOut(true);
@@ -50,7 +68,7 @@ function WorkspaceLayout({ role }: { role: 'coach' | 'athlete' }) {
     <div key={`${profile?.id}:${role}`} className={`workspace-shell workspace-${role}`}>
       <header className="workspace-header">
         <NavLink className="brand-lockup" to="/" aria-label="Topset home"><span className="brand-mark" aria-hidden="true">T</span><span className="brand-word">TOPSET<span className="brand-period">.</span></span></NavLink>
-        <div className="workspace-user"><Link className="workspace-user-profile" to={`/${role}/profile`} aria-label={profile?.name ? `Open ${profile.name}'s profile` : 'Open your profile'}><span className="user-avatar" aria-hidden="true">{profile?.name.slice(0, 1).toUpperCase() ?? 'T'}</span><span className="workspace-user-name">{profile?.name}</span></Link><button disabled={signingOut} onClick={() => void signOut()}>{signingOut ? 'Signing out...' : 'Sign out'}</button></div>
+        <div className="workspace-user"><Link className="workspace-user-profile" to={`/${role}/profile`} aria-label={profile?.name ? `Open ${profile.name}'s profile` : 'Open your profile'}>{profilePhotoUrl ? <img className="user-avatar user-avatar-photo" src={profilePhotoUrl} alt="" aria-hidden="true" onError={() => setProfilePhotoUrl(null)} /> : <span className="user-avatar" aria-hidden="true">{profile?.name.slice(0, 1).toUpperCase() ?? 'T'}</span>}<span className="workspace-user-name">{profile?.name}</span></Link><button disabled={signingOut} onClick={() => void signOut()}>{signingOut ? 'Signing out...' : 'Sign out'}</button></div>
       </header>
       <div className="workspace-body">
         <aside className="workspace-sidebar">

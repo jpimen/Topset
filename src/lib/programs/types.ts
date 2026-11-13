@@ -8,6 +8,7 @@ export type Movement = 'squat' | 'bench' | 'deadlift' | 'other';
 export interface Exercise {
   id: string;
   owner_id: string | null;
+  base_exercise_id?: string | null;
   name: string;
   category: ExerciseCategory;
   movement: Movement;
