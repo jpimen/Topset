@@ -460,9 +460,12 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .athlete-program-table { width: 100%; min-width: 1240px; border-collapse: separate; border-spacing: 0; table-layout: fixed; }
 .athlete-program-table th, .athlete-program-table td { padding: 15px 16px; border-bottom: 1px solid var(--border-divider); text-align: left; vertical-align: top; }
 .athlete-program-table thead th { position: sticky; top: 0; color: var(--muted); background: var(--card); font: 400 10px var(--mono); letter-spacing: .06em; text-transform: uppercase; }
+.athlete-program-table thead th:first-child { left: 0; z-index: 3; background: var(--surface-card-soft); box-shadow: 1px 0 0 var(--border-divider); }
 .athlete-program-table tbody th, .athlete-program-table tbody td { color: var(--secondary); font-size: 12.5px; line-height: 1.55; }
 .athlete-program-table tbody tr:last-child th, .athlete-program-table tbody tr:last-child td { border-bottom: 0; }
 .athlete-program-table tbody tr:hover { background: var(--surface-hover-subtle); }
+.athlete-program-table tbody .athlete-program-exercise { position: sticky; left: 0; z-index: 1; background: var(--card); box-shadow: 1px 0 0 var(--border-divider); }
+.athlete-program-table tbody tr:hover > .athlete-program-exercise { background: var(--surface-hover-subtle); }
 .athlete-program-table thead th:nth-child(1) { width: 12%; }
 .athlete-program-table thead th:nth-child(2) { width: 6%; }
 .athlete-program-table thead th:nth-child(3) { width: 5%; }
