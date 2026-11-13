@@ -19,10 +19,14 @@ export interface UserProfile {
   role: Role;
   name: string;
   team_name: string | null;
+  unit: 'kg' | 'lb' | null;
   weight_class: string | null;
   bio: string | null;
   category: string | null;
   achievements: string | null;
+  squat_max: number | null;
+  bench_max: number | null;
+  deadlift_max: number | null;
   profile_photo_path: string | null;
 }
 
@@ -42,7 +46,7 @@ async function readProfile(userId: string): Promise<UserProfile | null> {
   if (!supabase) return null;
   const { data, error } = await supabase
     .from('profiles')
-    .select('id, role, name, team_name, weight_class, bio, category, achievements, profile_photo_path')
+    .select('id, role, name, team_name, unit, weight_class, bio, category, achievements, squat_max, bench_max, deadlift_max, profile_photo_path')
     .eq('id', userId)
     .maybeSingle();
   if (error) throw error;

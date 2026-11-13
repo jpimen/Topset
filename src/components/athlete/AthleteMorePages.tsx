@@ -4,6 +4,12 @@ import { supabase } from '../../lib/supabase';
 import { AthleteCoachLinkCard } from './AthleteCoachLinkCard';
 import { ThemeToggle } from '../ThemeToggle';
 
+function parseOneRepMax(value: string): number | null | undefined {
+  if (!value.trim()) return null;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed > 0 && parsed <= 2000 ? parsed : undefined;
+}
+
 export function AthleteSettingsPage() {
   return <main className="athlete-page">
     <header className="athlete-page-heading"><div><p className="eyebrow">SETTINGS</p><h1>Settings</h1><p>Personalize your athlete workspace.</p></div></header>
@@ -23,6 +29,9 @@ export function AthleteProfilePage() {
   const [weightClass, setWeightClass] = useState('');
   const [teamName, setTeamName] = useState('');
   const [achievements, setAchievements] = useState('');
+  const [squatMax, setSquatMax] = useState('');
+  const [benchMax, setBenchMax] = useState('');
+  const [deadliftMax, setDeadliftMax] = useState('');
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -36,6 +45,9 @@ export function AthleteProfilePage() {
     setWeightClass(profile.weight_class ?? '');
     setTeamName(profile.team_name ?? '');
     setAchievements(profile.achievements ?? '');
+    setSquatMax(profile.squat_max === null ? '' : String(profile.squat_max));
+    setBenchMax(profile.bench_max === null ? '' : String(profile.bench_max));
+    setDeadliftMax(profile.deadlift_max === null ? '' : String(profile.deadlift_max));
   }, [profile]);
 
   useEffect(() => {
@@ -59,6 +71,14 @@ export function AthleteProfilePage() {
   const saveProfile = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!profile || !supabase) return;
+    const squat = parseOneRepMax(squatMax);
+    const bench = parseOneRepMax(benchMax);
+    const deadlift = parseOneRepMax(deadliftMax);
+    if (squat === undefined || bench === undefined || deadlift === undefined) {
+      setError('Enter each 1RM as a number greater than 0 and no more than 2,000.');
+      setNotice('');
+      return;
+    }
     setSaving(true);
     setError('');
     setNotice('');
@@ -69,6 +89,9 @@ export function AthleteProfilePage() {
         weight_class: weightClass.trim() || null,
         team_name: teamName.trim() || null,
         achievements: achievements.trim() || null,
+        squat_max: squat,
+        bench_max: bench,
+        deadlift_max: deadlift,
       }).eq('id', profile.id);
       if (updateError) throw updateError;
       await refreshProfile();
@@ -139,6 +162,15 @@ export function AthleteProfilePage() {
           <div className="athlete-profile-form-row">
             <label className="form-field">Category / division<input maxLength={60} value={category} onChange={(event) => setCategory(event.target.value)} placeholder="Open, Junior, Masters…" /></label>
             <label className="form-field">Weight class<input maxLength={30} value={weightClass} onChange={(event) => setWeightClass(event.target.value)} placeholder="e.g. 76 kg" /></label>
+          </div>
+          <div className="athlete-profile-maxes">
+            <div className="athlete-profile-maxes-heading"><div><p className="eyebrow">LIFTING NUMBERS</p><h3>Current one rep maxes</h3></div><span className="field-help">All weights in {profile.unit ?? 'kg'}.</span></div>
+            <div className="athlete-profile-form-row athlete-profile-maxes-row">
+              <label className="form-field">Squat 1RM ({profile.unit ?? 'kg'})<input type="number" min="0.01" max="2000" step="0.01" value={squatMax} onChange={(event) => setSquatMax(event.target.value)} placeholder="e.g. 180" /></label>
+              <label className="form-field">Bench 1RM ({profile.unit ?? 'kg'})<input type="number" min="0.01" max="2000" step="0.01" value={benchMax} onChange={(event) => setBenchMax(event.target.value)} placeholder="e.g. 110" /></label>
+              <label className="form-field">Deadlift 1RM ({profile.unit ?? 'kg'})<input type="number" min="0.01" max="2000" step="0.01" value={deadliftMax} onChange={(event) => setDeadliftMax(event.target.value)} placeholder="e.g. 220" /></label>
+            </div>
+            <p className="field-help">Your linked coach can see these numbers.</p>
           </div>
           <label className="form-field">Team or gym<input maxLength={100} value={teamName} onChange={(event) => setTeamName(event.target.value)} placeholder="Team or gym name" /></label>
           <label className="form-field">Achievements<textarea rows={4} maxLength={1500} value={achievements} onChange={(event) => setAchievements(event.target.value)} placeholder="Meets, placements, personal milestones…" /></label>

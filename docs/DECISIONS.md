@@ -1,5 +1,9 @@
 # Decisions
 
+## 2026-11-13 - Powerlifting favicon
+
+- Add an SVG favicon with a barbell and the Topset T mark, using the existing charcoal and gold brand colors. Keep it as a lightweight, dependency-free static asset served from the Vite public directory.
+
 ## 2026-11-13 - Topset UI refresh
 
 - Keep Coach navigation as a full-label, horizontally scrollable mobile rail and make Athlete bottom navigation legible with compact visible labels, simple icons, and full accessible names. Preserve all role-scoped destinations.
