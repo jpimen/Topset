@@ -386,3 +386,7 @@
 ## 2026-11-14 - Sharp Topset T favicon
 
 - Use square corners on the T crossbar and stem for a crisper silhouette at favicon sizes; retain rounded barbell plate details.
+
+## 2026-11-14 - Show the profile photo in the workspace header
+
+- Resolve the signed profile photo URL for the current account and show it in the header avatar, keeping the initial as a fallback when there is no usable photo.
