@@ -1,5 +1,9 @@
 # Decisions
 
+## 2026-11-14 - Angled 3D plate favicon
+
+- Show the red calibrated plate in an oblique, raised-rim view with a steel hub and soft shadow. Omit weight labels and branding text so the mark stays clear at favicon size.
+
 ## 2026-11-14 - Red calibrated plate favicon
 
 - Replace the gold barbell-and-T favicon with a red competition plate, including a steel hub and calibration markers. Keep the existing SVG favicon URL.
