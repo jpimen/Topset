@@ -382,3 +382,7 @@
 ## 2026-11-14 - Black transparent Topset favicon
 
 - Use the black barbell T mark on a transparent canvas, following the requested monochrome favicon style.
+
+## 2026-11-14 - Sharp Topset T favicon
+
+- Use square corners on the T crossbar and stem for a crisper silhouette at favicon sizes; retain rounded barbell plate details.
