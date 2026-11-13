@@ -1,5 +1,9 @@
 # Decisions
 
+## 2026-11-14 - Flat mascot badge favicon
+
+- Simplify the red plate mascot into a bold cream-on-red circular badge with expressive eyes and a plate hub. Keep the friendly mascot feel and high contrast at small sizes without using GitHub's cat or exact mark.
+
 ## 2026-11-14 - Cartoon plate mascot favicon
 
 - Give the angled red calibrated plate an expressive cartoon face with glossy eyes and a friendly smile. Keep the 3D rim and steel hub details, and omit text.
