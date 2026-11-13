@@ -1,5 +1,9 @@
 # Decisions
 
+## 2026-11-14 - Black transparent arm favicon
+
+- Use pure black line art on a transparent canvas for the flexed-arm favicon.
+
 ## 2026-11-14 - Line-art arm favicon
 
 - Replace the filled arm silhouette with a light charcoal line-art flexed arm on white, following the user's supplied reference image and keeping the favicon free of text.
