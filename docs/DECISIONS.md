@@ -1,5 +1,9 @@
 # Decisions
 
+## 2026-11-14 - Line-art arm favicon
+
+- Replace the filled arm silhouette with a light charcoal line-art flexed arm on white, following the user's supplied reference image and keeping the favicon free of text.
+
 ## 2026-11-14 - Refined flexed-arm favicon silhouette
 
 - Redraw the arm with a more distinct fist, raised forearm, and bicep curve so the powerlifting mark remains recognizable at favicon scale.
