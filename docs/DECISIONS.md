@@ -1,5 +1,9 @@
 # Decisions
 
+## 2026-11-14 - Cartoon plate mascot favicon
+
+- Give the angled red calibrated plate an expressive cartoon face with glossy eyes and a friendly smile. Keep the 3D rim and steel hub details, and omit text.
+
 ## 2026-11-14 - Angled 3D plate favicon
 
 - Show the red calibrated plate in an oblique, raised-rim view with a steel hub and soft shadow. Omit weight labels and branding text so the mark stays clear at favicon size.

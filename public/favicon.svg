@@ -29,8 +29,23 @@
     <ellipse cx="33" cy="30" rx="21" ry="27" fill="url(#face)" stroke="#F27778" stroke-width="1.5" />
     <ellipse cx="33" cy="30" rx="17.5" ry="23" fill="none" stroke="#78101D" stroke-width="1.6" />
     <ellipse cx="33" cy="30" rx="15.5" ry="21" fill="none" stroke="#F0545E" stroke-width=".8" opacity=".72" />
+    <g stroke="#68101B" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M20 15q3-3 6-1" fill="none" stroke-width="1.8" />
+      <path d="M36 13q3-2 6 1" fill="none" stroke-width="1.8" />
+      <ellipse cx="23.5" cy="20" rx="4.2" ry="5.4" fill="#FFF7E9" stroke-width="1" />
+      <ellipse cx="39" cy="19" rx="4.2" ry="5.4" fill="#FFF7E9" stroke-width="1" />
+    </g>
+    <g fill="#261017">
+      <ellipse cx="24.8" cy="20.8" rx="2.1" ry="3.1" />
+      <ellipse cx="40.2" cy="19.8" rx="2.1" ry="3.1" />
+    </g>
+    <g fill="#FFF">
+      <circle cx="24" cy="18.8" r="1.25" />
+      <circle cx="39.4" cy="17.8" r="1.25" />
+      <circle cx="25.8" cy="22" r=".65" />
+      <circle cx="41.2" cy="21" r=".65" />
+    </g>
     <g fill="url(#steel)" stroke="#69101A" stroke-width=".8">
-      <ellipse cx="33" cy="11" rx="1.4" ry="1.8" />
       <ellipse cx="33" cy="49" rx="1.4" ry="1.8" />
       <ellipse cx="18" cy="30" rx="1.4" ry="1.8" />
       <ellipse cx="48" cy="30" rx="1.4" ry="1.8" />
@@ -39,5 +54,8 @@
     <ellipse cx="33" cy="29.5" rx="6" ry="8" fill="url(#steel)" stroke="#FFF8EB" stroke-width=".9" />
     <ellipse cx="33" cy="29.5" rx="3.2" ry="5.1" fill="#241619" stroke="#725B58" stroke-width=".7" />
     <path d="M30 25c1.2-2 3.2-3.2 5-3.1" fill="none" stroke="#FFF" stroke-linecap="round" stroke-width="1" opacity=".62" />
+    <path d="M28 43q5 4 10-1" fill="none" stroke="#5D0C18" stroke-linecap="round" stroke-width="2" />
+    <path d="M30 44q3 1.5 6-.2" fill="none" stroke="#FF9A91" stroke-linecap="round" stroke-width=".8" />
+    <path d="m15 24 1.2 2.2 2.2 1.1-2.2 1.1-1.2 2.2-1.1-2.2-2.2-1.1 2.2-1.1z" fill="#FFE9CE" opacity=".9" />
   </g>
 </svg>
