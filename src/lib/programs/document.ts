@@ -1,4 +1,5 @@
 import { percentFromRepsAndRpe, DEFAULT_ROUNDING_KG, DEFAULT_ROUNDING_LB, roundLoad } from '../engine';
+import { defaultProgramLayout } from './layout';
 import type { LoadMode, ProgramAction, ProgramDocument, ProgramExercise, ProgramHistory } from './types';
 
 const id = () => crypto.randomUUID();
@@ -6,6 +7,7 @@ const id = () => crypto.randomUUID();
 export function createEmptyDocument(coachId: string): ProgramDocument {
   return {
     program: { id: '', coach_id: coachId, name: 'Untitled program', description: null, unit: 'kg', updated_at: '' },
+    layout: defaultProgramLayout,
     blocks: [],
     weeks: [{ id: id(), program_id: '', block_id: null, week_number: 1, name: 'Week', notes: null, days: [] }],
   };
@@ -61,6 +63,7 @@ export function createProgramHistory(document: ProgramDocument): ProgramHistory 
 function applyAction(document: ProgramDocument, action: ProgramAction): ProgramDocument {
   if (action.type === 'rename-program') return { ...document, program: { ...document.program, name: action.name } };
   if (action.type === 'set-unit') return { ...document, program: { ...document.program, unit: action.unit } };
+  if (action.type === 'set-layout') return { ...document, layout: action.layout };
   if (action.type === 'rename-set-type') return { ...document, weeks: document.weeks.map((week) => ({ ...week, days: week.days.map((day) => ({ ...day, exercises: day.exercises.map((row) => row.set_type === action.from ? { ...row, set_type: action.to } : row) })) })) };
   if (action.type === 'add-block') {
     const blocks = document.blocks ?? [];

@@ -1,4 +1,5 @@
 import { supabase } from '../supabase';
+import { normalizeProgramLayout } from './layout';
 import type { Exercise, ProgramDocument, ProgramExercise, ProgramWeek } from './types';
 
 function client() {
@@ -26,6 +27,9 @@ export async function loadProgram(programId: string): Promise<ProgramDocument> {
   ]);
   raise(programResult.error); raise(blocksResult.error); raise(weeksResult.error);
   if (!programResult.data) throw new Error('Program not found or you do not have access to it.');
+  const { layout: storedLayout, ...programRecord } = programResult.data;
+  const program = programRecord as ProgramDocument['program'];
+  const layout = normalizeProgramLayout(storedLayout);
   const weeks = (weeksResult.data ?? []).map((week) => ({
     ...week,
     days: ((week.days ?? []) as Array<Record<string, unknown>>).map((day) => ({
@@ -41,7 +45,7 @@ export async function loadProgram(programId: string): Promise<ProgramDocument> {
   })) as ProgramWeek[];
   const storedBlocks = blocksResult.data ?? [];
   const hasUnassignedWeeks = weeks.some((week) => week.block_id === null);
-  if (!hasUnassignedWeeks) return { program: programResult.data as ProgramDocument['program'], blocks: storedBlocks, weeks };
+  if (!hasUnassignedWeeks) return { program, layout, blocks: storedBlocks, weeks };
 
   // Legacy weeks without a block appear as a normal editable Block in the builder.
   const legacyBlockId = crypto.randomUUID();
@@ -50,12 +54,13 @@ export async function loadProgram(programId: string): Promise<ProgramDocument> {
     ...storedBlocks.map((block) => ({ ...block, position: block.position + 1 })),
   ];
   const groupedWeeks = weeks.map((week) => week.block_id === null ? { ...week, block_id: legacyBlockId } : week);
-  return { program: programResult.data as ProgramDocument['program'], blocks, weeks: groupedWeeks };
+  return { program, layout, blocks, weeks: groupedWeeks };
 }
 
 export async function saveProgram(document: ProgramDocument, expectedUpdatedAt: string): Promise<string> {
   const payload = {
     program: { name: document.program.name, description: document.program.description, unit: document.program.unit },
+    layout: document.layout,
     blocks: document.blocks ?? [],
     weeks: document.weeks.map((week) => ({
       id: week.id, block_id: week.block_id, week_number: week.week_number, name: week.name, notes: week.notes,
@@ -96,6 +101,7 @@ export async function duplicateProgram(programId: string, coachId: string): Prom
   const blockIdMap = new Map(originalBlocks.map((block) => [block.id, crypto.randomUUID()]));
   const copy: ProgramDocument = {
     program: { ...original.program, id: data.id as string, coach_id: coachId, updated_at: data.updated_at as string },
+    layout: original.layout,
     blocks: originalBlocks.map((block, position) => ({ ...block, id: blockIdMap.get(block.id)!, program_id: data.id as string, position })),
     weeks: original.weeks.map((week) => ({
       ...week, id: crypto.randomUUID(), program_id: data.id as string,

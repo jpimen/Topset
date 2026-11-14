@@ -1,10 +1,11 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, type CSSProperties } from 'react';
 import { useAuth } from '../../auth/AuthProvider';
 import { AthleteWorkoutCheckInPanel } from './AthleteWorkoutCheckInPanel';
 import { AthleteWorkoutLogRows } from './AthleteWorkoutLogRows';
 import { athleteExerciseName, athleteLoadLabel, hasUsableExerciseName, isLoggablePrescription } from '../../lib/athlete/prescriptions';
 import { useAthleteProgram } from './useAthleteProgram';
 import { AthleteWorkoutSessionsProvider } from './AthleteWorkoutSessionsProvider';
+import { normalizeProgramLayout, programLayoutColumns } from '../../lib/programs/layout';
 
 const LEGACY_BLOCK_ID = '__legacy_block__';
 
@@ -40,6 +41,13 @@ export function AthleteProgramPage() {
   if (!result) return <main className="athlete-page"><section className="coach-panel empty-state"><p className="eyebrow">PROGRAM</p><h1>No assigned program yet</h1><p>Your coach’s assigned plan will appear here.</p>{warning && <p role="alert">{warning}</p>}</section></main>;
 
   const week = visibleWeeks[selectedWeek];
+  const layout = normalizeProgramLayout(result.program.layout);
+  const tableColumnWeights = [
+    layout.columns.exercise, layout.columns.set_type, layout.columns.sets, layout.columns.reps,
+    layout.columns.rpe, layout.columns.load, layout.columns.coach_notes,
+    layout.columns.athlete_load + layout.columns.athlete_rpe + layout.columns.athlete_notes + layout.columns.athlete_total,
+  ];
+  const tableColumnTotal = tableColumnWeights.reduce((sum, width) => sum + width, 0);
   return (
     <main className="athlete-page">
       {offline && <p className="inline-state" role="status">Offline copy · last verified {new Date(verifiedAt!).toLocaleString()}. Access changes cannot be checked until you reconnect. Copies expire after 24 hours.</p>}
@@ -65,9 +73,10 @@ export function AthleteProgramPage() {
               {day.notes && <p className="athlete-coach-note"><strong>Coach note</strong>{day.notes}</p>}
               {day.exercises.filter(hasUsableExerciseName).length === 0 ? <p className="athlete-program-empty-day">No exercises in this day.</p> : <div className="athlete-program-table-viewport" role="region" aria-label={`${week.name} ${day.name} prescriptions`} tabIndex={0}>
                 <p className="athlete-program-scroll-hint">Swipe across the table to view workout log columns. Exercise stays fixed.</p>
-                <table className="athlete-program-table">
+                <table className="athlete-program-table" style={{ '--program-row-height': `${layout.rowHeight}px`, '--program-table-min-width': `${Math.max(1240, tableColumnTotal)}px` } as CSSProperties}>
                   <caption className="visually-hidden">{week.name}, {day.name} exercise prescriptions and athlete workout log</caption>
-                  <thead><tr><th scope="col">Exercise</th><th scope="col">Set type</th><th scope="col">Sets</th><th scope="col">Reps</th><th scope="col">RPE</th><th scope="col">Load</th><th scope="col">Coach notes</th><th scope="col" colSpan={3}>Workout log · {result.program.program.unit}</th></tr></thead>
+                  <colgroup>{tableColumnWeights.map((weight, index) => <col key={programLayoutColumns[index]?.id ?? 'workout-log'} style={{ width: `${(weight / tableColumnTotal) * 100}%` }} />)}</colgroup>
+                  <thead><tr><th scope="col">Exercise</th><th scope="col">Set type</th><th scope="col">Sets</th><th scope="col">Reps</th><th scope="col">RPE</th><th scope="col">Load</th><th scope="col">Coach notes</th><th scope="col">Workout log · {result.program.program.unit}</th></tr></thead>
                   <tbody>{profile?.id ? <AthleteWorkoutLogRows athleteId={profile.id} assignmentId={result.assignment.id} day={day} unit={result.program.program.unit} onEditStateChange={onEditStateChange} /> : day.exercises.filter(hasUsableExerciseName).map((row) => <tr key={row.id}>
                     <th scope="row" className="athlete-program-exercise">{athleteExerciseName(row)}</th>
                     <td><span className={`athlete-program-set-type${row.set_type ? ` set-type-${row.set_type.toLowerCase().replace(/[^a-z0-9_-]/g, '-')}` : ''}`}>{row.set_type ?? '—'}</span></td>
@@ -76,7 +85,7 @@ export function AthleteProgramPage() {
                     <td>{row.rpe ?? '—'}</td>
                     <td className="athlete-program-prescribed-load">{athleteLoadLabel(row, result.program.program.unit)}</td>
                     <td className="athlete-program-coach-notes">{row.notes_coach || '—'}</td>
-                    <td colSpan={3}>{isLoggablePrescription(row) ? '—' : <span className="athlete-program-unprescribed">— Not prescribed</span>}</td>
+                    <td>{isLoggablePrescription(row) ? '—' : <span className="athlete-program-unprescribed">— Not prescribed</span>}</td>
                   </tr>)}</tbody>
                 </table>
               </div>}

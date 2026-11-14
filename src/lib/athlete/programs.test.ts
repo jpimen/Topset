@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { findNextWorkout, omitUnassignedRows } from './programs';
 import { athleteProgramSchema, loggedSetInputSchema } from './types';
+import { defaultProgramLayout } from '../programs/layout';
 
 const program = athleteProgramSchema.parse({
   program: { id: '30000000-0000-4000-8000-000000000001', name: 'Training', description: null, unit: 'kg', updated_at: '2026-10-29T00:00:00Z' },
@@ -25,6 +26,7 @@ describe('athlete program helpers', () => {
     };
     const document = {
       program: { id: '30000000-0000-4000-8000-000000000001', coach_id: '10000000-0000-4000-8000-000000000001', name: 'Plan', description: null, unit: 'kg' as const, updated_at: '' },
+      layout: defaultProgramLayout,
       weeks: [{ id: '50000000-0000-4000-8000-000000000001', program_id: '30000000-0000-4000-8000-000000000001', block_id: null, week_number: 1, name: 'Week 1', notes: null, days: [{
         id: '60000000-0000-4000-8000-000000000001', week_id: '50000000-0000-4000-8000-000000000001', day_number: 1, name: 'Day 1', notes: null,
         exercises: [

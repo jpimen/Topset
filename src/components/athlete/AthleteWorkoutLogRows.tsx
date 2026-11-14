@@ -147,14 +147,14 @@ export function AthleteWorkoutLogRows({ athleteId, assignmentId, day, unit, onEd
   }, [dirty, draft, editable, saveChanges]);
 
   return <>
-    {(loadError || historyError) && <tr><td colSpan={10}><div className="athlete-checkin-error" role="alert"><p>{loadError || historyError}</p><button className="button button-secondary" type="button" onClick={() => { setLocalVersion((value) => value + 1); refresh(); }}>Try again</button></div></td></tr>}
-    {loading && sessions === null && <tr><td colSpan={10}><p role="status">Loading workout entries...</p></td></tr>}
+    {(loadError || historyError) && <tr><td colSpan={8}><div className="athlete-checkin-error" role="alert"><p>{loadError || historyError}</p><button className="button button-secondary" type="button" onClick={() => { setLocalVersion((value) => value + 1); refresh(); }}>Try again</button></div></td></tr>}
+    {loading && sessions === null && <tr><td colSpan={8}><p role="status">Loading workout entries...</p></td></tr>}
     {day.exercises.map((exercise) => {
       const exerciseName = athleteExerciseName(exercise);
       if (!exerciseName) return null;
       if (!isLoggablePrescription(exercise)) return <tr key={exercise.id} className="athlete-program-unprescribed-row">
         <th scope="row" className="athlete-program-exercise">{exerciseName}</th>
-        <td colSpan={9}>— <span>Not prescribed</span></td>
+        <td colSpan={7}>— <span>Not prescribed</span></td>
       </tr>;
       const sets = draft?.sets.filter((item) => item.program_exercise_id === exercise.id).sort((a, b) => a.set_number - b.set_number) ?? [];
       return <tr key={exercise.id} className="athlete-program-loggable-row">
@@ -165,7 +165,7 @@ export function AthleteWorkoutLogRows({ athleteId, assignmentId, day, unit, onEd
         <td data-label="Target RPE">{exercise.rpe ?? '—'}</td>
         <td data-label="Target load" className="athlete-program-prescribed-load">{athleteLoadLabel(exercise, unit)}</td>
         <td data-label="Coach notes" className="athlete-program-coach-notes">{exercise.notes_coach || '—'}</td>
-        <td colSpan={3}>
+        <td>
           <details className="athlete-program-set-log">
             <summary>Log sets <span>({sets.length})</span></summary>
             <div className="athlete-program-set-grid" aria-label={`${exerciseName} workout log`}>
@@ -185,7 +185,7 @@ export function AthleteWorkoutLogRows({ athleteId, assignmentId, day, unit, onEd
         </td>
       </tr>;
     })}
-    {draft && !loadError && <tr className="athlete-program-log-save-row"><td colSpan={10}><div className="athlete-program-log-save-controls">
+    {draft && !loadError && <tr className="athlete-program-log-save-row"><td colSpan={8}><div className="athlete-program-log-save-controls">
       <div><span className="checkin-status" role="status">{saving ? 'Saving changes…' : saveStatus || (pendingSync ? 'Waiting to sync' : 'Changes save automatically after a short pause.')}</span>{saveError && <p className="athlete-program-log-error" role="alert">{saveError}</p>}</div>
       <div className="athlete-program-log-actions"><Link className="button button-secondary" to={`/athlete/post-video?${new URLSearchParams({ assignmentId, dayId: day.id, dayName: day.name })}`}>Post Video</Link></div>
     </div></td></tr>}

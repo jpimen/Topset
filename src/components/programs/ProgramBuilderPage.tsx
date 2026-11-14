@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useLayoutEffect, useMemo, useReducer, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useReducer, useRef, useState, type CSSProperties } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { createPortal } from 'react-dom';
 import { EditableGridCell, focusProgramGridCell } from './EditableGridCell';
 import { useCoachId } from '../coach/useCoachId';
 import { createBlankRow, createProgramHistory, createRow, parseReps, programReducer, validateLoad } from '../../lib/programs/document';
+import { defaultProgramLayout, programLayoutColumns, type ProgramLayout } from '../../lib/programs/layout';
 import { listExercises, loadProgram, saveProgram } from '../../lib/programs/repository';
 import type { Exercise, LoadMode, ProgramDocument, ProgramExercise, ProgramWeek, SetType } from '../../lib/programs/types';
 import { CoachWorkoutCheckInsPanel, CoachWorkoutCheckInsProvider, useCoachWorkoutLogSets, useCoachWorkoutSessions } from '../coach/CoachWorkoutCheckInsPanel';
@@ -112,6 +113,34 @@ function SetTypeOptionsDialog({ options, onClose, onSave }: {
       <div className="set-type-dialog-actions"><button type="button" className="button button-secondary" onClick={() => setDraft((current) => [...current, { original: null, value: '' }])}>＋ Add option</button><span /><button type="button" className="button button-quiet" onClick={onClose}>Cancel</button><button type="button" className="button button-primary" onClick={save}>Save options</button></div>
     </section>
   </div>;
+}
+
+function ProgramLayoutDialog({ layout, onClose, onApply }: {
+  layout: ProgramLayout; onClose: () => void; onApply: (layout: ProgramLayout) => void;
+}) {
+  const [draft, setDraft] = useState<ProgramLayout>(() => ({ rowHeight: layout.rowHeight, columns: { ...layout.columns } }));
+  return <div className="dialog-backdrop program-layout-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
+    <section className="exercise-dialog program-layout-dialog" role="dialog" aria-modal="true" aria-labelledby="program-layout-title" onKeyDown={(event) => { if (event.key === 'Escape') onClose(); }}>
+      <div className="panel-heading"><div><p className="eyebrow">PROGRAM BUILDER</p><h2 id="program-layout-title">Edit layout</h2></div><button type="button" className="icon-button" aria-label="Close" onClick={onClose}>×</button></div>
+      <p className="program-layout-help">Set the width of each column and the minimum height of exercise rows. Column widths carry over to the athlete's program table.</p>
+      <div className="program-layout-controls">
+        {programLayoutColumns.map((column, index) => <label className="program-layout-control" key={column.id}>
+          <span>{column.label}</span><input autoFocus={index === 0} type="range" min={column.minWidth} max={column.maxWidth} step="5" value={draft.columns[column.id]} aria-label={`${column.label} column width`} onChange={(event) => setDraft((current) => ({ ...current, columns: { ...current.columns, [column.id]: Number(event.target.value) } }))} /><output>{draft.columns[column.id]}px</output>
+        </label>)}
+        <label className="program-layout-control">
+          <span>Row height</span><input type="range" min="40" max="88" step="4" value={draft.rowHeight} aria-label="Exercise row height" onChange={(event) => setDraft((current) => ({ ...current, rowHeight: Number(event.target.value) }))} /><output>{draft.rowHeight}px</output>
+        </label>
+      </div>
+      <p className="program-layout-sync-note">Live athlete assignments update when this layout saves. Snapshot assignments keep the version they were given.</p>
+      <div className="program-layout-actions"><button type="button" className="button button-quiet" onClick={() => setDraft(defaultProgramLayout)}>Reset</button><span /><button type="button" className="button button-quiet" onClick={onClose}>Cancel</button><button type="button" className="button button-primary" onClick={() => onApply(draft)}>Apply layout</button></div>
+    </section>
+  </div>;
+}
+
+function programLayoutStyle(layout: ProgramLayout): CSSProperties {
+  const columns = Object.fromEntries(programLayoutColumns.map(({ id }) => [`--builder-col-${id.replaceAll('_', '-')}`, `${layout.columns[id]}px`]));
+  const gridWidth = Object.values(layout.columns).reduce((sum, width) => sum + width, 0) + 64 + 55 + 24;
+  return { ...columns, '--program-grid-min-width': `${gridWidth}px`, '--program-row-height': `${layout.rowHeight}px` } as CSSProperties;
 }
 
 function saveFailureMessage(error: unknown): string {
@@ -256,7 +285,7 @@ function DayCard({ week, day, exercises, document, dispatch, setTypeOptions, onM
   };
   const keyboardRowIndex = (index: number) => rowStart + index;
   return <article className="day-card"><header className="day-card-header"><button className="collapse-day" onClick={() => setCollapsed(!collapsed)} aria-expanded={!collapsed} aria-label={`${collapsed ? 'Expand' : 'Collapse'} ${day.name}`}>{collapsed ? '▸' : '▾'}</button><label className="day-name-field"><span className="eyebrow">SESSION {String(day.day_number).padStart(2, '0')}</span><input aria-label="Day name" value={day.name} onChange={(event) => dispatch({ type: 'rename-day', weekId: week.id, dayId: day.id, name: event.target.value })} /></label><span className="day-summary">{repsSummary(day.exercises)}</span><div className="day-header-actions"><Link className="button button-quiet" to={`/coach/programs/${document.program.id}/days/${day.id}/videos`}>Videos</Link><button className="button button-quiet" onClick={() => addRow()}>＋ Add row</button><button className="button button-quiet" onClick={() => { const movement = window.prompt('Main lift (squat, bench, or deadlift)', 'squat')?.toLowerCase(); const exercise = exercises.find((item) => item.is_competition_lift && item.movement === movement); if (!exercise) return; addRow(exercise, { set_type: 'top', sets: 1, reps: '1', reps_min: 1, reps_max: 1, rpe: 7, load_mode: 'rpe' }); addRow(exercise, { set_type: 'backoff', sets: 3, reps: '3', reps_min: 3, reps_max: 3, rpe: 6, load_mode: 'rpe' }); }}>Quick add</button><button className="icon-button danger-icon" aria-label={`Delete ${day.name}`} title="Delete day" onClick={() => { if (window.confirm(`Delete ${day.name} and its exercise rows?`)) dispatch({ type: 'delete-day', weekId: week.id, dayId: day.id }); }}>×</button></div></header>
-    {!collapsed && <div className="day-card-body"><p className="builder-grid-scroll-hint">Scroll horizontally to review all program columns.</p><div role="grid" aria-label={`${week.name} ${day.name} program grid`} className="program-grid">
+    {!collapsed && <div className="day-card-body"><p className="builder-grid-scroll-hint">Scroll horizontally to review all program columns.</p><div role="grid" aria-label={`${week.name} ${day.name} program grid`} className="program-grid" style={programLayoutStyle(document.layout)}>
       <div role="row" className="builder-grid-header with-athlete-columns"><div role="columnheader">Exercise</div><div role="columnheader">Set type</div><div role="columnheader">Sets</div><div role="columnheader">Reps</div><div role="columnheader">RPE</div><div role="columnheader">Load</div><div role="columnheader">Coach notes</div><div role="columnheader" className="athlete-col">Load lifted</div><div role="columnheader" className="athlete-col">RPE lifted</div><div role="columnheader" className="athlete-col">Athlete notes</div><div role="columnheader" className="athlete-col">Total lifted</div></div>
       {day.exercises.map((row, index) => <ProgramRow key={row.id} row={row} rowIndex={keyboardRowIndex(index)} dayId={day.id} exercises={exercises} programUnit={document.program.unit} setTypeOptions={setTypeOptions} onManageSetTypes={onManageSetTypes} onPatch={(patch) => dispatch({ type: 'update-row', weekId: week.id, dayId: day.id, rowId: row.id, patch })} onDelete={() => dispatch({ type: 'delete-row', weekId: week.id, dayId: day.id, rowId: row.id })} onDuplicate={() => dispatch({ type: 'add-row', weekId: week.id, dayId: day.id, row: { ...row, id: crypto.randomUUID(), position: day.exercises.length } })} onCreateExercise={onCreateExercise} />)}
       {!day.exercises.length && <div className="grid-empty"><span className="empty-state-mark">＋</span><strong>Add your first exercise</strong><span>Start typing in the exercise column after adding a row.</span><button className="button button-secondary" onClick={() => addRow()}>Add first row</button></div>}
@@ -270,10 +299,11 @@ export function ProgramBuilderPage() {
   const coachId = useCoachId();
   const { id: programId = '' } = useParams();
   const navigate = useNavigate();
-  const [history, dispatch] = useReducer(programReducer, null, () => createProgramHistory({ program: { id: '', coach_id: coachId, name: '', description: null, unit: 'kg', updated_at: '' }, blocks: [], weeks: [] }));
+  const [history, dispatch] = useReducer(programReducer, null, () => createProgramHistory({ program: { id: '', coach_id: coachId, name: '', description: null, unit: 'kg', updated_at: '' }, layout: defaultProgramLayout, blocks: [], weeks: [] }));
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const [customSetTypes, setCustomSetTypes] = useState<string[]>(defaultSetTypeOptions);
   const [manageSetTypes, setManageSetTypes] = useState(false);
+  const [editLayout, setEditLayout] = useState(false);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
   const [ready, setReady] = useState(false);
@@ -447,7 +477,7 @@ export function ProgramBuilderPage() {
 
   return <main className="coach-page program-builder-page">
     <div className="builder-breadcrumb"><Link to="/coach/programs">← Programs</Link><span>/</span><span>Program builder</span></div>
-    <header className="builder-topbar"><div className="builder-program-name"><p className="eyebrow">PROGRAM / EDITOR</p><input aria-label="Program name" value={document.program.name} onChange={(event) => dispatch({ type: 'rename-program', name: event.target.value })} /></div><div className="builder-top-actions"><div className={`save-indicator save-${status}`} role="status"><span />{status === 'saved' ? hasUnsaved ? 'Unsaved changes' : `Saved${savedAt ? ` · ${new Date(savedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` : ''}` : status === 'saving' ? 'Saving…' : status === 'conflict' ? 'Changed elsewhere' : 'Save failed'}</div>{status === 'conflict' && <button className="button button-secondary" onClick={() => void reloadConflict()}>Reload latest</button>}</div></header>
+    <header className="builder-topbar"><div className="builder-program-name"><p className="eyebrow">PROGRAM / EDITOR</p><input aria-label="Program name" value={document.program.name} onChange={(event) => dispatch({ type: 'rename-program', name: event.target.value })} /></div><div className="builder-top-actions"><button className="button button-secondary" type="button" onClick={() => setEditLayout(true)}>Edit layout</button><div className={`save-indicator save-${status}`} role="status"><span />{status === 'saved' ? hasUnsaved ? 'Unsaved changes' : `Saved${savedAt ? ` · ${new Date(savedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` : ''}` : status === 'saving' ? 'Saving…' : status === 'conflict' ? 'Changed elsewhere' : 'Save failed'}</div>{status === 'conflict' && <button className="button button-secondary" onClick={() => void reloadConflict()}>Reload latest</button>}</div></header>
     {status === 'conflict' && <div role="alert" className="inline-state error-state">This program changed in another session. Reload the latest version before editing again.</div>}
     {status === 'error' && <div role="alert" className="inline-state error-state">Your edits are still here, but could not be saved. {saveError} Autosave will retry after your next edit or when you reconnect.</div>}
     <section className="week-navigation"><div className="block-navigation"><div className="block-tabs" role="group" aria-label="Program blocks">{blocks.map((block, index) => <ProgramNameTab key={block.id} kind="block" label={`block ${index + 1}`} value={block.name} fallback="Block" selected={selectedBlockId === block.id} onSelect={() => { setSelectedBlockId(block.id); setSelectedWeek(document.weeks.find((week) => week.block_id === block.id)?.id ?? ''); }} onRename={(name) => dispatch({ type: 'rename-block', blockId: block.id, name })} />)}</div><button className="button button-secondary" onClick={addBlock}>＋ Add block</button></div><div className="week-navigation-row"><div className="week-tabs" role="group" aria-label="Program weeks">{visibleWeeks.map((week) => <ProgramNameTab key={week.id} kind="week" label={week.name || 'Week'} value={week.name} fallback="Week" selected={activeWeek?.id === week.id} onSelect={() => setSelectedWeek(week.id)} onRename={(name) => dispatch({ type: 'rename-week', weekId: week.id, name })} />)}</div><div className="week-actions"><button className="button button-secondary" onClick={addWeek}>＋ Add week</button>{activeWeek && <button className="button button-quiet danger-quiet" onClick={() => { if (window.confirm(`Delete ${activeWeek.name || 'Week'} and all its days?`)) dispatch({ type: 'delete-week', weekId: activeWeek.id }); }}>Delete week</button>}</div></div></section>
@@ -456,5 +486,6 @@ export function ProgramBuilderPage() {
     </>}
     <footer className="builder-footer"><span>WORKING DOCUMENT · {document.program.unit.toUpperCase()}</span><span>Changes save automatically.</span><button className="button button-quiet" onClick={() => void saveAndNavigate('/coach/programs')}>Exit builder</button></footer>
     {manageSetTypes && <SetTypeOptionsDialog options={customSetTypes} onClose={() => setManageSetTypes(false)} onSave={saveSetTypeOptions} />}
+    {editLayout && <ProgramLayoutDialog layout={document.layout} onClose={() => setEditLayout(false)} onApply={(layout) => { dispatch({ type: 'set-layout', layout }); setEditLayout(false); }} />}
   </main>;
 }

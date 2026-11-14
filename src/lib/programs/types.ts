@@ -1,4 +1,5 @@
 import type { Unit } from '../engine';
+import type { ProgramLayout } from './layout';
 
 export type SetType = string;
 export type LoadMode = 'absolute' | 'percent' | 'rpe' | 'none';
@@ -74,6 +75,7 @@ export interface ProgramDocument {
     unit: Unit;
     updated_at: string;
   };
+  layout: ProgramLayout;
   blocks?: ProgramBlock[];
   weeks: ProgramWeek[];
 }
@@ -88,6 +90,7 @@ export type ProgramAction =
   | { type: 'replace'; document: ProgramDocument }
   | { type: 'rename-program'; name: string }
   | { type: 'set-unit'; unit: Unit }
+  | { type: 'set-layout'; layout: ProgramLayout }
   | { type: 'add-block' }
   | { type: 'rename-block'; blockId: string; name: string }
   | { type: 'add-week'; blockId?: string | null }
