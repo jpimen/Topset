@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import type { Unit } from '../engine';
+import { defaultProgramLayout, normalizeProgramLayout } from '../programs/layout';
 
 const exerciseSchema = z.object({
   id: z.string().uuid(),
@@ -61,6 +62,7 @@ export const athleteProgramSchema = z.object({
     unit: z.enum(['kg', 'lb']),
     updated_at: z.string(),
   }),
+  layout: z.unknown().transform(normalizeProgramLayout).default(defaultProgramLayout),
   blocks: z.array(blockSchema).optional().default([]),
   weeks: z.array(weekSchema),
 });
