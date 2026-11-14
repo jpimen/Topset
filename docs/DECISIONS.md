@@ -397,9 +397,13 @@
 
 ## 2026-11-14 - Program layout editing and athlete sync
 
-- Store coach-selected column widths and minimum row height on the program document. Apply the same prescription widths and row height to live athlete program tables; snapshot assignments retain the layout captured when they were assigned.
+- Store coach-selected column widths and minimum row height on the program document. Apply the same prescription widths and row height to live and active snapshot athlete tables. Snapshot workout prescriptions stay fixed while layout preferences can follow later coach edits.
 - Keep the athlete workout log grouped into one table column, sized from the coach builder's four athlete-log columns. This keeps the mobile-first log controls together while matching the coach's overall log space.
 - Use Edit layout as a direct-resize mode with draggable column dividers and row edges in the grid. Commit each drag once through autosave so layout changes use existing conflict handling and live-update signals.
+
+## 2026-11-15 - Sync layout changes to snapshot athletes
+
+- Mirror coach layout changes into active snapshot assignments without changing their saved workout prescriptions. Subscribe snapshot athletes to their assignment row so the updated table layout refreshes while the page is open.
 
 ## 2026-11-15 - Remove a program block
 

@@ -20,7 +20,7 @@ export function AthleteProgramPage() {
       return next;
     });
   }, []);
-  const { result, loading, error, refresh, refreshDeferred, offline, verifiedAt, warning, liveSyncWarning } = useAthleteProgram(profile?.id, Object.keys(edits).length > 0);
+  const { result, loading, error, refresh, refreshDeferred, offline, verifiedAt, warning, syncWarning } = useAthleteProgram(profile?.id, Object.keys(edits).length > 0);
   const [selectedBlockId, setSelectedBlockId] = useState('');
   const [selectedWeek, setSelectedWeek] = useState(0);
   const displayBlocks = result ? (() => {
@@ -53,7 +53,7 @@ export function AthleteProgramPage() {
       {offline && <p className="inline-state" role="status">Offline copy · last verified {new Date(verifiedAt!).toLocaleString()}. Access changes cannot be checked until you reconnect. Copies expire after 24 hours.</p>}
       {error && <p className="inline-error" role="alert">{error}<button className="button button-secondary" onClick={refresh}>Try again</button></p>}
       {warning && <p className="inline-error" role="alert">{warning}</p>}
-      {liveSyncWarning && <p className="inline-state" role="status">{liveSyncWarning}</p>}
+      {syncWarning && <p className="inline-state" role="status">{syncWarning}</p>}
       {refreshDeferred && <p className="inline-state" role="status">Program refresh paused while you have unsaved entries. Save your workout and check-in changes to load the latest plan.</p>}
       <p className="athlete-program-refresh-status" aria-live="polite" role={loading ? 'status' : undefined}>{loading ? 'Refreshing program…' : ''}</p>
       <header className="athlete-page-heading"><div><p className="eyebrow">PROGRAM · {result.assignment.sync_mode === 'live' ? 'LIVE PLAN' : 'SAVED SNAPSHOT'}</p><h1>{result.program.program.name}</h1><p>{result.program.program.description || 'Your coach’s plan, available here to review at any time.'}</p></div><div className="athlete-program-heading-actions"><span className="athlete-readonly-tag">Read only</span><button className="button button-secondary" onClick={refresh}>Refresh program</button></div></header>

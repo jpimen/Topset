@@ -55,3 +55,15 @@ it('revalidates live prescriptions when the saved program emits an update', asyn
   await act(async () => { mocks.event?.(); await new Promise((resolve) => setTimeout(resolve, 300)); });
   expect(mocks.load).toHaveBeenCalledTimes(2);
 });
+
+it('revalidates snapshot layouts when the active assignment emits an update', async () => {
+  mocks.load.mockResolvedValue({ state: { assignment: { id: 'assignment', program_id: 'program', sync_mode: 'snapshot' }, program: {} }, source: 'server', verifiedAt: 1, warning: '' });
+  await act(async () => root.render(<Probe dirty={false} />));
+  expect(mocks.createChannel).toHaveBeenCalledWith('athlete-snapshot-program:athlete:assignment');
+  expect(mocks.channel.on).toHaveBeenCalledWith('postgres_changes', {
+    event: 'UPDATE', schema: 'public', table: 'program_assignments', filter: 'id=eq.assignment',
+  }, expect.any(Function));
+  expect(mocks.event).toBeDefined();
+  await act(async () => { mocks.event?.(); await new Promise((resolve) => setTimeout(resolve, 300)); });
+  expect(mocks.load).toHaveBeenCalledTimes(2);
+});

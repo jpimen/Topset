@@ -9,7 +9,7 @@ export function useAthleteProgram(athleteId: string | undefined, hasUnsavedEdits
   const [error, setError] = useState('');
   const [reloadKey, setReloadKey] = useState(0);
   const [refreshDeferred, setRefreshDeferred] = useState(false);
-  const [liveSyncWarning, setLiveSyncWarning] = useState('');
+  const [syncWarning, setSyncWarning] = useState('');
   const edits = useRef(hasUnsavedEdits);
   edits.current = hasUnsavedEdits;
   const refresh = useCallback(() => {
@@ -54,17 +54,25 @@ export function useAthleteProgram(athleteId: string | undefined, hasUnsavedEdits
     };
   }, [athleteId, refresh]);
 
-  const liveProgramId = loaded?.state?.assignment.sync_mode === 'live'
-    ? loaded.state.assignment.program_id
-    : undefined;
+  const assignment = loaded?.state?.assignment;
+  const watchedTable = assignment?.sync_mode === 'snapshot'
+    ? 'program_assignments'
+    : assignment?.sync_mode === 'live' ? 'programs' : undefined;
+  const watchedId = assignment?.sync_mode === 'snapshot'
+    ? assignment.id
+    : assignment?.sync_mode === 'live' ? assignment.program_id : undefined;
+  const channelName = !athleteId || !watchedId ? undefined
+    : assignment?.sync_mode === 'snapshot'
+      ? `athlete-snapshot-program:${athleteId}:${watchedId}`
+      : `athlete-live-program:${athleteId}:${watchedId}`;
   useEffect(() => {
     const db = supabase;
-    if (!athleteId || !liveProgramId || !db) return;
+    if (!athleteId || !watchedTable || !watchedId || !channelName || !db) return;
     let active = true;
     let refreshTimer: number | undefined;
-    const channel = db.channel(`athlete-live-program:${athleteId}:${liveProgramId}`)
+    const channel = db.channel(channelName)
       .on('postgres_changes', {
-        event: 'UPDATE', schema: 'public', table: 'programs', filter: `id=eq.${liveProgramId}`,
+        event: 'UPDATE', schema: 'public', table: watchedTable, filter: `id=eq.${watchedId}`,
       }, () => {
         if (refreshTimer !== undefined) window.clearTimeout(refreshTimer);
         refreshTimer = window.setTimeout(() => {
@@ -74,10 +82,10 @@ export function useAthleteProgram(athleteId: string | undefined, hasUnsavedEdits
       })
       .subscribe((status, error) => {
         if (!active) return;
-        if (status === 'SUBSCRIBED') setLiveSyncWarning('');
+        if (status === 'SUBSCRIBED') setSyncWarning('');
         else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
-          console.error('Athlete live program updates could not connect.', error);
-          setLiveSyncWarning('Live updates are unavailable. Use Refresh program to load the latest saved changes.');
+          console.error('Athlete program updates could not connect.', error);
+          setSyncWarning('Program updates are unavailable. Use Refresh program to load the latest saved changes.');
         }
       });
     return () => {
@@ -85,11 +93,11 @@ export function useAthleteProgram(athleteId: string | undefined, hasUnsavedEdits
       if (refreshTimer !== undefined) window.clearTimeout(refreshTimer);
       void db.removeChannel(channel);
     };
-  }, [athleteId, liveProgramId, refresh]);
+  }, [athleteId, watchedTable, watchedId, channelName, refresh]);
 
   return {
     result: loaded?.state ?? null, loading: loading || Boolean(entry && entry.athleteId !== athleteId), error, refresh, refreshDeferred,
     offline: loaded?.source === 'offline', verifiedAt: loaded?.verifiedAt,
-    warning: loaded?.warning ?? '', liveSyncWarning,
+    warning: loaded?.warning ?? '', syncWarning,
   };
 }
