@@ -74,6 +74,15 @@ function applyAction(document: ProgramDocument, action: ProgramAction): ProgramD
     const week = { id: id(), program_id: document.program.id, block_id: blockId, week_number: weekNumber, name: 'Week', notes: null, days: [] };
     return { ...document, blocks: [...blocks, block], weeks: [...document.weeks, week] };
   }
+  if (action.type === 'delete-block') {
+    const blocks = document.blocks ?? [];
+    if (!blocks.some((block) => block.id === action.blockId)) return document;
+    return {
+      ...document,
+      blocks: blocks.filter((block) => block.id !== action.blockId).map((block, position) => ({ ...block, position })),
+      weeks: document.weeks.filter((week) => week.block_id !== action.blockId).map((week, weekNumber) => ({ ...week, week_number: weekNumber + 1 })),
+    };
+  }
   if (action.type === 'rename-block') {
     return { ...document, blocks: (document.blocks ?? []).map((block) => block.id === action.blockId ? { ...block, name: action.name } : block) };
   }

@@ -400,3 +400,7 @@
 - Store coach-selected column widths and minimum row height on the program document. Apply the same prescription widths and row height to live athlete program tables; snapshot assignments retain the layout captured when they were assigned.
 - Keep the athlete workout log grouped into one table column, sized from the coach builder's four athlete-log columns. This keeps the mobile-first log controls together while matching the coach's overall log space.
 - Use Edit layout as a direct-resize mode with draggable column dividers and row edges in the grid. Commit each drag once through autosave so layout changes use existing conflict handling and live-update signals.
+
+## 2026-11-15 - Remove a program block
+
+- Let coaches remove the selected block after confirming the number of affected weeks. Remove the block's weeks and descendants from the editable document together, then let the normal save path persist the deletion.

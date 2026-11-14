@@ -92,6 +92,7 @@ export type ProgramAction =
   | { type: 'set-unit'; unit: Unit }
   | { type: 'set-layout'; layout: ProgramLayout }
   | { type: 'add-block' }
+  | { type: 'delete-block'; blockId: string }
   | { type: 'rename-block'; blockId: string; name: string }
   | { type: 'add-week'; blockId?: string | null }
   | { type: 'delete-week'; weekId: string }
