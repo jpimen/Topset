@@ -869,6 +869,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .week-navigation { margin: 14px 0 20px; padding-bottom: 10px; display: grid; gap: 7px; border-bottom: 1px solid var(--border); }
 .block-navigation, .week-navigation-row { min-width: 0; display: flex; justify-content: space-between; align-items: center; gap: 16px; }
 .block-navigation { min-height: 34px; }
+.block-actions { display: flex; flex: none; align-items: center; gap: 8px; }
 .block-tabs { min-width: 0; display: flex; align-items: center; gap: 6px; overflow-x: auto; }
 .program-name-tab { min-width: 0; display: inline-flex; flex: none; align-items: center; gap: 3px; }
 .block-name-tab { min-height: 32px; padding: 0 6px 0 12px; color: var(--secondary); background: var(--surface-control); border: 1px solid var(--border); border-radius: 7px; font: 10px var(--mono); }
