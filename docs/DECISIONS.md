@@ -1,5 +1,13 @@
 # Decisions
 
+## 2026-11-16 - Copy the latest week when adding a week
+
+- Initialize each new week from the highest-numbered week in the selected block, falling back to the latest week in the program if that block has none. Copy notes, days, and exercise prescriptions. Generate new week, day, and exercise IDs and update their parent references so edits remain independent. Keep the new week named “Week” and in the selected block.
+
+## 2026-11-15 - Direct Athlete RPE entry
+
+- Replace the Athlete logged RPE dropdown with a numeric input so athletes can enter RPE directly. Keep the existing 1–10 validation and half-point step size.
+
 ## 2026-11-15 - Compact Athlete workout table on mobile
 
 - Reduce the mobile Athlete table's minimum width to 980px, tighten its cell spacing and type, and shorten the day header. Keep the full workout data horizontally scrollable and retain the existing touch sized set logging controls.

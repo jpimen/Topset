@@ -88,7 +88,24 @@ function applyAction(document: ProgramDocument, action: ProgramAction): ProgramD
   }
   if (action.type === 'add-week') {
     const weekNumber = document.weeks.reduce((max, week) => Math.max(max, week.week_number), 0) + 1;
-    return { ...document, weeks: [...document.weeks, { id: id(), program_id: document.program.id, block_id: action.blockId ?? null, week_number: weekNumber, name: 'Week', notes: null, days: [] }] };
+    const latestWeek = (weeks: typeof document.weeks) => weeks.reduce<typeof document.weeks[number] | null>((latest, week) =>
+      !latest || week.week_number > latest.week_number ? week : latest, null);
+    const weeksInBlock = document.weeks.filter((week) => week.block_id === (action.blockId ?? null));
+    const sourceWeek = latestWeek(weeksInBlock) ?? latestWeek(document.weeks);
+    const weekId = id();
+    const days = sourceWeek?.days.map((day) => {
+      const dayId = id();
+      return {
+        ...day,
+        id: dayId,
+        week_id: weekId,
+        exercises: day.exercises.map((row) => ({ ...row, id: id(), day_id: dayId })),
+      };
+    }) ?? [];
+    return { ...document, weeks: [...document.weeks, {
+      id: weekId, program_id: document.program.id, block_id: action.blockId ?? null,
+      week_number: weekNumber, name: 'Week', notes: sourceWeek?.notes ?? null, days,
+    }] };
   }
   if (action.type === 'delete-week') return { ...document, weeks: document.weeks.filter((week) => week.id !== action.weekId).map((week, index) => ({ ...week, week_number: index + 1 })) };
   const weeks = document.weeks.map((week) => {
