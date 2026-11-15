@@ -1,5 +1,9 @@
 # Decisions
 
+## 2026-11-15 - Let Athlete exercise column scroll
+
+- Remove horizontal sticky positioning from the Athlete Exercise column so it scrolls with the rest of the wide workout table. Keep the header's vertical stickiness and update the mobile scroll hint to reflect the full-table movement.
+
 ## 2026-11-15 - Fit Athlete bottom navigation on mobile
 
 - Match the compact Athlete navigation grid to its five destinations so each button uses the available width across phone sizes. Keep safe-area spacing and touch targets, and reduce the mobile day panel padding, header height, and exercise row spacing while preserving 44px log controls.

@@ -72,7 +72,7 @@ export function AthleteProgramPage() {
               <summary><span><strong>{day.name}</strong><small>{day.exercises.filter(hasUsableExerciseName).length} {day.exercises.filter(hasUsableExerciseName).length === 1 ? 'exercise' : 'exercises'}</small></span><span aria-hidden="true">⌄</span></summary>
               {day.notes && <p className="athlete-coach-note"><strong>Coach note</strong>{day.notes}</p>}
               {day.exercises.filter(hasUsableExerciseName).length === 0 ? <p className="athlete-program-empty-day">No exercises in this day.</p> : <div className="athlete-program-table-viewport" role="region" aria-label={`${week.name} ${day.name} prescriptions`} tabIndex={0}>
-                <p className="athlete-program-scroll-hint">Swipe across the table to view workout log columns. Exercise stays fixed.</p>
+                <p className="athlete-program-scroll-hint">Swipe horizontally to view more workout columns.</p>
                 <table className="athlete-program-table" style={{ '--program-row-height': `${layout.rowHeight}px`, '--program-table-min-width': `${Math.max(1240, tableColumnTotal)}px` } as CSSProperties}>
                   <caption className="visually-hidden">{week.name}, {day.name} exercise prescriptions and athlete workout log</caption>
                   <colgroup>{tableColumnWeights.map((weight, index) => <col key={programLayoutColumns[index]?.id ?? 'workout-log'} style={{ width: `${(weight / tableColumnTotal) * 100}%` }} />)}</colgroup>
