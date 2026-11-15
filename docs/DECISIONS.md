@@ -1,5 +1,9 @@
 # Decisions
 
+## 2026-11-15 - Fit Athlete bottom navigation on mobile
+
+- Match the compact Athlete navigation grid to its five destinations so each button uses the available width across phone sizes. Keep safe-area spacing and touch targets, and slightly reduce prescription table typography on mobile for a denser, easier-to-scan program card.
+
 ## 2026-11-14 - Black transparent arm favicon
 
 - Use pure black line art on a transparent canvas for the flexed-arm favicon.

@@ -645,7 +645,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .workspace-athlete .workspace-user .user-avatar { width: 29px; height: 29px; }
   .workspace-athlete .workspace-sidebar { position: fixed; z-index: 20; inset: auto 0 0; min-height: 0; padding: 7px 8px max(7px, env(safe-area-inset-bottom)); border-top: 1px solid var(--border); border-right: 0; background: var(--surface-sidebar-mobile); backdrop-filter: blur(18px); }
   .workspace-athlete .workspace-sidebar > .eyebrow { display: none; }
-  .workspace-athlete .workspace-nav { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 4px; }
+  .workspace-athlete .workspace-nav { width: 100%; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; }
   .workspace-athlete .workspace-nav-link { min-width: 0; min-height: 48px; padding: 0 1px; justify-content: center; font-size: 8px; white-space: nowrap; }
   .workspace-athlete .workspace-content { padding-bottom: 82px; }
   .athlete-page { padding: 25px 15px 30px; }
@@ -1500,8 +1500,9 @@ h1, h2, h3, h4 { color: var(--text); line-height: 1.2; }
     background: var(--surface-sidebar-mobile);
     backdrop-filter: none;
   }
-  .workspace-athlete .workspace-nav { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 2px; }
+  .workspace-athlete .workspace-nav { width: 100%; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 2px; }
   .workspace-athlete .workspace-nav-link {
+    width: 100%;
     min-width: 0;
     min-height: 58px;
     padding: 5px 1px 4px;
@@ -1533,6 +1534,9 @@ h1, h2, h3, h4 { color: var(--text); line-height: 1.2; }
   .workspace-athlete .workspace-nav-label-full { display: none; }
   .workspace-athlete .workspace-nav-label-compact { display: block; white-space: nowrap; }
   .workspace-athlete .workspace-nav-link[aria-current='page'] .workspace-nav-label-compact { font-weight: 800; }
+  .athlete-program-day summary strong { font-size: 15px; }
+  .athlete-program-table tbody th, .athlete-program-table tbody td { font-size: 11.5px; }
+  .athlete-program-table tbody .athlete-program-exercise { font-size: 12px; }
   .athlete-global-sync { bottom: calc(98px + env(safe-area-inset-bottom)); }
   .coach-page, .athlete-page, .calculators-page { padding-inline: 15px; }
   .coach-page-header { align-items: stretch; flex-direction: column; gap: 13px; }
