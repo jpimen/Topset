@@ -1,5 +1,9 @@
 # Decisions
 
+## 2026-11-15 - Compact Athlete workout table on mobile
+
+- Reduce the mobile Athlete table's minimum width to 980px, tighten its cell spacing and type, and shorten the day header. Keep the full workout data horizontally scrollable and retain the existing touch sized set logging controls.
+
 ## 2026-11-15 - Let Athlete exercise column scroll
 
 - Remove horizontal sticky positioning from the Athlete Exercise column so it scrolls with the rest of the wide workout table. Keep the header's vertical stickiness and update the mobile scroll hint to reflect the full-table movement.

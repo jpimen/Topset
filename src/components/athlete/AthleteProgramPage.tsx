@@ -73,7 +73,7 @@ export function AthleteProgramPage() {
               {day.notes && <p className="athlete-coach-note"><strong>Coach note</strong>{day.notes}</p>}
               {day.exercises.filter(hasUsableExerciseName).length === 0 ? <p className="athlete-program-empty-day">No exercises in this day.</p> : <div className="athlete-program-table-viewport" role="region" aria-label={`${week.name} ${day.name} prescriptions`} tabIndex={0}>
                 <p className="athlete-program-scroll-hint">Swipe horizontally to view more workout columns.</p>
-                <table className="athlete-program-table" style={{ '--program-row-height': `${layout.rowHeight}px`, '--program-table-min-width': `${Math.max(1240, tableColumnTotal)}px` } as CSSProperties}>
+                <table className="athlete-program-table" style={{ '--program-row-height': `${layout.rowHeight}px`, '--program-table-min-width': `${tableColumnTotal}px` } as CSSProperties}>
                   <caption className="visually-hidden">{week.name}, {day.name} exercise prescriptions and athlete workout log</caption>
                   <colgroup>{tableColumnWeights.map((weight, index) => <col key={programLayoutColumns[index]?.id ?? 'workout-log'} style={{ width: `${(weight / tableColumnTotal) * 100}%` }} />)}</colgroup>
                   <thead><tr><th scope="col">Exercise</th><th scope="col">Set type</th><th scope="col">Sets</th><th scope="col">Reps</th><th scope="col">RPE</th><th scope="col">Load</th><th scope="col">Coach notes</th><th scope="col">Workout log · {result.program.program.unit}</th></tr></thead>
