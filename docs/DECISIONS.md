@@ -1,5 +1,9 @@
 # Decisions
 
+## 2026-11-16 - Use a dropdown for Athlete logged RPE
+
+- Replace the Athlete logged RPE number field with a native dropdown containing a blank option and values from 1 to 10 in half-point steps. This keeps selection quick on mobile and retains the existing numeric storage and validation.
+
 ## 2026-11-16 - Copy the latest week when adding a week
 
 - Initialize each new week from the highest-numbered week in the selected block, falling back to the latest week in the program if that block has none. Copy notes, days, and exercise prescriptions. Generate new week, day, and exercise IDs and update their parent references so edits remain independent. Keep the new week named “Week” and in the selected block.
