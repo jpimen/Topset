@@ -88,8 +88,10 @@ function applyAction(document: ProgramDocument, action: ProgramAction): ProgramD
   }
   if (action.type === 'add-week') {
     const weekNumber = document.weeks.reduce((max, week) => Math.max(max, week.week_number), 0) + 1;
-    const sourceWeek = document.weeks.reduce<typeof document.weeks[number] | null>((latest, week) =>
+    const latestWeek = (weeks: typeof document.weeks) => weeks.reduce<typeof document.weeks[number] | null>((latest, week) =>
       !latest || week.week_number > latest.week_number ? week : latest, null);
+    const weeksInBlock = document.weeks.filter((week) => week.block_id === (action.blockId ?? null));
+    const sourceWeek = latestWeek(weeksInBlock) ?? latestWeek(document.weeks);
     const weekId = id();
     const days = sourceWeek?.days.map((day) => {
       const dayId = id();

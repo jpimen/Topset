@@ -2,7 +2,7 @@
 
 ## 2026-11-16 - Copy the latest week when adding a week
 
-- Initialize each new week from the program's highest-numbered existing week, copying its notes, days, and exercise prescriptions. Generate new week, day, and exercise IDs and update their parent references so edits remain independent. Keep the new week named “Week” and in the selected block.
+- Initialize each new week from the highest-numbered week in the selected block, falling back to the latest week in the program if that block has none. Copy notes, days, and exercise prescriptions. Generate new week, day, and exercise IDs and update their parent references so edits remain independent. Keep the new week named “Week” and in the selected block.
 
 ## 2026-11-15 - Direct Athlete RPE entry
 
