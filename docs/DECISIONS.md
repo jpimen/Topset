@@ -1,5 +1,17 @@
 # Decisions
 
+## 2026-11-15 - Compact Athlete workout table on mobile
+
+- Reduce the mobile Athlete table's minimum width to 980px, tighten its cell spacing and type, and shorten the day header. Keep the full workout data horizontally scrollable and retain the existing touch sized set logging controls.
+
+## 2026-11-15 - Let Athlete exercise column scroll
+
+- Remove horizontal sticky positioning from the Athlete Exercise column so it scrolls with the rest of the wide workout table. Keep the header's vertical stickiness and update the mobile scroll hint to reflect the full-table movement.
+
+## 2026-11-15 - Fit Athlete bottom navigation on mobile
+
+- Match the compact Athlete navigation grid to its five destinations so each button uses the available width across phone sizes. Keep safe-area spacing and touch targets, and reduce the mobile day panel padding, header height, and exercise row spacing while preserving 44px log controls.
+
 ## 2026-11-14 - Black transparent arm favicon
 
 - Use pure black line art on a transparent canvas for the flexed-arm favicon.
@@ -397,9 +409,13 @@
 
 ## 2026-11-14 - Program layout editing and athlete sync
 
-- Store coach-selected column widths and minimum row height on the program document. Apply the same prescription widths and row height to live athlete program tables; snapshot assignments retain the layout captured when they were assigned.
+- Store coach-selected column widths and minimum row height on the program document. Apply the same prescription widths and row height to live and active snapshot athlete tables. Snapshot workout prescriptions stay fixed while layout preferences can follow later coach edits.
 - Keep the athlete workout log grouped into one table column, sized from the coach builder's four athlete-log columns. This keeps the mobile-first log controls together while matching the coach's overall log space.
 - Use Edit layout as a direct-resize mode with draggable column dividers and row edges in the grid. Commit each drag once through autosave so layout changes use existing conflict handling and live-update signals.
+
+## 2026-11-15 - Sync layout changes to snapshot athletes
+
+- Mirror coach layout changes into active snapshot assignments without changing their saved workout prescriptions. Subscribe snapshot athletes to their assignment row so the updated table layout refreshes while the page is open.
 
 ## 2026-11-15 - Remove a program block
 

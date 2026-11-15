@@ -20,7 +20,7 @@ export function AthleteProgramPage() {
       return next;
     });
   }, []);
-  const { result, loading, error, refresh, refreshDeferred, offline, verifiedAt, warning, liveSyncWarning } = useAthleteProgram(profile?.id, Object.keys(edits).length > 0);
+  const { result, loading, error, refresh, refreshDeferred, offline, verifiedAt, warning, syncWarning } = useAthleteProgram(profile?.id, Object.keys(edits).length > 0);
   const [selectedBlockId, setSelectedBlockId] = useState('');
   const [selectedWeek, setSelectedWeek] = useState(0);
   const displayBlocks = result ? (() => {
@@ -53,7 +53,7 @@ export function AthleteProgramPage() {
       {offline && <p className="inline-state" role="status">Offline copy · last verified {new Date(verifiedAt!).toLocaleString()}. Access changes cannot be checked until you reconnect. Copies expire after 24 hours.</p>}
       {error && <p className="inline-error" role="alert">{error}<button className="button button-secondary" onClick={refresh}>Try again</button></p>}
       {warning && <p className="inline-error" role="alert">{warning}</p>}
-      {liveSyncWarning && <p className="inline-state" role="status">{liveSyncWarning}</p>}
+      {syncWarning && <p className="inline-state" role="status">{syncWarning}</p>}
       {refreshDeferred && <p className="inline-state" role="status">Program refresh paused while you have unsaved entries. Save your workout and check-in changes to load the latest plan.</p>}
       <p className="athlete-program-refresh-status" aria-live="polite" role={loading ? 'status' : undefined}>{loading ? 'Refreshing program…' : ''}</p>
       <header className="athlete-page-heading"><div><p className="eyebrow">PROGRAM · {result.assignment.sync_mode === 'live' ? 'LIVE PLAN' : 'SAVED SNAPSHOT'}</p><h1>{result.program.program.name}</h1><p>{result.program.program.description || 'Your coach’s plan, available here to review at any time.'}</p></div><div className="athlete-program-heading-actions"><span className="athlete-readonly-tag">Read only</span><button className="button button-secondary" onClick={refresh}>Refresh program</button></div></header>
@@ -72,8 +72,8 @@ export function AthleteProgramPage() {
               <summary><span><strong>{day.name}</strong><small>{day.exercises.filter(hasUsableExerciseName).length} {day.exercises.filter(hasUsableExerciseName).length === 1 ? 'exercise' : 'exercises'}</small></span><span aria-hidden="true">⌄</span></summary>
               {day.notes && <p className="athlete-coach-note"><strong>Coach note</strong>{day.notes}</p>}
               {day.exercises.filter(hasUsableExerciseName).length === 0 ? <p className="athlete-program-empty-day">No exercises in this day.</p> : <div className="athlete-program-table-viewport" role="region" aria-label={`${week.name} ${day.name} prescriptions`} tabIndex={0}>
-                <p className="athlete-program-scroll-hint">Swipe across the table to view workout log columns. Exercise stays fixed.</p>
-                <table className="athlete-program-table" style={{ '--program-row-height': `${layout.rowHeight}px`, '--program-table-min-width': `${Math.max(1240, tableColumnTotal)}px` } as CSSProperties}>
+                <p className="athlete-program-scroll-hint">Swipe horizontally to view more workout columns.</p>
+                <table className="athlete-program-table" style={{ '--program-row-height': `${layout.rowHeight}px`, '--program-table-min-width': `${tableColumnTotal}px` } as CSSProperties}>
                   <caption className="visually-hidden">{week.name}, {day.name} exercise prescriptions and athlete workout log</caption>
                   <colgroup>{tableColumnWeights.map((weight, index) => <col key={programLayoutColumns[index]?.id ?? 'workout-log'} style={{ width: `${(weight / tableColumnTotal) * 100}%` }} />)}</colgroup>
                   <thead><tr><th scope="col">Exercise</th><th scope="col">Set type</th><th scope="col">Sets</th><th scope="col">Reps</th><th scope="col">RPE</th><th scope="col">Load</th><th scope="col">Coach notes</th><th scope="col">Workout log · {result.program.program.unit}</th></tr></thead>

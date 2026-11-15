@@ -458,14 +458,14 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .athlete-program-table-viewport { max-width: 100%; min-width: 0; margin: 0 0 12px; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-color: var(--scrollbar-thumb) var(--card); }
 .athlete-program-table-viewport:focus-visible { outline: 2px solid var(--gold-light); outline-offset: 2px; }
 .athlete-program-scroll-hint { display: none; }
-.athlete-program-table { width: 100%; min-width: var(--program-table-min-width, 1240px); border-collapse: separate; border-spacing: 0; table-layout: fixed; }
+.athlete-program-table { width: 100%; min-width: max(1240px, var(--program-table-min-width, 0px)); border-collapse: separate; border-spacing: 0; table-layout: fixed; }
 .athlete-program-table th, .athlete-program-table td { padding: 15px 16px; border-bottom: 1px solid var(--border-divider); text-align: left; vertical-align: top; }
 .athlete-program-table thead th { position: sticky; top: 0; color: var(--muted); background: var(--card); font: 400 10px var(--mono); letter-spacing: .06em; text-transform: uppercase; }
-.athlete-program-table thead th:first-child { left: 0; z-index: 3; background: var(--surface-card-soft); box-shadow: 1px 0 0 var(--border-divider); }
+.athlete-program-table thead th:first-child { background: var(--surface-card-soft); }
 .athlete-program-table tbody th, .athlete-program-table tbody td { padding-block: max(8px, calc((var(--program-row-height, 48px) - 20px) / 2)); color: var(--secondary); font-size: 12.5px; line-height: 1.55; }
 .athlete-program-table tbody tr:last-child th, .athlete-program-table tbody tr:last-child td { border-bottom: 0; }
 .athlete-program-table tbody tr:hover { background: var(--surface-hover-subtle); }
-.athlete-program-table tbody .athlete-program-exercise { position: sticky; left: 0; z-index: 1; background: var(--card); box-shadow: 1px 0 0 var(--border-divider); }
+.athlete-program-table tbody .athlete-program-exercise { background: var(--card); }
 .athlete-program-table tbody tr:hover > .athlete-program-exercise { background: var(--surface-hover-subtle); }
 .athlete-program-table th:first-child, .athlete-program-table td:first-child { padding-left: 24px; }
 .athlete-program-exercise { color: var(--text) !important; font-weight: 700; }
@@ -505,7 +505,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 
 @media (max-width: 760px) {
   .athlete-program-table-viewport { width: 100%; max-width: 100%; overflow-x: auto; overscroll-behavior-x: contain; }
-  .athlete-program-table { display: table; width: max(100%, var(--program-table-min-width, 1240px)); min-width: var(--program-table-min-width, 1240px); table-layout: fixed; }
+  .athlete-program-table { display: table; width: max(100%, 980px, var(--program-table-min-width, 0px)); min-width: max(980px, var(--program-table-min-width, 0px)); table-layout: fixed; }
   .athlete-program-scroll-hint { display: block; margin: 0; padding: 8px 14px; color: var(--muted); font-size: 10px; line-height: 1.5; }
 }
 .athlete-program-log-loading { height: 58px; }
@@ -645,7 +645,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .workspace-athlete .workspace-user .user-avatar { width: 29px; height: 29px; }
   .workspace-athlete .workspace-sidebar { position: fixed; z-index: 20; inset: auto 0 0; min-height: 0; padding: 7px 8px max(7px, env(safe-area-inset-bottom)); border-top: 1px solid var(--border); border-right: 0; background: var(--surface-sidebar-mobile); backdrop-filter: blur(18px); }
   .workspace-athlete .workspace-sidebar > .eyebrow { display: none; }
-  .workspace-athlete .workspace-nav { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 4px; }
+  .workspace-athlete .workspace-nav { width: 100%; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; }
   .workspace-athlete .workspace-nav-link { min-width: 0; min-height: 48px; padding: 0 1px; justify-content: center; font-size: 8px; white-space: nowrap; }
   .workspace-athlete .workspace-content { padding-bottom: 82px; }
   .athlete-page { padding: 25px 15px 30px; }
@@ -1500,8 +1500,9 @@ h1, h2, h3, h4 { color: var(--text); line-height: 1.2; }
     background: var(--surface-sidebar-mobile);
     backdrop-filter: none;
   }
-  .workspace-athlete .workspace-nav { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 2px; }
+  .workspace-athlete .workspace-nav { width: 100%; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 2px; }
   .workspace-athlete .workspace-nav-link {
+    width: 100%;
     min-width: 0;
     min-height: 58px;
     padding: 5px 1px 4px;
@@ -1533,6 +1534,9 @@ h1, h2, h3, h4 { color: var(--text); line-height: 1.2; }
   .workspace-athlete .workspace-nav-label-full { display: none; }
   .workspace-athlete .workspace-nav-label-compact { display: block; white-space: nowrap; }
   .workspace-athlete .workspace-nav-link[aria-current='page'] .workspace-nav-label-compact { font-weight: 800; }
+  .athlete-program-day summary strong { font-size: 15px; }
+  .athlete-program-table tbody th, .athlete-program-table tbody td { font-size: 11.5px; }
+  .athlete-program-table tbody .athlete-program-exercise { font-size: 12px; }
   .athlete-global-sync { bottom: calc(98px + env(safe-area-inset-bottom)); }
   .coach-page, .athlete-page, .calculators-page { padding-inline: 15px; }
   .coach-page-header { align-items: stretch; flex-direction: column; gap: 13px; }
@@ -1545,7 +1549,18 @@ h1, h2, h3, h4 { color: var(--text); line-height: 1.2; }
   .program-builder-page { padding: 18px 12px 34px; }
   .program-grid { min-width: var(--program-grid-min-width, 1050px); }
   .day-card-body { overflow-x: auto; }
-  .athlete-program-day { padding-inline: 13px; }
+  .athlete-program-days { gap: 8px; }
+  .athlete-day-checkin-layout { gap: 10px; padding-bottom: 10px; }
+  .athlete-program-day { padding-inline: 8px; }
+  .athlete-program-day summary { min-height: 46px; }
+  .athlete-program-day summary strong { font-size: 14px; }
+  .athlete-program-table-viewport { margin-bottom: 8px; }
+  .athlete-program-table th, .athlete-program-table td { padding-inline: 10px; }
+  .athlete-program-table th:first-child, .athlete-program-table td:first-child { padding-left: 14px; }
+  .athlete-program-table thead th { font-size: 9px; }
+  .athlete-program-table tbody th, .athlete-program-table tbody td { padding-block: 2px; font-size: 10.5px; line-height: 1.4; }
+  .athlete-program-table tbody .athlete-program-exercise { font-size: 11px; }
+  .athlete-program-set-log summary { min-height: 44px; padding-inline: 18px; }
   .exercise-dialog { width: 100%; }
   .dialog-actions .button { min-height: 46px; }
 }
