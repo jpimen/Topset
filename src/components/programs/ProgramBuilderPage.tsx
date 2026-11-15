@@ -528,7 +528,7 @@ export function ProgramBuilderPage() {
     const timer = window.setTimeout(() => {
       setEnteringBlockId(null);
       setEnteringWeekId(null);
-    }, 300);
+    }, 560);
     return () => window.clearTimeout(timer);
   }, [enteringBlockId, enteringWeekId]);
   if (loading) return <main className="coach-page builder-loading"><div className="skeleton-line" /><div className="skeleton-line short" /><div className="builder-skeleton" /></main>;

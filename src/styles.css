@@ -872,7 +872,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .block-actions { display: flex; flex: none; align-items: center; gap: 8px; }
 .block-tabs { min-width: 0; display: flex; align-items: center; gap: 6px; overflow-x: auto; }
 .program-name-tab { min-width: 0; display: inline-flex; flex: none; align-items: center; gap: 3px; }
-.program-name-tab.is-entering { animation: builder-tab-enter .22s cubic-bezier(.2, .75, .25, 1) both; }
+.program-name-tab.is-entering { animation: builder-tab-enter .42s cubic-bezier(.22, 1, .36, 1) both; }
 .block-name-tab { min-height: 32px; padding: 0 6px 0 12px; color: var(--secondary); background: var(--surface-control); border: 1px solid var(--border); border-radius: 7px; font: 10px var(--mono); }
 .block-name-tab.selected { color: var(--gold-text); border-color: var(--border-button-hover); background: var(--surface-gold-muted); }
 .week-name-tab { min-height: 38px; padding: 0 7px 0 14px; color: var(--secondary); background: transparent; border: 1px solid transparent; border-radius: 8px 8px 0 0; font-size: 12px; }
@@ -886,7 +886,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .block-tabs > button.selected { color: var(--gold-text); border-color: var(--border-button-hover); background: var(--surface-gold-muted); }
 .week-actions .button { min-height: 32px; padding: 0 10px; font-size: 10px; }
 .week-heading { min-height: 66px; margin: 5px 0 14px; display: flex; align-items: center; justify-content: space-between; gap: 18px; }
-.week-content.is-entering { animation: builder-week-enter .24s cubic-bezier(.2, .75, .25, 1) both; }
+.week-content.is-entering { animation: builder-week-enter .48s cubic-bezier(.22, 1, .36, 1) both; }
 .week-heading .eyebrow { font-size: 9px; }
 .week-title { margin: 3px 0 0; font: 700 19px var(--display); }
 .week-heading .button { min-height: 34px; }
