@@ -2,7 +2,7 @@
 
 ## 2026-11-15 - Fit Athlete bottom navigation on mobile
 
-- Match the compact Athlete navigation grid to its five destinations so each button uses the available width across phone sizes. Keep safe-area spacing and touch targets, and slightly reduce prescription table typography on mobile for a denser, easier-to-scan program card.
+- Match the compact Athlete navigation grid to its five destinations so each button uses the available width across phone sizes. Keep safe-area spacing and touch targets, and reduce the mobile day panel padding, header height, and exercise row spacing while preserving 44px log controls.
 
 ## 2026-11-14 - Black transparent arm favicon
 

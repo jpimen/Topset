@@ -1549,7 +1549,13 @@ h1, h2, h3, h4 { color: var(--text); line-height: 1.2; }
   .program-builder-page { padding: 18px 12px 34px; }
   .program-grid { min-width: var(--program-grid-min-width, 1050px); }
   .day-card-body { overflow-x: auto; }
-  .athlete-program-day { padding-inline: 13px; }
+  .athlete-program-days { gap: 8px; }
+  .athlete-day-checkin-layout { gap: 10px; padding-bottom: 10px; }
+  .athlete-program-day { padding-inline: 10px; }
+  .athlete-program-day summary { min-height: 50px; }
+  .athlete-program-table-viewport { margin-bottom: 8px; }
+  .athlete-program-table tbody th, .athlete-program-table tbody td { padding-block: 4px; }
+  .athlete-program-set-log summary { min-height: 44px; padding-inline: 18px; }
   .exercise-dialog { width: 100%; }
   .dialog-actions .button { min-height: 46px; }
 }
