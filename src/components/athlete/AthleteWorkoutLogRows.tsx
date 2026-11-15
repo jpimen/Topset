@@ -6,7 +6,7 @@ import { athleteExerciseName, athleteLoadLabel, hasUsableExerciseName, isLoggabl
 import { useAthleteWorkoutSessions } from './AthleteWorkoutSessionsProvider';
 import type { AthleteWorkoutSession } from '../../lib/athlete/logs';
 
-const RPE_OPTIONS = Array.from({ length: 19 }, (_, index) => (1 + index * 0.5).toFixed(1).replace('.0', ''));
+const RPE_OPTIONS = Array.from({ length: 13 }, (_, index) => (4 + index * 0.5).toFixed(1).replace('.0', ''));
 
 function today() {
   const date = new Date();
