@@ -1,5 +1,11 @@
 # Decisions
 
+## 2026-11-17 - Keep Athlete personal programs private
+
+- Allow an Athlete to create and edit one personal program in the Program page while retaining a separate switch to the Coach-assigned plan.
+- Store the personal plan in its own athlete-owned table with RLS that permits access only to that Athlete; do not expose it to linked Coaches or assignments.
+- Keep the first personal editor focused on week, day, exercise, sets, reps, RPE, and load prescriptions; use the existing Coach-assigned workout logging flow only for Coach programs.
+
 ## 2026-11-17 - Show coach invite request on the empty Athlete program page
 
 - Reuse the Athlete coach-link card beneath the no-assigned-program state so Athletes can paste a Coach invite URL or code and request a link without navigating to Profile.

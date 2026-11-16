@@ -3,7 +3,9 @@ import { useAuth } from '../../auth/AuthProvider';
 import { AthleteWorkoutCheckInPanel } from './AthleteWorkoutCheckInPanel';
 import { AthleteWorkoutLogRows } from './AthleteWorkoutLogRows';
 import { AthleteCoachLinkCard } from './AthleteCoachLinkCard';
+import { AthletePersonalProgramPanel } from './AthletePersonalProgramPanel';
 import { athleteExerciseName, athleteLoadLabel, hasUsableExerciseName, isLoggablePrescription } from '../../lib/athlete/prescriptions';
+import { loadAthletePersonalProgram, saveAthletePersonalProgram, type AthletePersonalProgram } from '../../lib/athlete/personalPrograms';
 import { useAthleteProgram } from './useAthleteProgram';
 import { AthleteWorkoutSessionsProvider } from './AthleteWorkoutSessionsProvider';
 import { normalizeProgramLayout, programLayoutColumns } from '../../lib/programs/layout';
@@ -12,6 +14,10 @@ const LEGACY_BLOCK_ID = '__legacy_block__';
 
 export function AthleteProgramPage() {
   const { profile } = useAuth();
+  const [personalProgram, setPersonalProgram] = useState<AthletePersonalProgram | null>(null);
+  const [personalLoading, setPersonalLoading] = useState(true);
+  const [personalLoadError, setPersonalLoadError] = useState('');
+  const [selectedProgramSource, setSelectedProgramSource] = useState<'coach' | 'personal'>('coach');
   const [edits, setEdits] = useState<Record<string, boolean>>({});
   const onEditStateChange = useCallback((key: string, dirty: boolean) => {
     setEdits((current) => {
@@ -22,6 +28,23 @@ export function AthleteProgramPage() {
     });
   }, []);
   const { result, loading, error, refresh, refreshDeferred, offline, verifiedAt, warning, syncWarning } = useAthleteProgram(profile?.id, Object.keys(edits).length > 0);
+  useEffect(() => {
+    let active = true;
+    if (!profile?.id) { setPersonalLoading(false); return; }
+    setPersonalLoading(true);
+    setPersonalLoadError('');
+    void loadAthletePersonalProgram(profile.id).then((program) => {
+      if (active) setPersonalProgram(program);
+    }).catch((cause: unknown) => {
+      console.error('Athlete personal program could not be loaded.', cause);
+      if (active) setPersonalLoadError('Your private program could not be loaded. Try again later.');
+    }).finally(() => { if (active) setPersonalLoading(false); });
+    return () => { active = false; };
+  }, [profile?.id]);
+  const savePersonalProgram = useCallback(async (program: AthletePersonalProgram) => {
+    if (!profile?.id) throw new Error('Your account is not available.');
+    setPersonalProgram(await saveAthletePersonalProgram(profile.id, program));
+  }, [profile?.id]);
   const [selectedBlockId, setSelectedBlockId] = useState('');
   const [selectedWeek, setSelectedWeek] = useState(0);
   const displayBlocks = result ? (() => {
@@ -36,10 +59,17 @@ export function AthleteProgramPage() {
   ) : [];
   useEffect(() => { if (activeBlockId && activeBlockId !== selectedBlockId) { setSelectedBlockId(activeBlockId); setSelectedWeek(0); } }, [activeBlockId, selectedBlockId]);
   useEffect(() => { if (selectedWeek >= visibleWeeks.length) setSelectedWeek(0); }, [visibleWeeks.length, selectedWeek]);
+  const isPersonalProgramSelected = () => selectedProgramSource === 'personal';
 
-  if (loading && !result) return <main className="athlete-page"><div className="dashboard-skeleton" aria-label="Loading assigned program" /></main>;
-  if (error && !result) return <main className="athlete-page"><section className="coach-panel empty-state" role="alert"><h1>Program unavailable</h1><p>{error}</p><button className="button button-secondary" onClick={refresh}>Try again</button></section></main>;
-  if (!result) return <main className="athlete-page"><section className="coach-panel empty-state"><p className="eyebrow">PROGRAM</p><h1>No assigned program yet</h1><p>Your coach’s assigned plan will appear here.</p>{warning && <p role="alert">{warning}</p>}</section><AthleteCoachLinkCard /></main>;
+  if ((loading && !result) || personalLoading) return <main className="athlete-page"><div className="dashboard-skeleton" aria-label="Loading programs" /></main>;
+  if ((error && !result) || !result || isPersonalProgramSelected()) return <main className="athlete-page">
+    {result && <nav className="athlete-program-source-tabs" aria-label="Choose a program"><button type="button" aria-pressed={false} onClick={() => setSelectedProgramSource('coach')}>Coach’s program</button><button type="button" aria-pressed={true} className="selected">My program</button></nav>}
+    {error && !result && <div className="coach-panel empty-state" role="alert"><h2>Coach program unavailable</h2><p>{error}</p><button className="button button-secondary" type="button" onClick={refresh}>Try again</button></div>}
+    {!result && !error && !personalProgram && <section className="coach-panel empty-state"><p className="eyebrow">PROGRAM</p><h1>No assigned program yet</h1><p>Your coach’s assigned plan will appear here. You can also create a private program for yourself.</p>{warning && <p role="alert">{warning}</p>}</section>}
+    {!result && personalProgram && <p className="inline-state">No Coach program is assigned yet. Your personal program is private to you.</p>}
+    <AthletePersonalProgramPanel program={personalProgram} defaultUnit={profile?.unit ?? 'kg'} loadError={personalLoadError} onSave={savePersonalProgram} />
+    {!result && <AthleteCoachLinkCard />}
+  </main>;
 
   const week = visibleWeeks[selectedWeek];
   const layout = normalizeProgramLayout(result.program.layout);
@@ -58,6 +88,7 @@ export function AthleteProgramPage() {
       {refreshDeferred && <p className="inline-state" role="status">Program refresh paused while you have unsaved entries. Save your workout and check-in changes to load the latest plan.</p>}
       <p className="athlete-program-refresh-status" aria-live="polite" role={loading ? 'status' : undefined}>{loading ? 'Refreshing program…' : ''}</p>
       <header className="athlete-page-heading"><div><p className="eyebrow">PROGRAM · {result.assignment.sync_mode === 'live' ? 'LIVE PLAN' : 'SAVED SNAPSHOT'}</p><h1>{result.program.program.name}</h1><p>{result.program.program.description || 'Your coach’s plan, available here to review at any time.'}</p></div><div className="athlete-program-heading-actions"><span className="athlete-readonly-tag">Read only</span><button className="button button-secondary" onClick={refresh}>Refresh program</button></div></header>
+      <nav className="athlete-program-source-tabs" aria-label="Choose a program"><button type="button" aria-pressed={selectedProgramSource === 'coach'} className={selectedProgramSource === 'coach' ? 'selected' : ''} onClick={() => setSelectedProgramSource('coach')}>Coach’s program</button><button type="button" aria-pressed={selectedProgramSource === 'personal'} className={selectedProgramSource === 'personal' ? 'selected' : ''} onClick={() => setSelectedProgramSource('personal')}>My program</button></nav>
       <AthleteWorkoutSessionsProvider key={`${profile?.id}:${result.assignment.id}`} athleteId={profile!.id} assignmentId={result.assignment.id} verifiedAt={verifiedAt}>
       {result.program.weeks.length === 0 ? <section className="coach-panel empty-state"><h2>Your program is being prepared</h2><p>There are no weeks in this plan yet.</p></section> : <>
         {displayBlocks.length > 0 && <nav className="athlete-block-tabs" aria-label="Program blocks">

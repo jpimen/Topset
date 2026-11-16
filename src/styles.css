@@ -426,6 +426,33 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .athlete-page-heading p:not(.eyebrow) { max-width: 640px; margin: 0; color: var(--secondary); font-size: 13px; line-height: 1.6; }
 .athlete-page-heading > a { flex: none; }
 .athlete-program-refresh-status { min-height: 16px; margin: 0; color: var(--muted); font-size: 10px; line-height: 16px; }
+.athlete-program-source-tabs { display: flex; gap: 8px; margin: 0 0 18px; padding: 4px; width: fit-content; max-width: 100%; border: 1px solid var(--border); border-radius: 10px; background: var(--surface-control); }
+.athlete-program-source-tabs button { min-height: 44px; padding: 0 16px; border: 0; border-radius: 7px; color: var(--secondary); background: transparent; font: 700 12px 'Plus Jakarta Sans', sans-serif; cursor: pointer; }
+.athlete-program-source-tabs button.selected { color: var(--text); background: var(--surface-selected); }
+.athlete-program-source-tabs button:focus-visible { outline: 2px solid var(--gold-light); outline-offset: 2px; }
+.athlete-personal-program-panel { padding: clamp(16px, 3vw, 24px); }
+.athlete-personal-program-heading { margin-bottom: 18px; display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; }
+.athlete-personal-program-heading h2 { margin: 5px 0 6px; color: var(--text); font: 700 20px var(--display); }
+.athlete-personal-program-heading p:last-child { margin: 0; color: var(--secondary); font-size: 12px; line-height: 1.55; }
+.athlete-personal-program-editor { display: grid; gap: 16px; }
+.athlete-personal-program-fields { display: grid; grid-template-columns: minmax(0, 2fr) minmax(120px, 1fr); gap: 12px; }
+.athlete-personal-program-weeks { display: grid; gap: 14px; }
+.athlete-personal-week { min-width: 0; margin: 0; padding: 14px; display: grid; gap: 14px; border: 1px solid var(--border); border-radius: var(--radius-control); }
+.athlete-personal-week-heading, .athlete-personal-day-heading { display: flex; align-items: flex-end; gap: 10px; }
+.athlete-personal-week-heading .form-field, .athlete-personal-day-heading .form-field { flex: 1; }
+.athlete-personal-day { min-width: 0; padding: 12px; display: grid; gap: 12px; border: 1px solid var(--border-divider); border-radius: 9px; background: var(--surface-control); }
+.athlete-personal-exercise { display: grid; grid-template-columns: minmax(150px, 2fr) repeat(4, minmax(70px, 1fr)) auto; align-items: end; gap: 10px; padding: 10px; border: 1px solid var(--border-divider); border-radius: 8px; }
+.athlete-personal-exercise .form-field { min-width: 0; }
+.athlete-personal-exercise .button { min-height: 40px; }
+.athlete-personal-program-actions { display: flex; justify-content: flex-end; gap: 9px; padding-top: 4px; }
+.athlete-personal-program-empty, .athlete-personal-week-view > p { color: var(--secondary); font-size: 12px; }
+.athlete-personal-week-view { margin-top: 16px; padding: 15px; border: 1px solid var(--border); border-radius: var(--radius-control); }
+.athlete-personal-week-view h3 { margin: 0 0 12px; color: var(--text); font: 700 15px var(--display); }
+.athlete-personal-day-view + .athlete-personal-day-view { margin-top: 13px; padding-top: 13px; border-top: 1px solid var(--border-divider); }
+.athlete-personal-day-view h4 { margin: 0 0 8px; color: var(--gold-text); font: 700 12px 'Plus Jakarta Sans', sans-serif; }
+.athlete-personal-day-view ul { margin: 0; padding: 0; display: grid; gap: 7px; list-style: none; }
+.athlete-personal-day-view li { display: flex; justify-content: space-between; gap: 12px; color: var(--secondary); font-size: 12px; }
+.athlete-personal-day-view li strong { color: var(--text); }
 .workout-sync { min-height: 34px; padding: 0 11px; display: inline-flex; align-items: center; gap: 8px; flex: none; border: 1px solid var(--border); border-radius: 999px; color: var(--secondary); background: var(--surface-sync); font-size: 10px; }
 .workout-sync > span { width: 7px; height: 7px; border-radius: 50%; background: var(--success); }
 .workout-sync.sync-pending > span, .workout-sync.sync-saving > span { background: var(--gold-light); }
@@ -509,6 +536,11 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .athlete-program-table-viewport { width: 100%; max-width: 100%; overflow-x: auto; overscroll-behavior-x: contain; }
   .athlete-program-table { display: table; width: max(100%, 980px, var(--program-table-min-width, 0px)); min-width: max(980px, var(--program-table-min-width, 0px)); table-layout: fixed; }
   .athlete-program-scroll-hint { display: block; margin: 0; padding: 8px 14px; color: var(--muted); font-size: 10px; line-height: 1.5; }
+  .athlete-personal-program-fields, .athlete-personal-exercise { grid-template-columns: minmax(0, 1fr); }
+  .athlete-personal-program-heading, .athlete-personal-week-heading, .athlete-personal-day-heading { align-items: stretch; flex-direction: column; }
+  .athlete-personal-week-heading .button, .athlete-personal-day-heading .button { align-self: flex-start; }
+  .athlete-personal-exercise .button { justify-self: start; }
+  .athlete-personal-day-view li { align-items: flex-start; flex-direction: column; gap: 3px; }
 }
 .athlete-program-log-loading { height: 58px; }
 .athlete-program-log-save-row td { padding: 10px 12px; border-top: 1px solid var(--border); }

@@ -23,13 +23,14 @@
 ## Milestone 5 follow-up
 
 1. Extend the existing Coach builder log review with planned-versus-actual analysis.
-2. Add an end-to-end browser test for create, rename, confirmed save, live update, and snapshot immutability using isolated coach and athlete sessions.
-3. Add offline draft storage and retry for workout-day check-ins; they currently require an active connection to load and save.
-4. Replace the Progress and Profile placeholders with athlete analytics, meet details, bodyweight history, maxes, unit, and plate settings.
-5. Add the rest timer and next-set focus mode to Today.
-6. Consider IndexedDB for larger offline histories; the current queue stores compact pending workout drafts in browser local storage.
-7. If requested, add a deliberate recovery/export flow for malformed or permanently unsynchronizable pending workouts. Existing input is retained and errors are shown; never delete these drafts as cache expiry.
-8. Full offline app startup and immediate cross-device updates remain outside the bounded prescription fallback. See [data caching audit](DATA_CACHING.md); collect navigation/request timing evidence before adding more Coach caches.
+2. Add workout logging and offline sync for Athlete-owned personal programs; the initial personal-program editor stores and displays prescriptions only.
+3. Add an end-to-end browser test for create, rename, confirmed save, live update, and snapshot immutability using isolated coach and athlete sessions.
+4. Add offline draft storage and retry for workout-day check-ins; they currently require an active connection to load and save.
+5. Replace the Progress and Profile placeholders with athlete analytics, meet details, bodyweight history, maxes, unit, and plate settings.
+6. Add the rest timer and next-set focus mode to Today.
+7. Consider IndexedDB for larger offline histories; the current queue stores compact pending workout drafts in browser local storage.
+8. If requested, add a deliberate recovery/export flow for malformed or permanently unsynchronizable pending workouts. Existing input is retained and errors are shown; never delete these drafts as cache expiry.
+9. Full offline app startup and immediate cross-device updates remain outside the bounded prescription fallback. See [data caching audit](DATA_CACHING.md); collect navigation/request timing evidence before adding more Coach caches.
 
 ## Milestone 3 Phase B (requires approval)
 
