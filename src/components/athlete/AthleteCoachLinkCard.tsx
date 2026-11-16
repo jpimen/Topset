@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
 import { useAuth } from '../../auth/AuthProvider';
-import { getAthleteCoachLink, relationshipErrorMessage, requestCoachLink, type AthleteCoachLink } from '../../lib/coachAthletes';
+import { getAthleteCoachLink, relationshipErrorMessage, removeAthleteCoachLink, requestCoachLink, type AthleteCoachLink } from '../../lib/coachAthletes';
 
 export function AthleteCoachLinkCard() {
   const { profile } = useAuth();
@@ -42,13 +42,29 @@ export function AthleteCoachLinkCard() {
     }
   };
 
+  const removeCoach = async () => {
+    if (!link || link.status !== 'active') return;
+    setBusy(true);
+    setError('');
+    setNotice('');
+    try {
+      await removeAthleteCoachLink(link.id);
+      setLink(null);
+      setNotice('Coach removed. Enter a coach invite link or code to request a new connection.');
+    } catch (cause) {
+      setError(relationshipErrorMessage(cause));
+    } finally {
+      setBusy(false);
+    }
+  };
+
   if (loading) return <section className="coach-panel athlete-link-card" aria-label="Loading coach link"><div className="skeleton-line short" /></section>;
 
   return (
     <section className="coach-panel athlete-link-card" aria-labelledby="athlete-coach-link-title">
       <p className="eyebrow">COACH CONNECTION</p>
       <h2 id="athlete-coach-link-title">{link?.status === 'active' ? 'Your coach' : link?.status === 'pending' ? 'Request pending' : 'Connect with a coach'}</h2>
-      {link?.status === 'active' ? <p>You are linked with {link.coach?.name ?? 'your coach'}{link.coach?.team_name ? ` · ${link.coach.team_name}` : ''}.</p> : link?.status === 'pending' ? <p>Your request to {link.coach?.name ?? 'this coach'} is waiting for approval.</p> : <>
+      {link?.status === 'active' ? <><p>You are linked with {link.coach?.name ?? 'your coach'}{link.coach?.team_name ? ` · ${link.coach.team_name}` : ''}.</p><button className="button button-secondary" type="button" disabled={busy} onClick={() => void removeCoach()}>{busy ? 'Removing…' : 'Remove coach'}</button></> : link?.status === 'pending' ? <p>Your request to {link.coach?.name ?? 'this coach'} is waiting for approval.</p> : <>
         <p>Paste the full invite link or its code. Your coach will approve the request before linking your accounts.</p>
         <form className="athlete-link-form" onSubmit={(event) => void submit(event)}>
           <label className="form-field">Coach invite link or code<input autoComplete="off" maxLength={2048} value={code} onChange={(event) => setCode(event.target.value)} placeholder="Paste invite link or code" required /></label>

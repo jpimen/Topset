@@ -1,5 +1,10 @@
 # Decisions
 
+## 2026-11-17 - Let Athletes remove their linked Coach
+
+- Add a **Remove coach** action to the Athlete profile's active coach connection. Use an Athlete-only database function that marks the link removed, preserving relationship history while revoking linked access.
+- Keep the existing request flow: after removal, an Athlete can request a coach by invite code, and the one-active-link constraint allows another Coach to approve a new request.
+
 ## 2026-11-16 - Use a dropdown for Athlete logged RPE
 
 - Replace the Athlete logged RPE number field with a native dropdown containing a blank option and values from 4 to 10 in half-point steps. This keeps selection quick on mobile and retains the existing numeric storage and validation.
@@ -432,3 +437,9 @@
 ## 2026-11-15 - Remove a program block
 
 - Let coaches remove the selected block after confirming the number of affected weeks. Remove the block's weeks and descendants from the editable document together, then let the normal save path persist the deletion.
+
+## 2026-11-17 - Add program 1RM references to the builder topbar
+
+- Populate squat, bench, and deadlift 1RM values from the active athlete assignment instead of storing coach-edited values on the program. When several athletes are assigned, let the coach choose which athlete's current maxes to display; convert from the athlete's unit to the program's unit.
+- Render the values as outputs with no editing control. Subscribe to the selected athlete's profile updates and refresh on focus, reconnect, and periodically while visible so max edits sync into an open builder.
+- Keep these values as display references only; they do not calculate or alter prescribed loads.
