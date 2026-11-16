@@ -1,4 +1,4 @@
-import { useMemo, useState, type FormEvent, type InputHTMLAttributes, type ReactNode } from 'react';
+import { useMemo, useState, type ChangeEvent, type FormEvent, type InputHTMLAttributes, type ReactNode } from 'react';
 import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import { z } from 'zod';
 import { useAuth, type Role } from '../auth/AuthProvider';
@@ -13,9 +13,15 @@ type FieldErrors = Record<string, string>;
 type WeightUnit = 'kg' | 'lb';
 
 const networkErrorMessage = "Can't reach the Topset server. Check that local Supabase is running (npx supabase start) and that your .env is correct.";
-const liftClasses: Record<WeightUnit, string[]> = {
-  kg: ['53 kg', '59 kg', '66 kg', '74 kg', '83 kg', '93 kg', '105 kg', '120 kg', '120+ kg', '43 kg', '47 kg', '52 kg', '57 kg', '63 kg', '69 kg', '76 kg', '84 kg', '84+ kg', 'Other'],
-  lb: ['117 lb', '130 lb', '146 lb', '163 lb', '183 lb', '205 lb', '231 lb', '265 lb', '265+ lb', '95 lb', '104 lb', '115 lb', '126 lb', '139 lb', '152 lb', '168 lb', '185 lb', '185+ lb', 'Other'],
+const liftClasses: Record<WeightUnit, Record<'male' | 'female', string[]>> = {
+  kg: {
+    male: ['53 kg', '59 kg', '66 kg', '74 kg', '83 kg', '93 kg', '105 kg', '120 kg', '120+ kg', 'Other'],
+    female: ['43 kg', '47 kg', '52 kg', '57 kg', '63 kg', '69 kg', '76 kg', '84 kg', '84+ kg', 'Other'],
+  },
+  lb: {
+    male: ['117 lb', '130 lb', '146 lb', '163 lb', '183 lb', '205 lb', '231 lb', '265 lb', '265+ lb', 'Other'],
+    female: ['95 lb', '104 lb', '115 lb', '126 lb', '139 lb', '152 lb', '168 lb', '185 lb', '185+ lb', 'Other'],
+  },
 };
 const signUpSchema = z.object({
   role: z.enum(['coach', 'athlete']),
@@ -25,6 +31,7 @@ const signUpSchema = z.object({
   confirmPassword: z.string(),
   teamName: z.string().trim().max(100),
   bodyweight: z.string(),
+  sex: z.enum(['male', 'female']).or(z.literal('')),
   weightClass: z.string().trim().max(30),
   unit: z.enum(['kg', 'lb']),
   squatMax: z.string(),
@@ -69,6 +76,8 @@ export function AuthPage({ mode }: { mode: Mode }) {
   const [passwordValue, setPasswordValue] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [weightUnit, setWeightUnit] = useState<WeightUnit>('kg');
+  const [signupSex, setSignupSex] = useState<'' | 'male' | 'female'>('');
+  const [signupWeightClass, setSignupWeightClass] = useState('');
   const [inviteCode, setInviteCode] = useState(searchParams.get('invite') ?? '');
   const isCredentialsStep = mode === 'signup' && selectedRole !== null;
 
@@ -143,6 +152,7 @@ export function AuthPage({ mode }: { mode: Mode }) {
         confirmPassword: String(values.get('confirmPassword') ?? ''),
         teamName: String(values.get('teamName') ?? ''),
         bodyweight: String(values.get('bodyweight') ?? ''),
+        sex: String(values.get('sex') ?? ''),
         weightClass: String(values.get('weightClass') ?? ''),
         unit: String(values.get('unit') ?? 'kg'),
         squatMax: String(values.get('squatMax') ?? ''),
@@ -160,6 +170,7 @@ export function AuthPage({ mode }: { mode: Mode }) {
         }
       }
       if (input.confirmPassword !== input.password) nextErrors.confirmPassword = 'Passwords do not match.';
+      if (input.role === 'athlete' && !input.sex) nextErrors.sex = 'Choose male or female.';
       if (input.role === 'athlete' && rawInviteCode && !normalizedInviteCode) {
         nextErrors.inviteCode = 'Paste the full invite link or the 48-character invite code.';
       }
@@ -197,6 +208,7 @@ export function AuthPage({ mode }: { mode: Mode }) {
             team_name: details.role === 'coach' ? details.teamName.trim() || null : null,
             unit: details.role === 'athlete' ? details.unit : null,
             bodyweight: details.role === 'athlete' ? bodyweight : null,
+            sex: details.role === 'athlete' ? details.sex || null : null,
             weight_class: details.role === 'athlete' ? details.weightClass || null : null,
             squat_max: details.role === 'athlete' ? squatMax : null,
             bench_max: details.role === 'athlete' ? benchMax : null,
@@ -307,10 +319,11 @@ export function AuthPage({ mode }: { mode: Mode }) {
                 <TextInput label="Club, gym, or affiliation" name="teamName" autoComplete="organization" placeholder="Optional" hint="You can add this later." />
               ) : (
                 <div className="metrics-panel">
-                  <div className="metrics-heading"><div><span className="field-label">Lifting metrics</span><span className="field-help">Optional starting details</span></div><UnitToggle unit={weightUnit} onChange={setWeightUnit} /></div>
+                  <div className="metrics-heading"><div><span className="field-label">Lifting metrics</span><span className="field-help">Optional starting details</span></div><UnitToggle unit={weightUnit} onChange={(unit) => { setWeightUnit(unit); setSignupWeightClass(''); }} /></div>
                   <div className="metrics-grid">
                     <TextInput label="Bodyweight" name="bodyweight" type="number" min="1" max="500" step="0.1" placeholder="Optional" onBlur={(event) => validateField('bodyweight', event.currentTarget.value)} error={fieldErrors.bodyweight} />
-                    <SelectInput label="Weight class" name="weightClass" error={fieldErrors.weightClass} options={liftClasses[weightUnit]} />
+                    <SelectInput label="Sex" name="sex" error={fieldErrors.sex} value={signupSex} required onChange={(event) => { const nextSex = event.currentTarget.value as '' | 'male' | 'female'; setSignupSex(nextSex); setSignupWeightClass(''); }} options={['male', 'female']} optionLabels={['Male', 'Female']} placeholder="Choose sex" />
+                    <SelectInput label="Weight class" name="weightClass" error={fieldErrors.weightClass} value={signupWeightClass} onChange={(event) => setSignupWeightClass(event.currentTarget.value)} options={signupSex ? liftClasses[weightUnit][signupSex] : []} placeholder={signupSex ? 'Choose a class' : 'Choose sex first'} />
                     <TextInput label="Squat max" name="squatMax" type="number" min="1" max="2000" step="0.5" placeholder="Optional" onBlur={(event) => validateField('squatMax', event.currentTarget.value)} error={fieldErrors.squatMax} />
                     <TextInput label="Bench max" name="benchMax" type="number" min="1" max="2000" step="0.5" placeholder="Optional" onBlur={(event) => validateField('benchMax', event.currentTarget.value)} error={fieldErrors.benchMax} />
                     <TextInput label="Deadlift max" name="deadliftMax" type="number" min="1" max="2000" step="0.5" placeholder="Optional" onBlur={(event) => validateField('deadliftMax', event.currentTarget.value)} error={fieldErrors.deadliftMax} />
@@ -379,8 +392,8 @@ function PasswordInput({ id, name, label = 'Password', show, onToggle, error, ..
   </div>;
 }
 
-function SelectInput({ label, name, error, options }: { label: string; name: string; error?: string; options: string[] }) {
-  return <div className={`field-wrap ${error ? 'field-invalid' : ''}`}><label htmlFor={name}>{label}</label><div className="input-shell select-shell"><select id={name} name={name} defaultValue="" aria-invalid={Boolean(error)}><option value="">Choose a class</option>{options.map((option) => <option key={option} value={option}>{option}</option>)}</select></div>{error && <p className="inline-error" role="alert">{error}</p>}</div>;
+function SelectInput({ label, name, error, options, optionLabels, value, onChange, required = false, placeholder = 'Choose a class' }: { label: string; name: string; error?: string; options: string[]; optionLabels?: string[]; value?: string; onChange?: (event: ChangeEvent<HTMLSelectElement>) => void; required?: boolean; placeholder?: string }) {
+  return <div className={`field-wrap ${error ? 'field-invalid' : ''}`}><label htmlFor={name}>{label}</label><div className="input-shell select-shell"><select id={name} name={name} value={value} defaultValue={value === undefined ? '' : undefined} onChange={onChange} required={required} aria-invalid={Boolean(error)}><option value="">{placeholder}</option>{options.map((option, index) => <option key={option} value={option}>{optionLabels?.[index] ?? option}</option>)}</select></div>{error && <p className="inline-error" role="alert">{error}</p>}</div>;
 }
 
 function Button({ children, variant = 'primary', loading = false, disabled = false, icon, onClick }: { children: ReactNode; variant?: 'primary' | 'secondary'; loading?: boolean; disabled?: boolean; icon?: ReactNode; onClick?: () => void }) {
