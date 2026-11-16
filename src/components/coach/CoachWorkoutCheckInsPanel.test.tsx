@@ -33,6 +33,7 @@ afterEach(() => { act(() => root.unmount()); vi.useRealTimers(); vi.restoreAllMo
 it('shares one response load across panels and clears both panels and grid after link removal', async () => {
   await render();
   expect(host.textContent).toContain('82 kg');
+  expect(host.textContent).not.toContain('Athlete workout log');
   expect(host.textContent).toContain('Grid sets: 1');
   expect(mocks.checkins).toHaveBeenCalledTimes(1);
   mocks.links.mockResolvedValue([]);

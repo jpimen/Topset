@@ -1,5 +1,10 @@
 # Decisions
 
+## 2026-11-17 - Keep the Coach check-in panel focused on check-ins
+
+- Remove the workout-log review section from the Coach training check-in panel so it presents daily health and recovery responses only.
+- Keep workout logs available in the program builder grid, where the shared response provider continues to supply logged sets.
+
 ## 2026-11-17 - Let Athletes remove their linked Coach
 
 - Add a **Remove coach** action to the Athlete profile's active coach connection. Use an Athlete-only database function that marks the link removed, preserving relationship history while revoking linked access.
