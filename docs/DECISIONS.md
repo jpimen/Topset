@@ -432,3 +432,8 @@
 ## 2026-11-15 - Remove a program block
 
 - Let coaches remove the selected block after confirming the number of affected weeks. Remove the block's weeks and descendants from the editable document together, then let the normal save path persist the deletion.
+
+## 2026-11-17 - Add program 1RM references to the builder topbar
+
+- Store nullable squat, bench, and deadlift 1RM values on each program and edit them beside the builder's save status. Use the program's selected unit and existing autosave/conflict handling so the values remain available across sessions and when duplicating a program.
+- Keep these values as program references only for now; they do not calculate or alter prescribed loads.

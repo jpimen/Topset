@@ -12,7 +12,7 @@ function raise(error: { message: string; code?: string } | null): void {
 }
 
 export async function listPrograms(coachId: string) {
-  const { data, error } = await client().from('programs').select('id, coach_id, name, description, unit, created_at, updated_at, archived_at')
+  const { data, error } = await client().from('programs').select('id, coach_id, name, description, unit, squat_max, bench_max, deadlift_max, created_at, updated_at, archived_at')
     .eq('coach_id', coachId).is('archived_at', null).order('updated_at', { ascending: false });
   raise(error);
   return (data ?? []) as Array<ProgramDocument['program'] & { created_at: string; archived_at: string | null }>;
@@ -59,7 +59,10 @@ export async function loadProgram(programId: string): Promise<ProgramDocument> {
 
 export async function saveProgram(document: ProgramDocument, expectedUpdatedAt: string): Promise<string> {
   const payload = {
-    program: { name: document.program.name, description: document.program.description, unit: document.program.unit },
+    program: {
+      name: document.program.name, description: document.program.description, unit: document.program.unit,
+      squat_max: document.program.squat_max, bench_max: document.program.bench_max, deadlift_max: document.program.deadlift_max,
+    },
     layout: document.layout,
     blocks: document.blocks ?? [],
     weeks: document.weeks.map((week) => ({
@@ -94,6 +97,7 @@ export async function duplicateProgram(programId: string, coachId: string): Prom
   const original = await loadProgram(programId);
   const { data, error } = await client().from('programs').insert({
     coach_id: coachId, name: `${original.program.name} copy`, description: original.program.description, unit: original.program.unit,
+    squat_max: original.program.squat_max, bench_max: original.program.bench_max, deadlift_max: original.program.deadlift_max,
   }).select('id, updated_at').single();
   raise(error);
   if (!data) throw new Error('Program could not be duplicated.');

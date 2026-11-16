@@ -6,7 +6,7 @@ const id = () => crypto.randomUUID();
 
 export function createEmptyDocument(coachId: string): ProgramDocument {
   return {
-    program: { id: '', coach_id: coachId, name: 'Untitled program', description: null, unit: 'kg', updated_at: '' },
+    program: { id: '', coach_id: coachId, name: 'Untitled program', description: null, unit: 'kg', squat_max: null, bench_max: null, deadlift_max: null, updated_at: '' },
     layout: defaultProgramLayout,
     blocks: [],
     weeks: [{ id: id(), program_id: '', block_id: null, week_number: 1, name: 'Week', notes: null, days: [] }],
@@ -63,6 +63,7 @@ export function createProgramHistory(document: ProgramDocument): ProgramHistory 
 function applyAction(document: ProgramDocument, action: ProgramAction): ProgramDocument {
   if (action.type === 'rename-program') return { ...document, program: { ...document.program, name: action.name } };
   if (action.type === 'set-unit') return { ...document, program: { ...document.program, unit: action.unit } };
+  if (action.type === 'set-max') return { ...document, program: { ...document.program, [`${action.lift}_max`]: action.value } };
   if (action.type === 'set-layout') return { ...document, layout: action.layout };
   if (action.type === 'rename-set-type') return { ...document, weeks: document.weeks.map((week) => ({ ...week, days: week.days.map((day) => ({ ...day, exercises: day.exercises.map((row) => row.set_type === action.from ? { ...row, set_type: action.to } : row) })) })) };
   if (action.type === 'add-block') {

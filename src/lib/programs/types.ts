@@ -73,6 +73,9 @@ export interface ProgramDocument {
     name: string;
     description: string | null;
     unit: Unit;
+    squat_max: number | null;
+    bench_max: number | null;
+    deadlift_max: number | null;
     updated_at: string;
   };
   layout: ProgramLayout;
@@ -90,6 +93,7 @@ export type ProgramAction =
   | { type: 'replace'; document: ProgramDocument }
   | { type: 'rename-program'; name: string }
   | { type: 'set-unit'; unit: Unit }
+  | { type: 'set-max'; lift: 'squat' | 'bench' | 'deadlift'; value: number | null }
   | { type: 'set-layout'; layout: ProgramLayout }
   | { type: 'add-block' }
   | { type: 'delete-block'; blockId: string }

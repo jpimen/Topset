@@ -4,7 +4,7 @@ import { athleteProgramSchema, loggedSetInputSchema } from './types';
 import { defaultProgramLayout } from '../programs/layout';
 
 const program = athleteProgramSchema.parse({
-  program: { id: '30000000-0000-4000-8000-000000000001', name: 'Training', description: null, unit: 'kg', updated_at: '2026-10-29T00:00:00Z' },
+  program: { id: '30000000-0000-4000-8000-000000000001', name: 'Training', description: null, unit: 'kg', squat_max: null, bench_max: null, deadlift_max: null, updated_at: '2026-10-29T00:00:00Z' },
   weeks: [
     { id: '50000000-0000-4000-8000-000000000002', week_number: 2, name: 'Week 2', notes: null, days: [
       { id: '60000000-0000-4000-8000-000000000002', day_number: 1, name: 'Day 1', notes: null, exercises: [] },
@@ -25,7 +25,7 @@ describe('athlete program helpers', () => {
       load_value: null, load_min: null, load_max: null, percent_of: null, notes_coach: null, superset_group: null,
     };
     const document = {
-      program: { id: '30000000-0000-4000-8000-000000000001', coach_id: '10000000-0000-4000-8000-000000000001', name: 'Plan', description: null, unit: 'kg' as const, updated_at: '' },
+      program: { id: '30000000-0000-4000-8000-000000000001', coach_id: '10000000-0000-4000-8000-000000000001', name: 'Plan', description: null, unit: 'kg' as const, squat_max: null, bench_max: null, deadlift_max: null, updated_at: '' },
       layout: defaultProgramLayout,
       weeks: [{ id: '50000000-0000-4000-8000-000000000001', program_id: '30000000-0000-4000-8000-000000000001', block_id: null, week_number: 1, name: 'Week 1', notes: null, days: [{
         id: '60000000-0000-4000-8000-000000000001', week_id: '50000000-0000-4000-8000-000000000001', day_number: 1, name: 'Day 1', notes: null,

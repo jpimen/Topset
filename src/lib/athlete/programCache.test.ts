@@ -7,7 +7,7 @@ import { clearAthleteProgramCaches, loadActiveAthleteProgram } from './programs'
 
 const athlete = '20000000-0000-4000-8000-000000000001';
 const assignment = { id: '90000000-0000-4000-8000-000000000001', program_id: '30000000-0000-4000-8000-000000000001', start_date: '2026-10-29', sync_mode: 'live', program_snapshot: null };
-const program = { program: { id: assignment.program_id, name: 'Saved plan', description: null, unit: 'kg', updated_at: '2026-11-03T00:00:00Z' }, weeks: [] };
+const program = { program: { id: assignment.program_id, name: 'Saved plan', description: null, unit: 'kg', squat_max: null, bench_max: null, deadlift_max: null, updated_at: '2026-11-03T00:00:00Z' }, weeks: [] };
 const networkError = { message: 'TypeError: Failed to fetch', code: '', details: '', hint: '' };
 const key = `topset:athlete-program:v2:${athlete}`;
 function offline() {
