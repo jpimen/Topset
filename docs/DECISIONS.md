@@ -1,5 +1,10 @@
 # Decisions
 
+## 2026-11-17 - Show coach invite request on the empty Athlete program page
+
+- Reuse the Athlete coach-link card beneath the no-assigned-program state so Athletes can paste a Coach invite URL or code and request a link without navigating to Profile.
+- Keep the existing pending and active connection states and request behavior shared with the Profile page.
+
 ## 2026-11-17 - Add sex to the Athlete training profile
 
 - Add an optional Male/Female selection to the Athlete profile and persist it on `profiles`; existing accounts remain unset until they choose.

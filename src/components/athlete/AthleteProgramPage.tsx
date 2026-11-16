@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState, type CSSProperties } from 'react';
 import { useAuth } from '../../auth/AuthProvider';
 import { AthleteWorkoutCheckInPanel } from './AthleteWorkoutCheckInPanel';
 import { AthleteWorkoutLogRows } from './AthleteWorkoutLogRows';
+import { AthleteCoachLinkCard } from './AthleteCoachLinkCard';
 import { athleteExerciseName, athleteLoadLabel, hasUsableExerciseName, isLoggablePrescription } from '../../lib/athlete/prescriptions';
 import { useAthleteProgram } from './useAthleteProgram';
 import { AthleteWorkoutSessionsProvider } from './AthleteWorkoutSessionsProvider';
@@ -38,7 +39,7 @@ export function AthleteProgramPage() {
 
   if (loading && !result) return <main className="athlete-page"><div className="dashboard-skeleton" aria-label="Loading assigned program" /></main>;
   if (error && !result) return <main className="athlete-page"><section className="coach-panel empty-state" role="alert"><h1>Program unavailable</h1><p>{error}</p><button className="button button-secondary" onClick={refresh}>Try again</button></section></main>;
-  if (!result) return <main className="athlete-page"><section className="coach-panel empty-state"><p className="eyebrow">PROGRAM</p><h1>No assigned program yet</h1><p>Your coach’s assigned plan will appear here.</p>{warning && <p role="alert">{warning}</p>}</section></main>;
+  if (!result) return <main className="athlete-page"><section className="coach-panel empty-state"><p className="eyebrow">PROGRAM</p><h1>No assigned program yet</h1><p>Your coach’s assigned plan will appear here.</p>{warning && <p role="alert">{warning}</p>}</section><AthleteCoachLinkCard /></main>;
 
   const week = visibleWeeks[selectedWeek];
   const layout = normalizeProgramLayout(result.program.layout);
