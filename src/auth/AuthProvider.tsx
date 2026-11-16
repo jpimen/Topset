@@ -21,6 +21,7 @@ export interface UserProfile {
   team_name: string | null;
   unit: 'kg' | 'lb' | null;
   weight_class: string | null;
+  sex: 'male' | 'female' | null;
   bio: string | null;
   category: string | null;
   achievements: string | null;
@@ -46,11 +47,23 @@ async function readProfile(userId: string): Promise<UserProfile | null> {
   if (!supabase) return null;
   const { data, error } = await supabase
     .from('profiles')
-    .select('id, role, name, team_name, unit, weight_class, bio, category, achievements, squat_max, bench_max, deadlift_max, profile_photo_path')
+    .select('id, role, name, team_name, unit, weight_class, sex, bio, category, achievements, squat_max, bench_max, deadlift_max, profile_photo_path')
     .eq('id', userId)
     .maybeSingle();
   if (error) throw error;
   return data as UserProfile | null;
+}
+
+function profileLoadMessage(cause: unknown): string {
+  const details = cause && typeof cause === 'object'
+    ? cause as { code?: unknown; message?: unknown }
+    : {};
+  const code = typeof details.code === 'string' ? details.code : '';
+  const message = typeof details.message === 'string' ? details.message : '';
+  if ((code === '42703' || code === 'PGRST204') && /sex/i.test(message) || /column[^\n]*sex|sex[^\n]*column/i.test(message)) {
+    return 'Your database is missing the latest profile migration. Apply the pending Supabase migrations, then try again.';
+  }
+  return 'We could not load your account profile. Please try again.';
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -80,7 +93,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (mounted.current && revision.current === request) {
         verifiedProfile.current = null;
         setProfile(null);
-        setProfileError('We could not load your account profile. Please try again.');
+        setProfileError(profileLoadMessage(cause));
       }
     }
   }, [session?.user.id]);
@@ -132,7 +145,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         console.error('Account profile could not be loaded.', cause);
         if (mounted.current && request === revision.current) {
           setProfile(null);
-          setProfileError('We could not load your account profile. Please try again.');
+          setProfileError(profileLoadMessage(cause));
         }
       } finally {
         if (mounted.current && request === revision.current) setLoading(false);

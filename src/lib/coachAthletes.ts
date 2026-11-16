@@ -14,6 +14,7 @@ export type CoachLink = {
     bio: string | null;
     category: string | null;
     weight_class: string | null;
+    sex: 'male' | 'female' | null;
     team_name: string | null;
     achievements: string | null;
     squat_max: number | null;
@@ -63,7 +64,7 @@ export async function requestCoachLink(code: string): Promise<void> {
 
 export async function listCoachLinks(coachId: string): Promise<CoachLink[]> {
   const { data, error } = await client().from('coach_athlete_links')
-    .select('id, coach_id, athlete_id, status, created_at, athlete:profiles!coach_athlete_links_athlete_id_fkey(id, name, unit, bio, category, weight_class, team_name, achievements, squat_max, bench_max, deadlift_max, profile_photo_path)')
+    .select('id, coach_id, athlete_id, status, created_at, athlete:profiles!coach_athlete_links_athlete_id_fkey(id, name, unit, bio, category, weight_class, sex, team_name, achievements, squat_max, bench_max, deadlift_max, profile_photo_path)')
     .eq('coach_id', coachId).in('status', ['pending', 'active']).order('created_at', { ascending: false });
   raise(error);
   return (data ?? []) as unknown as CoachLink[];

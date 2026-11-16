@@ -1,5 +1,11 @@
 # Decisions
 
+## 2026-11-17 - Add sex to the Athlete training profile
+
+- Add an optional Male/Female selection to the Athlete profile and persist it on `profiles`; existing accounts remain unset until they choose.
+- Require sex at Athlete signup and filter the existing weight-class choices by sex and weight unit; save both values when the account profile is created.
+- Let the linked Coach see the saved value alongside category and weight class in athlete details and assignment summaries.
+
 ## 2026-11-17 - Keep the Coach check-in panel focused on check-ins
 
 - Remove the workout-log review section from the Coach training check-in panel so it presents daily health and recovery responses only.

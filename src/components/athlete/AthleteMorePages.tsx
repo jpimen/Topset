@@ -26,6 +26,7 @@ export function AthleteProfilePage() {
   const { profile, refreshProfile } = useAuth();
   const [bio, setBio] = useState('');
   const [category, setCategory] = useState('');
+  const [sex, setSex] = useState<'' | 'male' | 'female'>('');
   const [weightClass, setWeightClass] = useState('');
   const [teamName, setTeamName] = useState('');
   const [achievements, setAchievements] = useState('');
@@ -42,6 +43,7 @@ export function AthleteProfilePage() {
     if (!profile) return;
     setBio(profile.bio ?? '');
     setCategory(profile.category ?? '');
+    setSex(profile.sex ?? '');
     setWeightClass(profile.weight_class ?? '');
     setTeamName(profile.team_name ?? '');
     setAchievements(profile.achievements ?? '');
@@ -86,6 +88,7 @@ export function AthleteProfilePage() {
       const { error: updateError } = await supabase.from('profiles').update({
         bio: bio.trim() || null,
         category: category.trim() || null,
+        sex: sex || null,
         weight_class: weightClass.trim() || null,
         team_name: teamName.trim() || null,
         achievements: achievements.trim() || null,
@@ -151,7 +154,7 @@ export function AthleteProfilePage() {
       <header className="athlete-page-heading"><div><p className="eyebrow">PROFILE</p><h1>Your athlete profile</h1><p>Share your lifting background and competition details with your coach.</p></div></header>
       <section className="coach-panel athlete-profile-card">
         {photoUrl ? <img className="athlete-profile-photo" src={photoUrl} alt={`${profile.name} profile`} /> : <span className="user-avatar athlete-profile-photo-fallback" aria-hidden="true">{profile.name.slice(0, 1).toUpperCase()}</span>}
-        <div><p className="eyebrow">ATHLETE</p><h2>{profile.name}</h2><p className="athlete-profile-subtitle">{category || 'Add your category'}{weightClass ? ` · ${weightClass}` : ''}</p></div>
+        <div><p className="eyebrow">ATHLETE</p><h2>{profile.name}</h2><p className="athlete-profile-subtitle">{[category || 'Add your category', sex ? sex[0].toUpperCase() + sex.slice(1) : null, weightClass || null].filter(Boolean).join(' · ')}</p></div>
         <label className="button button-secondary athlete-photo-upload">{uploading ? 'Uploading…' : photoUrl ? 'Change photo' : 'Upload photo'}<input type="file" accept="image/jpeg,image/png,image/webp" aria-label="Upload athlete profile picture" onChange={(event) => void uploadPhoto(event)} disabled={uploading} /></label>
       </section>
       <section className="coach-panel athlete-profile-details" aria-labelledby="athlete-details-heading">
@@ -159,8 +162,9 @@ export function AthleteProfilePage() {
         <p className="athlete-profile-help">Your linked coach can see these details. Keep personal information relevant to your training.</p>
         <form className="athlete-profile-form" onSubmit={(event) => void saveProfile(event)}>
           <label className="form-field">Bio<textarea rows={3} maxLength={500} value={bio} onChange={(event) => setBio(event.target.value)} placeholder="A little about your training background" /></label>
-          <div className="athlete-profile-form-row">
+          <div className="athlete-profile-form-row athlete-profile-category-row">
             <label className="form-field">Category / division<input maxLength={60} value={category} onChange={(event) => setCategory(event.target.value)} placeholder="Open, Junior, Masters…" /></label>
+            <label className="form-field">Sex<select value={sex} onChange={(event) => setSex(event.currentTarget.value as '' | 'male' | 'female')}><option value="">Choose sex</option><option value="male">Male</option><option value="female">Female</option></select></label>
             <label className="form-field">Weight class<input maxLength={30} value={weightClass} onChange={(event) => setWeightClass(event.target.value)} placeholder="e.g. 76 kg" /></label>
           </div>
           <div className="athlete-profile-maxes">

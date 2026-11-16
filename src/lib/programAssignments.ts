@@ -17,6 +17,7 @@ export type ProgramAssignment = {
     deadlift_max?: number | null;
     category: string | null;
     weight_class: string | null;
+    sex: 'male' | 'female' | null;
     team_name: string | null;
     profile_photo_path: string | null;
   } | null;
@@ -50,7 +51,7 @@ export async function assignProgramToAthletes(input: {
 export async function listActiveAssignments(coachId: string, includeAthleteMaxes = false): Promise<ProgramAssignment[]> {
   const athleteFields = includeAthleteMaxes ? 'unit, squat_max, bench_max, deadlift_max, ' : '';
   const { data, error } = await client().from('program_assignments')
-    .select(`id, program_id, coach_id, athlete_id, start_date, sync_mode, status, athlete:profiles!program_assignments_athlete_id_fkey(id, name, ${athleteFields}category, weight_class, team_name, profile_photo_path), program:programs!program_assignments_program_id_fkey(id, name)`)
+    .select(`id, program_id, coach_id, athlete_id, start_date, sync_mode, status, athlete:profiles!program_assignments_athlete_id_fkey(id, name, ${athleteFields}category, weight_class, sex, team_name, profile_photo_path), program:programs!program_assignments_program_id_fkey(id, name)`)
     .eq('coach_id', coachId).eq('status', 'active').order('start_date', { ascending: true });
   raise(error);
   return (data ?? []) as unknown as ProgramAssignment[];

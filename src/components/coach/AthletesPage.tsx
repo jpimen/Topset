@@ -242,7 +242,7 @@ export function AthletesPage() {
           <div className="panel-heading"><div><p className="eyebrow">ATHLETE PROFILE</p><h2 id="roster-profile-title">{selectedAthlete.athlete.name}</h2></div><button className="icon-button" aria-label="Close athlete profile" onClick={() => setSelectedAthlete(null)}>×</button></div>
           <div className="roster-profile-summary">
             {selectedPhotoUrl ? <img className="roster-profile-photo" src={selectedPhotoUrl} alt={`${selectedAthlete.athlete.name} profile`} /> : <span className="roster-profile-photo roster-profile-photo-fallback" aria-hidden="true">{selectedAthlete.athlete.name.slice(0, 1).toUpperCase()}</span>}
-            <div><strong>{selectedAthlete.athlete.category || 'Athlete'}</strong><small>Linked {new Date(selectedAthlete.created_at).toLocaleDateString()}</small></div>
+            <div><strong>{[selectedAthlete.athlete.category || 'Athlete', selectedAthlete.athlete.sex ? selectedAthlete.athlete.sex[0].toUpperCase() + selectedAthlete.athlete.sex.slice(1) : null].filter(Boolean).join(' · ')}</strong><small>Linked {new Date(selectedAthlete.created_at).toLocaleDateString()}</small></div>
           </div>
           <section className="roster-profile-maxes" aria-labelledby="roster-profile-maxes-heading">
             <div className="roster-profile-maxes-heading"><h3 id="roster-profile-maxes-heading">Current one rep maxes</h3><span>{selectedAthlete.athlete.unit ?? 'kg'}</span></div>
@@ -254,6 +254,7 @@ export function AthletesPage() {
           </section>
           <dl className="roster-profile-details">
             <div><dt>Weight class</dt><dd>{selectedAthlete.athlete.weight_class || 'Not provided'}</dd></div>
+            <div><dt>Sex</dt><dd>{selectedAthlete.athlete.sex ? selectedAthlete.athlete.sex[0].toUpperCase() + selectedAthlete.athlete.sex.slice(1) : 'Not provided'}</dd></div>
             <div><dt>Team or gym</dt><dd>{selectedAthlete.athlete.team_name || 'Not provided'}</dd></div>
             <div className="roster-profile-long-detail"><dt>Bio</dt><dd>{selectedAthlete.athlete.bio || 'No bio provided.'}</dd></div>
             <div className="roster-profile-long-detail"><dt>Achievements</dt><dd>{selectedAthlete.athlete.achievements || 'No achievements provided.'}</dd></div>

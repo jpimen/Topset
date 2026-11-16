@@ -128,7 +128,7 @@ export function ProgramsPage() {
                 {programAssignments.length ? <div className="program-assigned-athletes" aria-label={`Athletes assigned to ${program.name}`}>
                   {programAssignments.map((assignment) => <div className="program-assigned-athlete" key={assignment.id}>
                     {photoUrls[assignment.athlete_id] ? <img className="program-athlete-avatar" src={photoUrls[assignment.athlete_id]} alt="" /> : <span className="program-athlete-avatar program-athlete-avatar-fallback" aria-hidden="true">{assignment.athlete?.name.slice(0, 1).toUpperCase() ?? 'A'}</span>}
-                    <span><strong>{assignment.athlete?.name ?? 'Athlete'}</strong><small>{assignment.athlete?.category || 'Athlete'}{assignment.athlete?.weight_class ? ` · ${assignment.athlete.weight_class}` : ''}</small></span>
+                    <span><strong>{assignment.athlete?.name ?? 'Athlete'}</strong><small>{[assignment.athlete?.category || 'Athlete', assignment.athlete?.sex ? assignment.athlete.sex[0].toUpperCase() + assignment.athlete.sex.slice(1) : null, assignment.athlete?.weight_class || null].filter(Boolean).join(' · ')}</small></span>
                   </div>)}
                 </div> : <small className="program-no-athletes">No athletes assigned</small>}
               </div>
@@ -144,7 +144,7 @@ export function ProgramsPage() {
           {activeAthletes.length ? activeAthletes.map((link) => <label key={link.id} className={`assignment-athlete-option${selectedAthleteId === link.athlete_id ? ' selected' : ''}`}>
             <input type="radio" name="assignment-athlete" value={link.athlete_id} checked={selectedAthleteId === link.athlete_id} onChange={() => setSelectedAthleteId(link.athlete_id)} />
             {photoUrls[link.athlete_id] ? <img className="assignment-athlete-avatar" src={photoUrls[link.athlete_id]} alt="" /> : <span className="assignment-athlete-avatar assignment-athlete-avatar-fallback" aria-hidden="true">{link.athlete?.name.slice(0, 1).toUpperCase() ?? 'A'}</span>}
-            <span className="assignment-athlete-copy"><strong>{link.athlete?.name ?? 'Athlete'}</strong><small>{link.athlete?.category || 'Athlete'}{link.athlete?.weight_class ? ` · ${link.athlete.weight_class}` : ''}{link.athlete?.team_name ? ` · ${link.athlete.team_name}` : ''}</small></span>
+            <span className="assignment-athlete-copy"><strong>{link.athlete?.name ?? 'Athlete'}</strong><small>{[link.athlete?.category || 'Athlete', link.athlete?.sex ? link.athlete.sex[0].toUpperCase() + link.athlete.sex.slice(1) : null, link.athlete?.weight_class || null, link.athlete?.team_name || null].filter(Boolean).join(' · ')}</small></span>
           </label>) : <p>No linked athletes yet. Approve a join request from the Athletes page first.</p>}
         </fieldset>
         <label className="form-field">Start date<input type="date" required value={startDate} onChange={(event) => setStartDate(event.target.value)} /></label>
