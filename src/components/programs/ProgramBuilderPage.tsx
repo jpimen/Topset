@@ -6,6 +6,7 @@ import { useCoachId } from '../coach/useCoachId';
 import { createBlankRow, createProgramHistory, createRow, parseReps, programReducer, validateLoad } from '../../lib/programs/document';
 import { defaultProgramLayout, programLayoutColumns, type ProgramLayout } from '../../lib/programs/layout';
 import { listExercises, loadProgram, saveProgram } from '../../lib/programs/repository';
+import { supabase } from '../../lib/supabase';
 import type { Exercise, LoadMode, ProgramDocument, ProgramExercise, ProgramWeek, SetType } from '../../lib/programs/types';
 import { convertLoad, type Unit } from '../../lib/engine';
 import { listActiveAssignments, type ProgramAssignment } from '../../lib/programAssignments';
@@ -390,6 +391,45 @@ export function ProgramBuilderPage() {
   useEffect(() => { void refreshProgramAssignments(); }, [refreshProgramAssignments]);
   const selectedAssignment = programAssignments.find((assignment) => assignment.id === selectedAssignmentId) ?? null;
   useEffect(() => {
+    const db = supabase;
+    const athleteId = selectedAssignment?.athlete_id;
+    if (!db || !athleteId) return;
+    let active = true;
+    let refreshTimer: number | undefined;
+    const refreshDebounced = () => {
+      if (refreshTimer !== undefined) window.clearTimeout(refreshTimer);
+      refreshTimer = window.setTimeout(() => {
+        refreshTimer = undefined;
+        if (active) void refreshProgramAssignments();
+      }, 250);
+    };
+    const refreshWhenVisible = () => {
+      if (window.document.visibilityState === 'visible') void refreshProgramAssignments();
+    };
+    const channel = db.channel(`coach-program-athlete-maxes:${coachId}:${athleteId}`)
+      .on('postgres_changes', {
+        event: 'UPDATE', schema: 'public', table: 'profiles', filter: `id=eq.${athleteId}`,
+      }, refreshDebounced)
+      .subscribe((channelStatus, channelError) => {
+        if (channelStatus === 'CHANNEL_ERROR' || channelStatus === 'TIMED_OUT') {
+          console.error('Assigned athlete max updates could not connect.', channelError);
+        }
+      });
+    const poll = window.setInterval(refreshWhenVisible, 30_000);
+    window.addEventListener('focus', refreshWhenVisible);
+    window.addEventListener('online', refreshWhenVisible);
+    window.document.addEventListener('visibilitychange', refreshWhenVisible);
+    return () => {
+      active = false;
+      window.clearTimeout(refreshTimer);
+      window.clearInterval(poll);
+      window.removeEventListener('focus', refreshWhenVisible);
+      window.removeEventListener('online', refreshWhenVisible);
+      window.document.removeEventListener('visibilitychange', refreshWhenVisible);
+      void db.removeChannel(channel);
+    };
+  }, [coachId, refreshProgramAssignments, selectedAssignment?.athlete_id]);
+  useEffect(() => {
     try {
       const stored = window.localStorage.getItem(`topset:set-type-options:${coachId}`);
       const parsed: unknown = stored ? JSON.parse(stored) : [];
@@ -606,11 +646,11 @@ export function ProgramBuilderPage() {
         <span className="builder-topbar-maxes-title">1RM <small>{document.program.unit}</small></span>
         {programAssignments.length > 1
           ? <label className="builder-reference-athlete">ATHLETE<select aria-label="Athlete for one rep maxes" value={selectedAssignmentId} onChange={(event) => setSelectedAssignmentId(event.target.value)}>{programAssignments.map((assignment) => <option key={assignment.id} value={assignment.id}>{assignment.athlete?.name ?? 'Athlete'}</option>)}</select></label>
-          : <span className="builder-reference-athlete-name">{assignmentsLoading ? 'Loading athlete…' : assignmentsError ? 'Athlete maxes unavailable' : selectedAssignment?.athlete?.name ?? 'No athlete assigned'}</span>}
+          : <span className="builder-reference-athlete-name">{selectedAssignment?.athlete?.name ?? (assignmentsLoading ? 'Loading athlete…' : assignmentsError ? 'Athlete maxes unavailable' : 'No athlete assigned')}</span>}
         {(['squat', 'bench', 'deadlift'] as const).map((lift) => {
           const max = selectedAssignment?.athlete?.[`${lift}_max`];
           const displayValue = formatAthleteMax(max, selectedAssignment?.athlete?.unit ?? null, document.program.unit);
-          return <label key={lift}>{lift}<input type="text" aria-label={`${lift} one rep max (${document.program.unit})`} value={displayValue || '—'} readOnly /></label>;
+          return <div key={lift} className="builder-max-field"><span aria-hidden="true">{lift}</span><output aria-label={`${lift} one rep max (${document.program.unit})`}>{displayValue || '—'}</output></div>;
         })}
         {assignmentsError && <button className="button button-quiet builder-maxes-retry" type="button" onClick={() => void refreshProgramAssignments()}>Retry</button>}
       </div>

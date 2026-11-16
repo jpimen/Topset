@@ -436,4 +436,5 @@
 ## 2026-11-17 - Add program 1RM references to the builder topbar
 
 - Populate squat, bench, and deadlift 1RM values from the active athlete assignment instead of storing coach-edited values on the program. When several athletes are assigned, let the coach choose which athlete's current maxes to display; convert from the athlete's unit to the program's unit.
+- Render the values as outputs with no editing control. Subscribe to the selected athlete's profile updates and refresh on focus, reconnect, and periodically while visible so max edits sync into an open builder.
 - Keep these values as display references only; they do not calculate or alter prescribed loads.
