@@ -863,8 +863,13 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .builder-topbar-maxes-title { color: var(--gold-text); font: 10px var(--mono); white-space: nowrap; }
 .builder-topbar-maxes-title small { color: var(--muted); font-size: 8px; }
 .builder-topbar-maxes label { display: grid; grid-template-columns: auto 66px; align-items: center; gap: 6px; color: var(--secondary); font: 9px var(--mono); text-transform: uppercase; }
+.builder-topbar-maxes .builder-reference-athlete { grid-template-columns: auto minmax(100px, 150px); }
+.builder-topbar-maxes .builder-reference-athlete select { width: 100%; height: 32px; padding: 0 7px; color: var(--text); background: var(--surface-placeholder); border: 1px solid var(--border); border-radius: 6px; font: 10px var(--mono); text-transform: none; }
+.builder-reference-athlete-name { max-width: 150px; overflow: hidden; color: var(--secondary); font: 9px var(--mono); text-overflow: ellipsis; white-space: nowrap; }
 .builder-topbar-maxes input { width: 66px; height: 32px; padding: 0 7px; color: var(--text); background: var(--surface-placeholder); border: 1px solid var(--border); border-radius: 6px; font: 11px var(--mono); }
-.builder-topbar-maxes input:focus-visible { outline: 2px solid var(--gold); outline-offset: 1px; }
+.builder-topbar-maxes input[readonly] { color: var(--text); cursor: default; }
+.builder-topbar-maxes input:focus-visible, .builder-topbar-maxes select:focus-visible { outline: 2px solid var(--gold); outline-offset: 1px; }
+.builder-maxes-retry { min-height: 30px !important; padding: 0 7px !important; font-size: 9px !important; }
 .builder-top-actions { flex-wrap: nowrap; }
 .builder-top-actions .button { min-height: 34px; padding: 0 9px; font-size: 10px; }
 .save-indicator { min-width: 106px; display: inline-flex; align-items: center; justify-content: center; gap: 7px; color: var(--success); font: 10px var(--mono); white-space: nowrap; }

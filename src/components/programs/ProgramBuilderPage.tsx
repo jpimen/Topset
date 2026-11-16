@@ -7,6 +7,8 @@ import { createBlankRow, createProgramHistory, createRow, parseReps, programRedu
 import { defaultProgramLayout, programLayoutColumns, type ProgramLayout } from '../../lib/programs/layout';
 import { listExercises, loadProgram, saveProgram } from '../../lib/programs/repository';
 import type { Exercise, LoadMode, ProgramDocument, ProgramExercise, ProgramWeek, SetType } from '../../lib/programs/types';
+import { convertLoad, type Unit } from '../../lib/engine';
+import { listActiveAssignments, type ProgramAssignment } from '../../lib/programAssignments';
 import { CoachWorkoutCheckInsPanel, CoachWorkoutCheckInsProvider, useCoachWorkoutLogSets, useCoachWorkoutSessions } from '../coach/CoachWorkoutCheckInsPanel';
 
 function repsSummary(rows: ProgramExercise[]) {
@@ -19,6 +21,12 @@ const setTypeLabels: Record<string, string> = {
   '': '', top: 'Topset', backoff: 'Backoff', working: 'Working', warmup: 'Warmup', amrap: 'AMRAP',
 };
 const defaultSetTypeOptions = ['top', 'backoff', 'working', 'warmup', 'amrap'];
+
+function formatAthleteMax(value: number | null | undefined, athleteUnit: Unit | null, programUnit: Unit): string {
+  if (value === null || value === undefined) return '';
+  const sourceUnit = athleteUnit ?? programUnit;
+  return Number(convertLoad(value, sourceUnit, programUnit).toFixed(1)).toString();
+}
 
 function SetTypeCell({ row, value, options, onManageOptions, onCommit, onClear }: {
   row: number; value: string; options: string[]; onManageOptions: () => void;
@@ -329,7 +337,7 @@ export function ProgramBuilderPage() {
   const coachId = useCoachId();
   const { id: programId = '' } = useParams();
   const navigate = useNavigate();
-  const [history, dispatch] = useReducer(programReducer, null, () => createProgramHistory({ program: { id: '', coach_id: coachId, name: '', description: null, unit: 'kg', squat_max: null, bench_max: null, deadlift_max: null, updated_at: '' }, layout: defaultProgramLayout, blocks: [], weeks: [] }));
+  const [history, dispatch] = useReducer(programReducer, null, () => createProgramHistory({ program: { id: '', coach_id: coachId, name: '', description: null, unit: 'kg', updated_at: '' }, layout: defaultProgramLayout, blocks: [], weeks: [] }));
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const [customSetTypes, setCustomSetTypes] = useState<string[]>(defaultSetTypeOptions);
   const [manageSetTypes, setManageSetTypes] = useState(false);
@@ -342,6 +350,10 @@ export function ProgramBuilderPage() {
   const [saveError, setSaveError] = useState('');
   const [savedAt, setSavedAt] = useState('');
   const [savedDocument, setSavedDocument] = useState<ProgramDocument | null>(null);
+  const [programAssignments, setProgramAssignments] = useState<ProgramAssignment[]>([]);
+  const [selectedAssignmentId, setSelectedAssignmentId] = useState('');
+  const [assignmentsLoading, setAssignmentsLoading] = useState(true);
+  const [assignmentsError, setAssignmentsError] = useState(false);
   const document = history.present;
   const layout = layoutPreview ?? document.layout;
   const documentRef = useRef(document);
@@ -362,6 +374,21 @@ export function ProgramBuilderPage() {
   documentRef.current = document;
   savedDocumentRef.current = savedDocument;
   const setTypeOptions = customSetTypes;
+  const refreshProgramAssignments = useCallback(async () => {
+    setAssignmentsLoading(true);
+    setAssignmentsError(false);
+    try {
+      const assignments = (await listActiveAssignments(coachId, true)).filter((assignment) => assignment.program_id === programId);
+      setProgramAssignments(assignments);
+      setSelectedAssignmentId((current) => assignments.some((assignment) => assignment.id === current) ? current : assignments[0]?.id ?? '');
+    } catch {
+      setAssignmentsError(true);
+    } finally {
+      setAssignmentsLoading(false);
+    }
+  }, [coachId, programId]);
+  useEffect(() => { void refreshProgramAssignments(); }, [refreshProgramAssignments]);
+  const selectedAssignment = programAssignments.find((assignment) => assignment.id === selectedAssignmentId) ?? null;
   useEffect(() => {
     try {
       const stored = window.localStorage.getItem(`topset:set-type-options:${coachId}`);
@@ -573,7 +600,22 @@ export function ProgramBuilderPage() {
 
   return <main className="coach-page program-builder-page">
     <div className="builder-breadcrumb"><Link to="/coach/programs">← Programs</Link><span>/</span><span>Program builder</span></div>
-    <header className="builder-topbar"><div className="builder-program-name"><p className="eyebrow">PROGRAM / EDITOR</p><input aria-label="Program name" value={document.program.name} onChange={(event) => dispatch({ type: 'rename-program', name: event.target.value })} /></div><div className="builder-topbar-maxes" role="group" aria-label="Program one rep maxes"><span className="builder-topbar-maxes-title">1RM <small>{document.program.unit}</small></span>{(['squat', 'bench', 'deadlift'] as const).map((lift) => <label key={lift}>{lift}<input type="number" min="0.01" max="2000" step="0.1" aria-label={`${lift} one rep max (${document.program.unit})`} value={document.program[`${lift}_max`] ?? ''} onChange={(event) => { const raw = event.currentTarget.value; const value = raw === '' ? null : Number(raw); if (value === null || Number.isFinite(value) && value >= 0.01 && value <= 2000) dispatch({ type: 'set-max', lift, value }); }} /></label>)}</div><div className="builder-top-actions"><div className={`save-indicator save-${status}`} role="status"><span />{status === 'saved' ? hasUnsaved ? 'Unsaved changes' : `Saved${savedAt ? ` · ${new Date(savedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` : ''}` : status === 'saving' ? 'Saving…' : status === 'conflict' ? 'Changed elsewhere' : 'Save failed'}</div>{status === 'conflict' && <button className="button button-secondary" onClick={() => void reloadConflict()}>Reload latest</button>}</div></header>
+    <header className="builder-topbar">
+      <div className="builder-program-name"><p className="eyebrow">PROGRAM / EDITOR</p><input aria-label="Program name" value={document.program.name} onChange={(event) => dispatch({ type: 'rename-program', name: event.target.value })} /></div>
+      <div className="builder-topbar-maxes" role="group" aria-label="Assigned athlete one rep maxes">
+        <span className="builder-topbar-maxes-title">1RM <small>{document.program.unit}</small></span>
+        {programAssignments.length > 1
+          ? <label className="builder-reference-athlete">ATHLETE<select aria-label="Athlete for one rep maxes" value={selectedAssignmentId} onChange={(event) => setSelectedAssignmentId(event.target.value)}>{programAssignments.map((assignment) => <option key={assignment.id} value={assignment.id}>{assignment.athlete?.name ?? 'Athlete'}</option>)}</select></label>
+          : <span className="builder-reference-athlete-name">{assignmentsLoading ? 'Loading athlete…' : assignmentsError ? 'Athlete maxes unavailable' : selectedAssignment?.athlete?.name ?? 'No athlete assigned'}</span>}
+        {(['squat', 'bench', 'deadlift'] as const).map((lift) => {
+          const max = selectedAssignment?.athlete?.[`${lift}_max`];
+          const displayValue = formatAthleteMax(max, selectedAssignment?.athlete?.unit ?? null, document.program.unit);
+          return <label key={lift}>{lift}<input type="text" aria-label={`${lift} one rep max (${document.program.unit})`} value={displayValue || '—'} readOnly /></label>;
+        })}
+        {assignmentsError && <button className="button button-quiet builder-maxes-retry" type="button" onClick={() => void refreshProgramAssignments()}>Retry</button>}
+      </div>
+      <div className="builder-top-actions"><div className={`save-indicator save-${status}`} role="status"><span />{status === 'saved' ? hasUnsaved ? 'Unsaved changes' : `Saved${savedAt ? ` · ${new Date(savedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` : ''}` : status === 'saving' ? 'Saving…' : status === 'conflict' ? 'Changed elsewhere' : 'Save failed'}</div>{status === 'conflict' && <button className="button button-secondary" onClick={() => void reloadConflict()}>Reload latest</button>}</div>
+    </header>
     {status === 'conflict' && <div role="alert" className="inline-state error-state">This program changed in another session. Reload the latest version before editing again.</div>}
     {status === 'error' && <div role="alert" className="inline-state error-state">Your edits are still here, but could not be saved. {saveError} Autosave will retry after your next edit or when you reconnect.</div>}
     <section className={`week-navigation${isDeletingSection ? ' is-deleting' : ''}`}><div className="block-navigation"><div className="block-tabs" role="group" aria-label="Program blocks">{blocks.map((block, index) => <ProgramNameTab key={block.id} kind="block" label={`block ${index + 1}`} value={block.name} fallback="Block" selected={selectedBlockId === block.id} entering={enteringBlockId === block.id} exiting={exitingBlockId === block.id} onSelect={() => { setSelectedBlockId(block.id); const weekId = document.weeks.find((week) => week.block_id === block.id)?.id ?? ''; setSelectedWeek(weekId); setEnteringWeekId(weekId || null); }} onRename={(name) => dispatch({ type: 'rename-block', blockId: block.id, name })} />)}</div><div className="block-actions">{selectedBlock && <button className="button button-quiet danger-quiet" type="button" onClick={removeBlock}>Remove block</button>}<button className="button button-secondary" onClick={addBlock}>＋ Add block</button></div></div><div className="week-navigation-row"><div className="week-tabs" role="group" aria-label="Program weeks">{visibleWeeks.map((week) => <ProgramNameTab key={week.id} kind="week" label={week.name || 'Week'} value={week.name} fallback="Week" selected={activeWeek?.id === week.id} entering={enteringWeekId === week.id} exiting={exitingWeekIds.has(week.id)} onSelect={() => { setSelectedWeek(week.id); setEnteringWeekId(week.id); }} onRename={(name) => dispatch({ type: 'rename-week', weekId: week.id, name })} />)}</div><div className="week-actions"><button className="button button-secondary" onClick={addWeek}>＋ Add week</button>{activeWeek && <button className="button button-quiet danger-quiet" onClick={() => removeWeek(activeWeek.id)}>Delete week</button>}</div></div></section>

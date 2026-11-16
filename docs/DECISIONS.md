@@ -435,5 +435,5 @@
 
 ## 2026-11-17 - Add program 1RM references to the builder topbar
 
-- Store nullable squat, bench, and deadlift 1RM values on each program and edit them beside the builder's save status. Use the program's selected unit and existing autosave/conflict handling so the values remain available across sessions and when duplicating a program.
-- Keep these values as program references only for now; they do not calculate or alter prescribed loads.
+- Populate squat, bench, and deadlift 1RM values from the active athlete assignment instead of storing coach-edited values on the program. When several athletes are assigned, let the coach choose which athlete's current maxes to display; convert from the athlete's unit to the program's unit.
+- Keep these values as display references only; they do not calculate or alter prescribed loads.
