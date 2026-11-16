@@ -1,5 +1,10 @@
 # Decisions
 
+## 2026-11-17 - Let Athletes remove their linked Coach
+
+- Add a **Remove coach** action to the Athlete profile's active coach connection. Use an Athlete-only database function that marks the link removed, preserving relationship history while revoking linked access.
+- Keep the existing request flow: after removal, an Athlete can request a coach by invite code, and the one-active-link constraint allows another Coach to approve a new request.
+
 ## 2026-11-16 - Use a dropdown for Athlete logged RPE
 
 - Replace the Athlete logged RPE number field with a native dropdown containing a blank option and values from 4 to 10 in half-point steps. This keeps selection quick on mobile and retains the existing numeric storage and validation.

@@ -88,6 +88,11 @@ export async function removeCoachAthleteLink(linkId: string): Promise<void> {
   raise(error);
 }
 
+export async function removeAthleteCoachLink(linkId: string): Promise<void> {
+  const { error } = await client().rpc('remove_athlete_coach_link', { p_link_id: linkId });
+  raise(error);
+}
+
 export function relationshipErrorMessage(error: unknown): string {
   const message = error instanceof Error ? error.message : '';
   if (message.includes('invite_code_invalid')) return 'That invite code is not valid. Check it with your coach and try again.';
