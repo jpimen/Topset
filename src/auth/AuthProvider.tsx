@@ -54,6 +54,18 @@ async function readProfile(userId: string): Promise<UserProfile | null> {
   return data as UserProfile | null;
 }
 
+function profileLoadMessage(cause: unknown): string {
+  const details = cause && typeof cause === 'object'
+    ? cause as { code?: unknown; message?: unknown }
+    : {};
+  const code = typeof details.code === 'string' ? details.code : '';
+  const message = typeof details.message === 'string' ? details.message : '';
+  if ((code === '42703' || code === 'PGRST204') && /sex/i.test(message) || /column[^\n]*sex|sex[^\n]*column/i.test(message)) {
+    return 'Your database is missing the latest profile migration. Apply the pending Supabase migrations, then try again.';
+  }
+  return 'We could not load your account profile. Please try again.';
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -81,7 +93,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (mounted.current && revision.current === request) {
         verifiedProfile.current = null;
         setProfile(null);
-        setProfileError('We could not load your account profile. Please try again.');
+        setProfileError(profileLoadMessage(cause));
       }
     }
   }, [session?.user.id]);
@@ -133,7 +145,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         console.error('Account profile could not be loaded.', cause);
         if (mounted.current && request === revision.current) {
           setProfile(null);
-          setProfileError('We could not load your account profile. Please try again.');
+          setProfileError(profileLoadMessage(cause));
         }
       } finally {
         if (mounted.current && request === revision.current) setLoading(false);

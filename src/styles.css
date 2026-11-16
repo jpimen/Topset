@@ -321,6 +321,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .state-card h1 { color: var(--text); font: 700 30px/1.1 var(--display); }
 .state-card p:not(.eyebrow), .state-card li { color: var(--secondary); font-size: 14px; line-height: 1.7; }
 .state-card code { color: var(--gold-text); font: 700 12px var(--mono); }
+.profile-error-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
 .spinner { width: 20px; height: 20px; border: 2px solid var(--border-spinner); border-top-color: var(--gold-text); border-radius: 50%; animation: spin .75s linear infinite; }
 .auth-state-screen { font-size: 14px; }
 .config-error-screen .state-card { position: relative; overflow: hidden; }
