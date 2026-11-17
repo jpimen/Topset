@@ -98,7 +98,8 @@ function compactNavigationLabel(role: 'coach' | 'athlete', label: string): strin
 function WorkspaceNavIcon({ destination }: { destination: string }) {
   const path = destination.split('/').filter(Boolean).at(-1) ?? '';
   switch (path) {
-    case 'program': return <svg viewBox="0 0 20 20"><path d="M3 10h14M5 6v8m10-8v8M2.5 8v4m15-4v4" /></svg>;
+    case 'program':
+    case 'my-program': return <svg viewBox="0 0 20 20"><path d="M3 10h14M5 6v8m10-8v8M2.5 8v4m15-4v4" /></svg>;
     case 'progress': return <svg viewBox="0 0 20 20"><path d="M3 16V9m5 7V5m5 11v-6m4 6H2m1-2 4-4 3 2 6-7" /></svg>;
     case 'calculators': return <svg viewBox="0 0 20 20"><rect x="4" y="2.5" width="12" height="15" rx="2" /><path d="M7 6h6M7 10h.01M10 10h.01M13 10h.01M7 13h.01M10 13h.01M13 13h.01" /></svg>;
     case 'rulebook': return <svg viewBox="0 0 20 20"><path d="M3.5 4.5A2 2 0 0 1 5.5 2.5H16v14H5.5a2 2 0 0 1-2-2zM3.5 4.5v10M7 6h6m-6 3h6" /></svg>;

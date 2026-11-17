@@ -41,7 +41,7 @@ function client() {
 
 export async function loadAthletePersonalPrograms(athleteId: string): Promise<AthletePersonalProgram[]> {
   const { data, error } = await client().from('athlete_personal_programs')
-    .select('document').eq('athlete_id', athleteId).order('created_at', { ascending: true });
+    .select('document').eq('athlete_id', athleteId).order('updated_at', { ascending: false });
   if (error) throw error;
   return (data ?? []).map(({ document }) => athletePersonalProgramSchema.parse(document));
 }
