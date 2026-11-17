@@ -12,7 +12,7 @@ describe('workspace navigation', () => {
       'Dashboard', 'Programs', 'Athletes', 'Exercises', 'Calculators', 'IPF Rulebook', 'Profile', 'Settings',
     ]);
     expect(getWorkspaceNavigation('athlete').map(({ label }) => label)).toEqual([
-      'Linked program', 'My program', 'Calculators', 'IPF Rulebook', 'Profile', 'Settings',
+      'Program', 'Calculators', 'IPF Rulebook', 'Profile', 'Settings',
     ]);
   });
 });

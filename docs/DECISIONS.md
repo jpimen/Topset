@@ -1,9 +1,9 @@
 # Decisions
 
-## 2026-11-17 - Give personal programs their own Athlete destination
+## 2026-11-17 - Keep both Athlete plans inside Program
 
-- Separate the Athlete-owned private plan from the linked Coach assignment with its own `/athlete/my-program` route and navigation item.
-- Keep the linked program page focused on the Coach assignment and its workout logging; personal program data and editing remain on the private page.
+- Keep one Program item in the Athlete workspace sidebar, with an in-page switcher for the linked Coach plan and the Athlete's private plan.
+- Keep the linked plan at `/athlete/program` and the personal plan at `/athlete/my-program` so each view has a focused page and direct navigation remains possible.
 - Keep the existing athlete-owned storage and access policy, so neither plan is merged with or exposed through the other.
 
 ## 2026-11-17 - Keep Athlete personal programs private

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useAuth } from '../../auth/AuthProvider';
 import { loadAthletePersonalProgram, saveAthletePersonalProgram, type AthletePersonalProgram } from '../../lib/athlete/personalPrograms';
 import { AthletePersonalProgramPanel } from './AthletePersonalProgramPanel';
+import { AthleteProgramSwitcher } from './AthleteProgramSwitcher';
 
 export function AthleteMyProgramPage() {
   const { profile } = useAuth();
@@ -37,6 +38,7 @@ export function AthleteMyProgramPage() {
     <header className="athlete-page-heading">
       <div><p className="eyebrow">PRIVATE PLAN</p><h1>My program</h1><p>A training plan you manage for yourself. It stays separate from your linked coach’s program.</p></div>
     </header>
+    <AthleteProgramSwitcher />
     <AthletePersonalProgramPanel program={program} defaultUnit={profile?.unit ?? 'kg'} loadError={loadError} onSave={saveProgram} />
   </main>;
 }

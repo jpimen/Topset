@@ -18,8 +18,7 @@ export function getWorkspaceNavigation(role: WorkspaceRole): WorkspaceNavigation
       { label: 'Settings', to: '/coach/settings' },
     ]
     : [
-      { label: 'Linked program', to: '/athlete/program' },
-      { label: 'My program', to: '/athlete/my-program' },
+      { label: 'Program', to: '/athlete/program' },
       { label: 'Calculators', to: '/athlete/calculators' },
       { label: 'IPF Rulebook', to: '/athlete/rulebook' },
       { label: 'Profile', to: '/athlete/profile' },

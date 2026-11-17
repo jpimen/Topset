@@ -1,4 +1,4 @@
-import { BrowserRouter, Link, NavLink, Navigate, Outlet, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, Link, NavLink, Navigate, Outlet, Route, Routes, useLocation } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { AuthProvider, useAuth } from './auth/AuthProvider';
 import { HomeRedirect, RequireRole } from './auth/RouteGuards';
@@ -26,6 +26,7 @@ import './styles.css';
 
 function WorkspaceLayout({ role }: { role: 'coach' | 'athlete' }) {
   const { profile, storageWarning } = useAuth();
+  const location = useLocation();
   const [signOutError, setSignOutError] = useState('');
   const [signingOut, setSigningOut] = useState(false);
   const [profilePhotoUrl, setProfilePhotoUrl] = useState<string | null>(null);
@@ -75,7 +76,7 @@ function WorkspaceLayout({ role }: { role: 'coach' | 'athlete' }) {
         <aside className="workspace-sidebar">
           <p className="eyebrow">{role === 'coach' ? 'COACH WORKSPACE' : 'ATHLETE WORKSPACE'}</p>
           <nav className="workspace-nav" aria-label="Primary navigation">
-            {navigation.map(({ label, to }, index) => <NavLink key={to} to={to} end={index === 0} aria-label={label} title={label} className={({ isActive }) => `workspace-nav-link${isActive ? ' active' : ''}`}>
+            {navigation.map(({ label, to }, index) => <NavLink key={to} to={to} end={index === 0 && role !== 'athlete'} aria-label={label} title={label} className={({ isActive }) => `workspace-nav-link${(isActive || (role === 'athlete' && label === 'Program' && location.pathname === '/athlete/my-program')) ? ' active' : ''}`}>
               <span className="workspace-nav-icon" aria-hidden="true"><WorkspaceNavIcon destination={to} /></span>
               <span className="workspace-nav-label-full">{label}</span>
               <span className="workspace-nav-label-compact" aria-hidden="true">{compactNavigationLabel(role, label)}</span>
@@ -90,8 +91,6 @@ function WorkspaceLayout({ role }: { role: 'coach' | 'athlete' }) {
 
 function compactNavigationLabel(role: 'coach' | 'athlete', label: string): string {
   if (role !== 'athlete') return label;
-  if (label === 'Linked program') return 'Coach';
-  if (label === 'My program') return 'My plan';
   if (label === 'Calculators') return 'Tools';
   if (label === 'IPF Rulebook') return 'Rules';
   return label;
@@ -101,7 +100,6 @@ function WorkspaceNavIcon({ destination }: { destination: string }) {
   const path = destination.split('/').filter(Boolean).at(-1) ?? '';
   switch (path) {
     case 'program': return <svg viewBox="0 0 20 20"><path d="M3 10h14M5 6v8m10-8v8M2.5 8v4m15-4v4" /></svg>;
-    case 'my-program': return <svg viewBox="0 0 20 20"><path d="M4 3.5h12v13H4zM7 7h6m-6 3h6m-6 3h3" /></svg>;
     case 'progress': return <svg viewBox="0 0 20 20"><path d="M3 16V9m5 7V5m5 11v-6m4 6H2m1-2 4-4 3 2 6-7" /></svg>;
     case 'calculators': return <svg viewBox="0 0 20 20"><rect x="4" y="2.5" width="12" height="15" rx="2" /><path d="M7 6h6M7 10h.01M10 10h.01M13 10h.01M7 13h.01M10 13h.01M13 13h.01" /></svg>;
     case 'rulebook': return <svg viewBox="0 0 20 20"><path d="M3.5 4.5A2 2 0 0 1 5.5 2.5H16v14H5.5a2 2 0 0 1-2-2zM3.5 4.5v10M7 6h6m-6 3h6" /></svg>;

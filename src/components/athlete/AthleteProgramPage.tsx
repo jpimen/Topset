@@ -3,6 +3,7 @@ import { useAuth } from '../../auth/AuthProvider';
 import { AthleteWorkoutCheckInPanel } from './AthleteWorkoutCheckInPanel';
 import { AthleteWorkoutLogRows } from './AthleteWorkoutLogRows';
 import { AthleteCoachLinkCard } from './AthleteCoachLinkCard';
+import { AthleteProgramSwitcher } from './AthleteProgramSwitcher';
 import { athleteExerciseName, athleteLoadLabel, hasUsableExerciseName, isLoggablePrescription } from '../../lib/athlete/prescriptions';
 import { useAthleteProgram } from './useAthleteProgram';
 import { AthleteWorkoutSessionsProvider } from './AthleteWorkoutSessionsProvider';
@@ -38,6 +39,7 @@ export function AthleteProgramPage() {
   useEffect(() => { if (selectedWeek >= visibleWeeks.length) setSelectedWeek(0); }, [visibleWeeks.length, selectedWeek]);
   if (loading && !result) return <main className="athlete-page"><div className="dashboard-skeleton" aria-label="Loading program" /></main>;
   if ((error && !result) || !result) return <main className="athlete-page">
+    <AthleteProgramSwitcher />
     {error && !result && <div className="coach-panel empty-state" role="alert"><h2>Coach program unavailable</h2><p>{error}</p><button className="button button-secondary" type="button" onClick={refresh}>Try again</button></div>}
     {!result && !error && <><section className="coach-panel empty-state"><p className="eyebrow">LINKED PROGRAM</p><h1>No assigned program yet</h1><p>Your coach’s assigned plan will appear here.</p>{warning && <p role="alert">{warning}</p>}</section><AthleteCoachLinkCard /></>}
   </main>;
@@ -59,6 +61,7 @@ export function AthleteProgramPage() {
       {refreshDeferred && <p className="inline-state" role="status">Program refresh paused while you have unsaved entries. Save your workout and check-in changes to load the latest plan.</p>}
       <p className="athlete-program-refresh-status" aria-live="polite" role={loading ? 'status' : undefined}>{loading ? 'Refreshing program…' : ''}</p>
       <header className="athlete-page-heading"><div><p className="eyebrow">PROGRAM · {result.assignment.sync_mode === 'live' ? 'LIVE PLAN' : 'SAVED SNAPSHOT'}</p><h1>{result.program.program.name}</h1><p>{result.program.program.description || 'Your coach’s plan, available here to review at any time.'}</p></div><div className="athlete-program-heading-actions"><span className="athlete-readonly-tag">Read only</span><button className="button button-secondary" onClick={refresh}>Refresh program</button></div></header>
+      <AthleteProgramSwitcher />
       <AthleteWorkoutSessionsProvider key={`${profile?.id}:${result.assignment.id}`} athleteId={profile!.id} assignmentId={result.assignment.id} verifiedAt={verifiedAt}>
       {result.program.weeks.length === 0 ? <section className="coach-panel empty-state"><h2>Your program is being prepared</h2><p>There are no weeks in this plan yet.</p></section> : <>
         {displayBlocks.length > 0 && <nav className="athlete-block-tabs" aria-label="Program blocks">
