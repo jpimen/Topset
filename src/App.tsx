@@ -5,6 +5,7 @@ import { HomeRedirect, RequireRole } from './auth/RouteGuards';
 import { AuthPage } from './components/AuthPage';
 import { AthleteWorkoutSyncProvider } from './components/athlete/AthleteWorkoutSyncProvider';
 import { AthleteProgramPage } from './components/athlete/AthleteProgramPage';
+import { AthleteMyProgramPage } from './components/athlete/AthleteMyProgramPage';
 import { AthletePostVideoPage } from './components/athlete/AthletePostVideoPage';
 import { AthleteProfilePage, AthleteSettingsPage } from './components/athlete/AthleteMorePages';
 import { CalculatorsPage } from './components/CalculatorsPage';
@@ -98,6 +99,7 @@ function WorkspaceNavIcon({ destination }: { destination: string }) {
   const path = destination.split('/').filter(Boolean).at(-1) ?? '';
   switch (path) {
     case 'program': return <svg viewBox="0 0 20 20"><path d="M3 10h14M5 6v8m10-8v8M2.5 8v4m15-4v4" /></svg>;
+    case 'my-program': return <svg viewBox="0 0 20 20"><path d="M4 3.5h12v13H4zM7 7h6m-6 3h6m-6 3h3" /></svg>;
     case 'progress': return <svg viewBox="0 0 20 20"><path d="M3 16V9m5 7V5m5 11v-6m4 6H2m1-2 4-4 3 2 6-7" /></svg>;
     case 'calculators': return <svg viewBox="0 0 20 20"><rect x="4" y="2.5" width="12" height="15" rx="2" /><path d="M7 6h6M7 10h.01M10 10h.01M13 10h.01M7 13h.01M10 13h.01M13 13h.01" /></svg>;
     case 'rulebook': return <svg viewBox="0 0 20 20"><path d="M3.5 4.5A2 2 0 0 1 5.5 2.5H16v14H5.5a2 2 0 0 1-2-2zM3.5 4.5v10M7 6h6m-6 3h6" /></svg>;
@@ -118,7 +120,7 @@ function AppRoutes() {
       <Route path="/signup" element={<AuthPage mode="signup" />} />
       <Route path="/auth/callback" element={<HomeRedirect />} />
       <Route element={<RequireRole role="coach" />}><Route path="/coach" element={<WorkspaceLayout role="coach" />}><Route index element={<CoachDashboard />} /><Route path="programs" element={<ProgramsPage />} /><Route path="programs/:id" element={<ProgramBuilderPage />} /><Route path="programs/:programId/days/:dayId/videos" element={<CoachTrainingVideosPage />} /><Route path="athletes" element={<AthletesPage />} /><Route path="exercises" element={<ExerciseLibraryPage />} /><Route path="calculators" element={<CalculatorsPage />} /><Route path="rulebook" element={<IPFRulebookPage />} /><Route path="profile" element={<CoachProfilePage />} /><Route path="settings" element={<CoachSettingsPage />} /><Route path="*" element={<Navigate to="/coach" replace />} /></Route></Route>
-      <Route element={<RequireRole role="athlete" />}><Route path="/athlete" element={<WorkspaceLayout role="athlete" />}><Route index element={<Navigate to="/athlete/program" replace />} /><Route path="program" element={<AthleteProgramPage />} /><Route path="post-video" element={<AthletePostVideoPage />} /><Route path="profile" element={<AthleteProfilePage />} /><Route path="settings" element={<AthleteSettingsPage />} /><Route path="calculators" element={<CalculatorsPage />} /><Route path="rulebook" element={<IPFRulebookPage />} /><Route path="*" element={<Navigate to="/athlete/program" replace />} /></Route></Route>
+      <Route element={<RequireRole role="athlete" />}><Route path="/athlete" element={<WorkspaceLayout role="athlete" />}><Route index element={<Navigate to="/athlete/program" replace />} /><Route path="program" element={<AthleteProgramPage />} /><Route path="my-program" element={<AthleteMyProgramPage />} /><Route path="post-video" element={<AthletePostVideoPage />} /><Route path="profile" element={<AthleteProfilePage />} /><Route path="settings" element={<AthleteSettingsPage />} /><Route path="calculators" element={<CalculatorsPage />} /><Route path="rulebook" element={<IPFRulebookPage />} /><Route path="*" element={<Navigate to="/athlete/program" replace />} /></Route></Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

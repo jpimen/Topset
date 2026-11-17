@@ -1,8 +1,14 @@
 # Decisions
 
+## 2026-11-17 - Give personal programs their own Athlete destination
+
+- Separate the Athlete-owned private plan from the linked Coach assignment with its own `/athlete/my-program` route and navigation item.
+- Keep the linked program page focused on the Coach assignment and its workout logging; personal program data and editing remain on the private page.
+- Keep the existing athlete-owned storage and access policy, so neither plan is merged with or exposed through the other.
+
 ## 2026-11-17 - Keep Athlete personal programs private
 
-- Allow an Athlete to create and edit one personal program in the Program page while retaining a separate switch to the Coach-assigned plan.
+- Allow an Athlete to create and edit one personal program on its own page, separate from the Coach-assigned plan.
 - Store the personal plan in its own athlete-owned table with RLS that permits access only to that Athlete; do not expose it to linked Coaches or assignments.
 - Keep the first personal editor focused on week, day, exercise, sets, reps, RPE, and load prescriptions; use the existing Coach-assigned workout logging flow only for Coach programs.
 
