@@ -431,6 +431,12 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .athlete-page-heading > a { flex: none; }
 .athlete-program-refresh-status { min-height: 16px; margin: 0; color: var(--muted); font-size: 10px; line-height: 16px; }
 .athlete-personal-program-panel { padding: clamp(16px, 3vw, 24px); }
+.athlete-private-programs { margin-top: 18px; }
+.athlete-private-programs-divider { margin-bottom: 18px; display: flex; align-items: center; gap: 12px; color: var(--secondary); font: 700 9px 'Space Mono', monospace; letter-spacing: 1.2px; }
+.athlete-private-programs-divider::before, .athlete-private-programs-divider::after { height: 1px; flex: 1; background: var(--border); content: ''; }
+.athlete-private-programs-controls { margin-bottom: 16px; display: flex; align-items: end; gap: 12px; }
+.athlete-private-programs-controls .form-field { width: min(420px, 100%); }
+.athlete-private-programs-controls select { min-height: 44px; }
 .athlete-personal-program-heading { margin-bottom: 18px; display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; }
 .athlete-personal-program-heading h2 { margin: 5px 0 6px; color: var(--text); font: 700 20px var(--display); }
 .athlete-personal-program-heading p:last-child { margin: 0; color: var(--secondary); font-size: 12px; line-height: 1.55; }
@@ -537,6 +543,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .athlete-program-table { display: table; width: max(100%, 980px, var(--program-table-min-width, 0px)); min-width: max(980px, var(--program-table-min-width, 0px)); table-layout: fixed; }
   .athlete-program-scroll-hint { display: block; margin: 0; padding: 8px 14px; color: var(--muted); font-size: 10px; line-height: 1.5; }
   .athlete-personal-program-fields, .athlete-personal-exercise { grid-template-columns: minmax(0, 1fr); }
+  .athlete-private-programs-controls { align-items: stretch; flex-direction: column; }
+  .athlete-private-programs-controls .form-field { width: 100%; }
   .athlete-personal-program-heading, .athlete-personal-week-heading, .athlete-personal-day-heading { align-items: stretch; flex-direction: column; }
   .athlete-personal-week-heading .button, .athlete-personal-day-heading .button { align-self: flex-start; }
   .athlete-personal-exercise .button { justify-self: start; }

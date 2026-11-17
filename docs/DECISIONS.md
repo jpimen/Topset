@@ -8,7 +8,7 @@
 
 ## 2026-11-17 - Keep Athlete personal programs private
 
-- Allow an Athlete to create and edit one personal program on its own page, separate from the Coach-assigned plan.
+- Allow an Athlete to create and edit multiple personal programs on the My programs view, separate from the Coach-assigned plan.
 - Store the personal plan in its own athlete-owned table with RLS that permits access only to that Athlete; do not expose it to linked Coaches or assignments.
 - Keep the first personal editor focused on week, day, exercise, sets, reps, RPE, and load prescriptions; use the existing Coach-assigned workout logging flow only for Coach programs.
 

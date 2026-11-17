@@ -39,24 +39,23 @@ function client() {
   return supabase;
 }
 
-export async function loadAthletePersonalProgram(athleteId: string): Promise<AthletePersonalProgram | null> {
+export async function loadAthletePersonalPrograms(athleteId: string): Promise<AthletePersonalProgram[]> {
   const { data, error } = await client().from('athlete_personal_programs')
-    .select('document').eq('athlete_id', athleteId).maybeSingle();
+    .select('document').eq('athlete_id', athleteId).order('created_at', { ascending: true });
   if (error) throw error;
-  if (!data) return null;
-  return athletePersonalProgramSchema.parse(data.document);
+  return (data ?? []).map(({ document }) => athletePersonalProgramSchema.parse(document));
 }
 
 export async function saveAthletePersonalProgram(athleteId: string, document: AthletePersonalProgram): Promise<AthletePersonalProgram> {
   const parsed = athletePersonalProgramSchema.parse(document);
   const { error } = await client().from('athlete_personal_programs').upsert(
-    { athlete_id: athleteId, document: parsed }, { onConflict: 'athlete_id' },
+    { athlete_id: athleteId, program_id: parsed.id, document: parsed }, { onConflict: 'athlete_id,program_id' },
   );
   if (error) throw error;
   return parsed;
 }
 
-export async function deleteAthletePersonalProgram(athleteId: string): Promise<void> {
-  const { error } = await client().from('athlete_personal_programs').delete().eq('athlete_id', athleteId);
+export async function deleteAthletePersonalProgram(athleteId: string, programId: string): Promise<void> {
+  const { error } = await client().from('athlete_personal_programs').delete().eq('athlete_id', athleteId).eq('program_id', programId);
   if (error) throw error;
 }

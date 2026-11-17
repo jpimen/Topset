@@ -23,12 +23,13 @@ function newExercise(): PersonalExercise {
 }
 
 export function AthletePersonalProgramPanel({
-  program, defaultUnit, loadError, onSave,
+  program, defaultUnit, loadError, onSave, onCancel,
 }: {
   program: AthletePersonalProgram | null;
   defaultUnit: 'kg' | 'lb';
   loadError: string;
   onSave: (program: AthletePersonalProgram) => Promise<void>;
+  onCancel?: () => void;
 }) {
   const [draft, setDraft] = useState<AthletePersonalProgram | null>(null);
   const [saving, setSaving] = useState(false);
@@ -83,7 +84,7 @@ export function AthletePersonalProgramPanel({
       </div>
       <button className="button button-secondary" type="button" onClick={() => setDraft({ ...draft, weeks: [...draft.weeks, newWeek(draft.weeks.length)] })}>＋ Add week</button>
       {error && <p className="inline-error" role="alert">{error}</p>}
-      <div className="athlete-personal-program-actions"><button className="button button-quiet" type="button" onClick={() => { setDraft(null); setError(''); }}>Cancel</button><button className="button button-primary" type="submit" disabled={saving}>{saving ? 'Saving…' : 'Save my program'}</button></div>
+      <div className="athlete-personal-program-actions"><button className="button button-quiet" type="button" onClick={() => { setDraft(null); setError(''); if (!program) onCancel?.(); }}>Cancel</button><button className="button button-primary" type="submit" disabled={saving}>{saving ? 'Saving…' : 'Save my program'}</button></div>
     </form>
   </section>;
 
