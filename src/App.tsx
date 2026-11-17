@@ -1,4 +1,4 @@
-import { BrowserRouter, Link, NavLink, Navigate, Outlet, Route, Routes, useLocation } from 'react-router-dom';
+import { BrowserRouter, Link, NavLink, Navigate, Outlet, Route, Routes } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { AuthProvider, useAuth } from './auth/AuthProvider';
 import { HomeRedirect, RequireRole } from './auth/RouteGuards';
@@ -26,7 +26,6 @@ import './styles.css';
 
 function WorkspaceLayout({ role }: { role: 'coach' | 'athlete' }) {
   const { profile, storageWarning } = useAuth();
-  const location = useLocation();
   const [signOutError, setSignOutError] = useState('');
   const [signingOut, setSigningOut] = useState(false);
   const [profilePhotoUrl, setProfilePhotoUrl] = useState<string | null>(null);
@@ -76,7 +75,7 @@ function WorkspaceLayout({ role }: { role: 'coach' | 'athlete' }) {
         <aside className="workspace-sidebar">
           <p className="eyebrow">{role === 'coach' ? 'COACH WORKSPACE' : 'ATHLETE WORKSPACE'}</p>
           <nav className="workspace-nav" aria-label="Primary navigation">
-            {navigation.map(({ label, to }, index) => <NavLink key={to} to={to} end={index === 0 && role !== 'athlete'} aria-label={label} title={label} className={({ isActive }) => `workspace-nav-link${(isActive || (role === 'athlete' && label === 'Program' && location.pathname === '/athlete/my-program')) ? ' active' : ''}`}>
+            {navigation.map(({ label, to }, index) => <NavLink key={to} to={to} end={index === 0 && role !== 'athlete'} aria-label={label} title={label} className={({ isActive }) => `workspace-nav-link${isActive ? ' active' : ''}`}>
               <span className="workspace-nav-icon" aria-hidden="true"><WorkspaceNavIcon destination={to} /></span>
               <span className="workspace-nav-label-full">{label}</span>
               <span className="workspace-nav-label-compact" aria-hidden="true">{compactNavigationLabel(role, label)}</span>

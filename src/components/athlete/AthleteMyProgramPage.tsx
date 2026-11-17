@@ -2,7 +2,6 @@ import { useCallback, useEffect, useState } from 'react';
 import { useAuth } from '../../auth/AuthProvider';
 import { loadAthletePersonalPrograms, saveAthletePersonalProgram, type AthletePersonalProgram } from '../../lib/athlete/personalPrograms';
 import { AthletePersonalProgramPanel } from './AthletePersonalProgramPanel';
-import { AthleteProgramSwitcher } from './AthleteProgramSwitcher';
 
 export function AthleteMyProgramPage() {
   const { profile } = useAuth();
@@ -50,7 +49,6 @@ export function AthleteMyProgramPage() {
     <header className="athlete-page-heading">
       <div><p className="eyebrow">PRIVATE PLANS</p><h1>My programs</h1><p>Create and manage your own private training plans. They stay separate from your linked coach's program.</p></div>
     </header>
-    <AthleteProgramSwitcher />
     <section className="athlete-private-programs" aria-label="Private programs">
       <div className="athlete-private-programs-divider"><span>YOUR PRIVATE PROGRAMS</span></div>
       {programs.length > 0 && <div className="athlete-private-programs-controls">
