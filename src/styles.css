@@ -1709,6 +1709,15 @@ h1, h2, h3, h4 { color: var(--text); line-height: 1.2; }
 .athlete-personal-day-view li span { font-size: 10px; }
 .athlete-personal-program-panel button:focus-visible, .athlete-private-programs button:focus-visible { outline: 2px solid var(--gold-light); outline-offset: 2px; }
 
+.athlete-personal-program-table-wrap { width: 100%; overflow-x: auto; border: 1px solid var(--border-divider); border-radius: 7px; }
+.athlete-personal-program-table { width: 100%; min-width: 520px; border-collapse: separate; border-spacing: 0; color: var(--secondary); font-size: 10px; }
+.athlete-personal-program-table thead th { padding: 9px 12px; color: var(--muted); background: var(--surface-card-soft); font: 700 8px 'Space Mono', monospace; letter-spacing: .55px; text-align: left; text-transform: uppercase; }
+.athlete-personal-program-table tbody th, .athlete-personal-program-table tbody td { padding: 10px 12px; border-top: 1px solid var(--border-divider); background: var(--surface-card-soft); text-align: left; }
+.athlete-personal-program-table tbody th { color: var(--text); font-size: 10px; font-weight: 700; }
+.athlete-personal-program-table tbody td:not(:first-child), .athlete-personal-program-table thead th:not(:first-child) { width: 11%; text-align: center; }
+.athlete-personal-program-table tbody td:last-child, .athlete-personal-program-table thead th:last-child { text-align: right; }
+.athlete-personal-program-table tbody tr:first-child th, .athlete-personal-program-table tbody tr:first-child td { border-top: 1px solid var(--border-divider); }
+
 @media (max-width: 760px) {
   .athlete-private-programs-controls { align-items: stretch; }
   .athlete-private-programs-controls .form-field { width: 100%; }

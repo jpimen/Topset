@@ -99,7 +99,24 @@ export function AthletePersonalProgramPanel({
   return <section className="coach-panel athlete-personal-program-panel" aria-labelledby="athlete-personal-program-title">
     <header className="athlete-personal-program-heading"><div><p className="eyebrow">PRIVATE TO YOU <span className="athlete-private-chip">{program.unit.toUpperCase()}</span></p><h2 id="athlete-personal-program-title">{program.name}</h2><p>Your training plan, organized by week and session.</p></div><button className="button button-secondary" type="button" onClick={startEditing}>Edit my program</button></header>
     <ProgramSummary program={program} />
-    {program.weeks.length === 0 ? <div className="athlete-personal-program-empty"><span aria-hidden="true">＋</span><div><strong>Your plan is ready for its first week.</strong><p>Add a week to start mapping out your training.</p></div></div> : program.weeks.map((week, weekIndex) => <section className="athlete-personal-week-view" key={week.id} aria-label={week.name}><div className="athlete-view-week-heading"><span className="athlete-view-week-index">WEEK {String(weekIndex + 1).padStart(2, '0')}</span><h3>{week.name}</h3><span className="athlete-week-count">{week.days.length} {week.days.length === 1 ? 'session' : 'sessions'}</span></div>{week.days.length === 0 ? <p>No training days yet.</p> : week.days.map((day, dayIndex) => <div className="athlete-personal-day-view" key={day.id}><div className="athlete-view-day-heading"><span>{String(dayIndex + 1).padStart(2, '0')}</span><h4>{day.name}</h4></div>{day.exercises.length === 0 ? <p>No exercises yet.</p> : <ul>{day.exercises.map((exercise) => <li key={exercise.id}><strong>{exercise.name}</strong><span>{exercise.sets ?? '—'} × {exercise.reps || '—'}{exercise.rpe !== null ? ` · RPE ${exercise.rpe}` : ''}{exercise.load ? ` · ${exercise.load} ${program.unit}` : ''}</span></li>)}</ul>}</div>)}</section>)}
+    {program.weeks.length === 0 ? <div className="athlete-personal-program-empty"><span aria-hidden="true">+</span><div><strong>Your plan is ready for its first week.</strong><p>Add a week to start mapping out your training.</p></div></div> : program.weeks.map((week, weekIndex) => <section className="athlete-personal-week-view" key={week.id} aria-label={week.name}>
+      <div className="athlete-view-week-heading"><span className="athlete-view-week-index">WEEK {String(weekIndex + 1).padStart(2, '0')}</span><h3>{week.name}</h3><span className="athlete-week-count">{week.days.length} {week.days.length === 1 ? 'session' : 'sessions'}</span></div>
+      {week.days.length === 0 ? <p>No training days yet.</p> : week.days.map((day, dayIndex) => <div className="athlete-personal-day-view" key={day.id}>
+        <div className="athlete-view-day-heading"><span>{String(dayIndex + 1).padStart(2, '0')}</span><h4>{day.name}</h4></div>
+        {day.exercises.length === 0 ? <p>No exercises yet.</p> : <div className="athlete-personal-program-table-wrap">
+          <table className="athlete-personal-program-table">
+            <thead><tr><th scope="col">Exercise</th><th scope="col">Sets</th><th scope="col">Reps</th><th scope="col">RPE</th><th scope="col">Load</th></tr></thead>
+            <tbody>{day.exercises.map((exercise) => <tr key={exercise.id}>
+              <th scope="row">{exercise.name}</th>
+              <td>{exercise.sets ?? '-'}</td>
+              <td>{exercise.reps || '-'}</td>
+              <td>{exercise.rpe !== null ? exercise.rpe : '-'}</td>
+              <td>{exercise.load ? `${exercise.load} ${program.unit}` : '-'}</td>
+            </tr>)}</tbody>
+          </table>
+        </div>}
+      </div>)}
+    </section>)}
     {status && <p className="inline-state" role="status">{status}</p>}
   </section>;
 }
