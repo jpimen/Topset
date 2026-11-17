@@ -90,6 +90,8 @@ function WorkspaceLayout({ role }: { role: 'coach' | 'athlete' }) {
 
 function compactNavigationLabel(role: 'coach' | 'athlete', label: string): string {
   if (role !== 'athlete') return label;
+  if (label === 'Linked program') return 'Coach';
+  if (label === 'My program') return 'My plan';
   if (label === 'Calculators') return 'Tools';
   if (label === 'IPF Rulebook') return 'Rules';
   return label;
